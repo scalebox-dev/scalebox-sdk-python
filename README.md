@@ -135,7 +135,7 @@ code = """
 System.out.println("Hello from IJAVA!");
 int a = 10, b = 20; System.out.println(a + b);
 """
-res = sbx.run_code(code, language="ijava")
+res = sbx.run_code(code, language="java")
 print(res.logs.stdout)
 ```
 
