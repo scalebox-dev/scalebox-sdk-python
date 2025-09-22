@@ -16,7 +16,7 @@ class SandboxSetup(ABC):
         keepalive_expiry=300,
     )
 
-    envd_port = 32000
+    envd_port = 80
 
     default_sandbox_timeout = 300
     default_template = "base"
