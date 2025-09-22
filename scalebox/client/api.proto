@@ -1,0 +1,460 @@
+syntax = "proto3";
+package sandboxagent;
+import "google/protobuf/timestamp.proto";
+option go_package = "./pb";
+
+
+service Filesystem {
+  rpc Stat(StatRequest) returns (StatResponse);
+  rpc MakeDir(MakeDirRequest) returns (MakeDirResponse);
+  rpc Move(MoveRequest) returns (MoveResponse);
+  rpc ListDir(ListDirRequest) returns (ListDirResponse);
+  rpc Remove(RemoveRequest) returns (RemoveResponse);
+
+  rpc WatchDir(WatchDirRequest) returns (stream WatchDirResponse);
+
+  // Non-streaming versions of WatchDir
+  rpc CreateWatcher(CreateWatcherRequest) returns (CreateWatcherResponse);
+  rpc GetWatcherEvents(GetWatcherEventsRequest) returns (GetWatcherEventsResponse);
+  rpc RemoveWatcher(RemoveWatcherRequest) returns (RemoveWatcherResponse);
+}
+
+message MoveRequest {
+  string source = 1;
+  string destination = 2;
+}
+
+message MoveResponse {
+  EntryInfo entry = 1;
+}
+
+message MakeDirRequest {
+  string path = 1;
+}
+
+message MakeDirResponse {
+  EntryInfo entry = 1;
+}
+
+message RemoveRequest {
+  string path = 1;
+}
+
+message RemoveResponse {}
+
+message StatRequest {
+  string path = 1;
+}
+
+message StatResponse {
+  EntryInfo entry = 1;
+}
+
+message EntryInfo {
+  string name = 1;
+  FileType type = 2;
+  string path = 3;
+  int64 size = 4;
+  uint32 mode = 5;
+  string permissions = 6;
+  string owner = 7;
+  string group = 8;
+  google.protobuf.Timestamp modified_time = 9;
+  // If the entry is a symlink, this field contains the target of the symlink.
+  optional string symlink_target = 10;
+}
+
+enum FileType {
+  FILE_TYPE_UNSPECIFIED = 0;
+  FILE_TYPE_FILE = 1;
+  FILE_TYPE_DIRECTORY = 2;
+}
+
+message ListDirRequest {
+  string path = 1;
+  uint32 depth = 2;
+}
+
+message ListDirResponse {
+  repeated EntryInfo entries = 1;
+}
+
+message WatchDirRequest {
+  string path = 1;
+  bool recursive = 2;
+}
+
+message FilesystemEvent {
+  string name = 1;
+  EventType type = 2;
+}
+
+message WatchDirResponse {
+  oneof event {
+    StartEvent start = 1;
+    FilesystemEvent filesystem = 2;
+    KeepAlive keepalive = 3;
+  }
+
+  message StartEvent {}
+
+  message KeepAlive {}
+}
+
+message CreateWatcherRequest {
+  string path = 1;
+  bool recursive = 2;
+}
+
+message CreateWatcherResponse {
+  string watcher_id = 1;
+}
+
+message GetWatcherEventsRequest {
+  string watcher_id = 1;
+}
+
+message GetWatcherEventsResponse {
+  repeated FilesystemEvent events = 1;
+}
+
+message RemoveWatcherRequest {
+  string watcher_id = 1;
+}
+
+message RemoveWatcherResponse {}
+
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED = 0;
+  EVENT_TYPE_CREATE = 1;
+  EVENT_TYPE_WRITE = 2;
+  EVENT_TYPE_REMOVE = 3;
+  EVENT_TYPE_RENAME = 4;
+  EVENT_TYPE_CHMOD = 5;
+}
+
+
+service Process {
+  rpc List(ListRequest) returns (ListResponse);
+
+  rpc Connect(ConnectRequest) returns (stream ConnectResponse);
+  rpc Start(StartRequest) returns (stream StartResponse);
+
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+
+  // Client input stream ensures ordering of messages
+  rpc StreamInput(stream StreamInputRequest) returns (StreamInputResponse);
+  rpc SendInput(SendInputRequest) returns (SendInputResponse);
+  rpc SendSignal(SendSignalRequest) returns (SendSignalResponse);
+}
+
+message PTY {
+  Size size = 1;
+
+  message Size {
+    uint32 cols = 1;
+    uint32 rows = 2;
+  }
+}
+
+message ProcessConfig {
+  string cmd = 1;
+  repeated string args = 2;
+
+  map<string, string> envs = 3;
+  optional string cwd = 4;
+}
+
+message ListRequest {}
+
+message ProcessInfo {
+  ProcessConfig config = 1;
+  uint32 pid = 2;
+  optional string tag = 3;
+}
+
+message ListResponse {
+  repeated ProcessInfo processes = 1;
+}
+
+message StartRequest {
+  ProcessConfig process = 1;
+  optional PTY pty = 2;
+  optional string tag = 3;
+}
+
+message UpdateRequest {
+  ProcessSelector process = 1;
+
+  optional PTY pty = 2;
+}
+
+message UpdateResponse {}
+
+message ProcessEvent {
+  oneof event {
+    StartEvent start = 1;
+    DataEvent data = 2;
+    EndEvent end = 3;
+    KeepAlive keepalive = 4;
+  }
+
+  message StartEvent {
+    uint32 pid = 1;
+  }
+
+  message DataEvent {
+    oneof output {
+      bytes stdout = 1;
+      bytes stderr = 2;
+      bytes pty = 3;
+    }
+  }
+
+  message EndEvent {
+    sint32 exit_code = 1;
+    bool exited = 2;
+    string status = 3;
+    optional string error = 4;
+  }
+
+  message KeepAlive {}
+}
+
+message StartResponse {
+  ProcessEvent event = 1;
+}
+
+message ConnectResponse {
+  ProcessEvent event = 1;
+}
+
+message SendInputRequest {
+  ProcessSelector process = 1;
+
+  ProcessInput input = 2;
+}
+
+message SendInputResponse {}
+
+message ProcessInput {
+  oneof input {
+    bytes stdin = 1;
+    bytes pty = 2;
+  }
+}
+
+message StreamInputRequest {
+  oneof event {
+    StartEvent start = 1;
+    DataEvent data = 2;
+    KeepAlive keepalive = 3;
+  }
+
+  message StartEvent {
+    ProcessSelector process = 1;
+  }
+
+  message DataEvent {
+    ProcessInput input = 2;
+  }
+
+  message KeepAlive {}
+}
+
+message StreamInputResponse {}
+
+enum Signal {
+  SIGNAL_UNSPECIFIED = 0;
+  SIGNAL_SIGTERM = 15;
+  SIGNAL_SIGKILL = 9;
+}
+
+message SendSignalRequest {
+  ProcessSelector process = 1;
+
+  Signal signal = 2;
+}
+
+message SendSignalResponse {}
+
+message ConnectRequest {
+  ProcessSelector process = 1;
+}
+
+message ProcessSelector {
+  oneof selector {
+    uint32 pid = 1;
+    string tag = 2;
+  }
+}
+
+service ExecutionService {
+  // 执行代码接口 (HTTP POST /execute)
+  rpc Execute(ExecuteRequest) returns (stream ExecuteResponse) {}
+}
+
+service ContextService {
+  // 创建执行上下文 (HTTP POST /contexts)
+  rpc CreateContext(CreateContextRequest) returns (Context) {}
+
+  // 销毁执行上下文 (HTTP DELETE /contexts/{id})
+  rpc DestroyContext(DestroyContextRequest) returns (DestroyContextResponse) {}
+}
+
+// ========== 执行请求 ==========
+message ExecuteRequest {
+  string context_id = 1;    // 执行上下文ID
+  string code = 2;          // 要执行的代码
+  string language = 3;      // 编程语言 (e.g., "python", "javascript")
+  map<string, string> env_vars = 4;  // 环境变量 (字典格式)
+}
+
+// ========== 流式响应事件 ==========
+message ExecuteResponse {
+  oneof event {
+    Output stdout = 1;       // 标准输出事件
+    Output stderr = 2;       // 标准错误事件
+    Result result = 3;       // 最终结果事件
+    Error error = 4;         // 错误事件
+  }
+}
+
+// 输出内容
+message Output {
+  string content = 1;       // 输出内容
+}
+
+// 执行结果
+message Result {
+  int32 exit_code = 1;      // 进程退出码
+  google.protobuf.Timestamp started_at = 2;  // 开始时间
+  google.protobuf.Timestamp finished_at = 3; // 结束时间
+  // 多种输出格式
+  string text = 4;
+  string html = 5;
+  string markdown = 6;
+  string svg = 7;
+  string png = 8;
+  string jpeg = 9;
+  string pdf = 10;
+  string latex = 11;
+  string json = 12;
+  string javascript = 13;
+  string data = 14;
+  Chart chart =15;
+
+  // 执行计数
+  int32 execution_count = 16;
+
+  // 是否为主要结果
+  bool is_main_result = 17;
+
+  // 额外数据
+  map<string, string> extra = 18;
+}
+
+// 错误信息
+message Error {
+  string name = 1;       // 错误消息
+  string value = 2;          // 错误类型
+  string traceback = 3;
+}
+
+message Chart {
+  string type = 1;
+  string title = 2;
+  repeated ChartElement elements = 3;
+  map<string, string> extra = 4;
+}
+
+message ChartElement {
+  oneof element {
+    PointData point_data = 1;
+    BarData bar_data = 2;
+    PieData pie_data = 3;
+    BoxAndWhiskerData box_whisker_data = 4;
+    Chart nested_chart = 5;
+  }
+}
+
+message PointData {
+  string label = 1;
+  repeated Point points = 2;
+}
+
+message Point {
+  oneof x_value {
+    string x_str = 1;
+    double x_num = 2;
+  }
+  oneof y_value {
+    string y_str = 3;
+    double y_num = 4;
+  }
+}
+
+message BarData {
+  string label = 1;
+  string group = 2;
+  string value = 3;
+}
+
+message PieData {
+  string label = 1;
+  double angle = 2;
+  double radius = 3;
+}
+
+message BoxAndWhiskerData {
+  string label = 1;
+  double min = 2;
+  double first_quartile = 3;
+  double median = 4;
+  double third_quartile = 5;
+  double max = 6;
+  repeated double outliers = 7;
+}
+
+message Chart2D {
+  string x_label = 1;
+  string y_label = 2;
+  string x_unit = 3;
+  string y_unit = 4;
+  Chart chart = 5;
+}
+
+message PointChart {
+  repeated string x_ticks = 1;
+  repeated string x_tick_labels = 2;
+  string x_scale = 3;
+  repeated string y_ticks = 4;
+  repeated string y_tick_labels = 5;
+  string y_scale = 6;
+  Chart2D chart_2d = 7;
+}
+
+// ========== 上下文管理 ==========
+// 创建上下文请求
+message CreateContextRequest {
+  string language = 1;      // 编程语言 (可选)
+  string cwd = 2;           // 工作目录 (可选)
+  // 注意: 根据您的代码，env_vars 未在创建上下文时使用
+}
+
+// 创建上下文响应
+message Context {
+  string id = 1;          // 上下文唯一ID
+  string language = 2;    // 编程语言
+  string cwd = 3;         // 工作目录
+  google.protobuf.Timestamp created_at = 4;  // 创建时间
+  map<string, string> env_vars = 5;  // 当前环境变量
+}
+
+message DestroyContextRequest {
+  string context_id = 1;  // 要销毁的上下文ID
+}
+
+message DestroyContextResponse {
+  bool success = 1;
+}

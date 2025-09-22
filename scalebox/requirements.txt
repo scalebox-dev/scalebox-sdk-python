@@ -1,0 +1,37 @@
+# HTTP and networking
+httpx>=0.24
+aiohttp>=3.8.0
+urllib3>=1.26.0
+httpcore>=0.15.0
+
+# gRPC and protocol buffers
+grpcio>=1.74.0
+grpcio-tools>=1.74.0
+protobuf>=4.21
+google-protobuf>=4.21.0
+
+# ConnectRPC
+connect-python[protobuf]>=0.4.2
+
+# Data structures and serialization
+attrs>=21.4.0
+dataclasses-json>=0.5.0
+
+# Date and time handling
+python-dateutil>=2.8.0
+
+# Retry and resilience
+tenacity>=8.0.0
+
+# Version handling
+packaging>=21.0
+
+# Type extensions
+typing-extensions>=4.0.0
+
+# Async utilities
+asyncio-mqtt>=0.11.0
+
+# Development and testing (optional)
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
