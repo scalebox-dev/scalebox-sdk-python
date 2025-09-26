@@ -1,5 +1,6 @@
 import datetime
 import logging
+import time
 
 import aiohttp
 import httpx
@@ -7,7 +8,6 @@ import httpx
 from typing import Dict, Optional, TypedDict, overload, List
 
 from aiohttp import TCPConnector
-from packaging.version import Version
 from typing_extensions import Unpack
 
 from ..api.client.types import Unset
@@ -135,7 +135,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         if debug:
             self._envd_api_url = f"http://{self.get_host(8888)}"
         else:
-            self._envd_api_url = f"https://{self.get_host(self.envd_port)}"
+            self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
         self._envd_version = opts["envd_version"]
         self._envd_access_token = opts["envd_access_token"]
         # connection_headers = {"Authorization": "Bearer root", }
@@ -293,13 +293,29 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             proxy=proxy,
         )
         print("connection_config"+str(connection_config.__dict__))
-        return cls(
+        sanbox = cls(
             sandbox_id=sandbox_id,
             sandbox_domain=sandbox_domain,
             envd_version=envd_version,
             envd_access_token=envd_access_token,
             connection_config=connection_config,
         )
+        timeout = 5.0
+        interval = 0.1
+        elapsed = 0.0
+
+        while elapsed <= timeout:
+            try:
+                isRunning = await sanbox.is_running(request_timeout=1)
+                if isRunning:
+                    break
+            except Exception:
+                pass
+            time.sleep(interval)
+            elapsed += interval
+        else:
+            print("connect "+sandbox_domain+ENVD_API_HEALTH_ROUTE +" timeout 5s")
+        return sanbox
 
     @classmethod
     async def connect(

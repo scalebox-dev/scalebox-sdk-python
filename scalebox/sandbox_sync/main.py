@@ -1,6 +1,7 @@
 import datetime
 import logging
 import socket
+import time
 
 import httpx
 
@@ -226,8 +227,28 @@ class Sandbox(SandboxSetup, SandboxApi):
         # self._envd_api_url = f"{'http' if self.connection_config.debug else 'https'}://{self.get_host(self.envd_port)}"
         if debug:
             self._envd_api_url = f"http://{self.get_host(8888)}"
+        elif self._sandbox_id is not None:
+            response = SandboxApi._cls_get_info(
+                self._sandbox_id,
+                api_key=self._api_key(),
+                domain=self._sandbox_domain,
+                debug=debug,
+                request_timeout=self.request_timeout,
+                proxy=self.proxy,
+            )
+
+            self._sandbox_id = self._sandbox_id
+            self._sandbox_domain = response.sandbox_domain
+            self._envd_version = response.envd_version
+            self._envd_access_token = response._envd_access_token
+
+            if response._envd_access_token is not None and not isinstance(
+                response._envd_access_token, Unset
+            ):
+                self._connection_config["X-Access-Token"] = response._envd_access_token
+            self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
         else:
-            self._envd_api_url = f"https://{self.get_host(self.envd_port)}"
+            self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
         self._transport = TransportWithLogger(limits=self._limits, proxy=self._connection_config.proxy)
         # self._envd_api_url = f"http://localhost:8088"
         # self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
@@ -389,13 +410,29 @@ class Sandbox(SandboxSetup, SandboxApi):
             proxy=proxy,
         )
         print("connection_config" + str(connection_config.__dict__))
-        return cls(
+        sanbox= cls(
             sandbox_id=sandbox_id,
             sandbox_domain=sandbox_domain,
             envd_version=envd_version,
             envd_access_token=envd_access_token,
             connection_config=connection_config,
         )
+
+        timeout = 5.0
+        interval = 0.3
+        elapsed = 0.0
+        while elapsed <= timeout:
+            try:
+                isRunning = sanbox.is_running(request_timeout=1)
+                if isRunning:
+                    break
+            except Exception:
+                pass
+            time.sleep(interval)
+            elapsed += interval
+        else:
+            print("connect "+sandbox_domain+ENVD_API_HEALTH_ROUTE +" timeout 5s")
+        return sanbox
 
     def is_running(self, request_timeout: Optional[float] = None) -> bool:
         """
