@@ -227,26 +227,26 @@ class Sandbox(SandboxSetup, SandboxApi):
         # self._envd_api_url = f"{'http' if self.connection_config.debug else 'https'}://{self.get_host(self.envd_port)}"
         if debug:
             self._envd_api_url = f"http://{self.get_host(8888)}"
-        elif self._sandbox_id is not None:
-            response = SandboxApi._cls_get_info(
-                self._sandbox_id,
-                api_key=self._api_key(),
-                domain=self._sandbox_domain,
-                debug=debug,
-                request_timeout=self.request_timeout,
-                proxy=self.proxy,
-            )
-
-            self._sandbox_id = self._sandbox_id
-            self._sandbox_domain = response.sandbox_domain
-            self._envd_version = response.envd_version
-            self._envd_access_token = response._envd_access_token
-
-            if response._envd_access_token is not None and not isinstance(
-                response._envd_access_token, Unset
-            ):
-                self._connection_config["X-Access-Token"] = response._envd_access_token
-            self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
+        # elif self._sandbox_id is not None:
+        #     response = SandboxApi._cls_get_info(
+        #         self._sandbox_id,
+        #         api_key=self._api_key(),
+        #         domain=self._sandbox_domain,
+        #         debug=debug,
+        #         request_timeout=self.request_timeout,
+        #         proxy=self.proxy,
+        #     )
+        #
+        #     self._sandbox_id = self._sandbox_id
+        #     self._sandbox_domain = response.sandbox_domain
+        #     self._envd_version = response.envd_version
+        #     self._envd_access_token = response._envd_access_token
+        #
+        #     if response._envd_access_token is not None and not isinstance(
+        #         response._envd_access_token, Unset
+        #     ):
+        #         self._connection_config["X-Access-Token"] = response._envd_access_token
+        #     self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
         else:
             self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
         self._transport = TransportWithLogger(limits=self._limits, proxy=self._connection_config.proxy)
