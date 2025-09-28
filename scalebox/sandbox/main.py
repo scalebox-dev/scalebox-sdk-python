@@ -16,7 +16,7 @@ class SandboxSetup(ABC):
         keepalive_expiry=300,
     )
 
-    envd_port = 80
+    envd_port = 443
 
     default_sandbox_timeout = 300
     default_template = "base"
@@ -140,5 +140,5 @@ class SandboxSetup(ABC):
         """
         if self.connection_config.debug:
             return f"localhost:{port}"
-        return f"{self.sandbox_domain}:{port}"
+        return f"{self.sandbox_domain}"
         # return f"{port}-{self.sandbox_id}.{self.sandbox_domain}"

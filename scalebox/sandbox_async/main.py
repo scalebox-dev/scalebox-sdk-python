@@ -135,7 +135,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         if debug:
             self._envd_api_url = f"http://{self.get_host(8888)}"
         else:
-            self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
+            self._envd_api_url = f"https://{self.get_host(self.envd_port)}"
         self._envd_version = opts["envd_version"]
         self._envd_access_token = opts["envd_access_token"]
         # connection_headers = {"Authorization": "Bearer root", }

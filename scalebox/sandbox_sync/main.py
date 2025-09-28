@@ -248,7 +248,7 @@ class Sandbox(SandboxSetup, SandboxApi):
         #         self._connection_config["X-Access-Token"] = response._envd_access_token
         #     self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
         else:
-            self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
+            self._envd_api_url = f"https://{self.get_host(self.envd_port)}"
         self._transport = TransportWithLogger(limits=self._limits, proxy=self._connection_config.proxy)
         # self._envd_api_url = f"http://localhost:8088"
         # self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
@@ -456,7 +456,7 @@ class Sandbox(SandboxSetup, SandboxApi):
                 ENVD_API_HEALTH_ROUTE,
                 timeout=self.connection_config.get_request_timeout(request_timeout),
             )
-
+            print(r)
             if r.status_code == 502:
                 return False
 
