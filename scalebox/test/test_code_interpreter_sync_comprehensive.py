@@ -70,11 +70,11 @@ class CodeInterpreterValidator:
         self.sandbox = Sandbox.create(
             template="code-interpreter",
             timeout=3600,
-            debug=True,
+            # debug=True,
             metadata={"test": "code_interpreter_validation"},
             envs={"CI_TEST": "sync_test"}
         )
-        # time.sleep(5)
+        # time.sleep(2)
         assert self.sandbox is not None
         assert self.sandbox.sandbox_id is not None
         logger.info(f"Created CodeInterpreter sandbox with ID: {self.sandbox.sandbox_id}")
@@ -3278,7 +3278,7 @@ print(f"\\n完成 {len(results)} 个API调用")
         # 清理沙箱
         if self.sandbox:
             try:
-                self.sandbox.kill()
+                # self.sandbox.kill()
                 logger.info("CodeInterpreter sandbox cleaned up successfully")
             except Exception as e:
                 logger.error(f"Error cleaning up sandbox: {e}")
