@@ -89,8 +89,8 @@ class _VNCServer:
         self._novnc_auth_enabled = False
         self._novnc_password = None
 
-        # self._url = f"https://{desktop.get_host(self._port)}/vnc.html"
-        self._url=""
+        self._url = f"https://{self._port}-{desktop.sandbox_domain}/vnc.html"
+        # self._url=""
 
         self.__desktop = desktop
 
@@ -147,7 +147,7 @@ class _VNCServer:
         self._novnc_password = self._generate_password() if require_auth else None
 
         # Update URL with new port
-        self._url = ""
+        # self._url = ""
         # self._url = f"https://{self.__desktop.get_host(self._port)}/vnc.html"
 
         # Set up VNC command
@@ -187,8 +187,98 @@ class _VNCServer:
 class Sandbox(SandboxBase):
     default_template = "desktop"
 
-    def __init__(
-            self,
+    # def __init__(
+    #         self,
+    #         resolution: Optional[Tuple[int, int]] = None,
+    #         dpi: Optional[int] = None,
+    #         display: Optional[str] = None,
+    #         template: Optional[str] = None,
+    #         timeout: Optional[int] = None,
+    #         metadata: Optional[Dict[str, str]] = None,
+    #         envs: Optional[Dict[str, str]] = None,
+    #         api_key: Optional[str] = None,
+    #         domain: Optional[str] = None,
+    #         debug: Optional[bool] = None,
+    #         sandbox_id: Optional[str] = None,
+    #         request_timeout: Optional[float] = None,
+    #         proxy: Optional[ProxyTypes] = None,
+    # ):
+    #     """
+    #     Create a new desktop sandbox.
+    #
+    #     By default, the sandbox is created from the `desktop` template.
+    #
+    #     :param resolution: Startup the desktop with custom screen resolution. Defaults to (1024, 768)
+    #     :param dpi: Startup the desktop with custom DPI. Defaults to 96
+    #     :param display: Startup the desktop with custom display. Defaults to ":0"
+    #     :param template: Sandbox template name or ID
+    #     :param timeout: Timeout for the sandbox in **seconds**, default to 300 seconds. Maximum time a sandbox can be kept alive is 24 hours (86_400 seconds) for Pro users and 1 hour (3_600 seconds) for Hobby users
+    #     :param metadata: Custom metadata for the sandbox
+    #     :param envs: Custom environment variables for the sandbox
+    #     :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
+    #     :param domain: E2B domain to use for authentication, defaults to `E2B_DOMAIN` environment variable
+    #     :param debug: If True, the sandbox will be created in debug mode, defaults to `E2B_DEBUG` environment variable
+    #     :param sandbox_id: Sandbox ID to connect to, defaults to `E2B_SANDBOX_ID` environment variable
+    #     :param request_timeout: Timeout for the request in **seconds**
+    #     :param proxy: Proxy to use for the request and for the requests made to the returned sandbox
+    #
+    #     :return: sandbox instance for the new sandbox
+    #     """
+    #     self._display = display or ":0"
+    #     self._last_xfce4_pid = None
+    #
+    #     # Initialize environment variables with DISPLAY
+    #     if envs is None:
+    #         envs = {}
+    #     envs["DISPLAY"] = self._display
+    #
+    #     _base = SandboxBase.create(
+    #         template=template,
+    #         timeout=timeout,
+    #         metadata=metadata,
+    #         envs=envs,
+    #         api_key=api_key,
+    #         domain=domain,
+    #         debug=debug,
+    #         sandbox_id=sandbox_id,
+    #         request_timeout=request_timeout,
+    #         proxy=proxy,
+    #     )
+    #     self.__dict__.update(_base.__dict__)
+    #
+    #     # Only initialize desktop environment if we're not just connecting to an existing sandbox
+    #     print("--------------"+sandbox_id)
+    #     if not sandbox_id:
+    #         width, height = resolution or (1024, 768)
+    #
+    #         # self.commands.run(
+    #         #     f"Xvfb {self._display} -ac -screen 0 {width}x{height}x24"
+    #         #     f" -retro -dpi {dpi or 96} -nolisten tcp -nolisten unix",
+    #         #     background=True,
+    #         #     timeout=0,
+    #         # )
+    #         self.commands.run(
+    #             f"Xvfb {self._display} -ac -screen 0 {width}x{height}x24"
+    #             f" -retro -dpi {dpi or 96} -nolisten tcp -nolisten unix &",
+    #             background=True,
+    #             timeout=0,
+    #         )
+    #         print("11111111111")
+    #         if not self._wait_and_verify(
+    #                 f"xdpyinfo -display {self._display}", lambda r: r.exit_code == 0
+    #         ):
+    #             raise TimeoutException("Could not start Xvfb")
+    #         print("2222222222")
+    #         self.__vnc_server = _VNCServer(self)
+    #         self._start_xfce4()
+    #         print("333333333333")
+    #     else:
+    #         # When connecting to existing sandbox, just initialize VNC server
+    #         self.__vnc_server = _VNCServer(self)
+
+    @classmethod
+    def create(
+            cls,
             resolution: Optional[Tuple[int, int]] = None,
             dpi: Optional[int] = None,
             display: Optional[str] = None,
@@ -202,38 +292,20 @@ class Sandbox(SandboxBase):
             sandbox_id: Optional[str] = None,
             request_timeout: Optional[float] = None,
             proxy: Optional[ProxyTypes] = None,
-    ):
+    ) -> "Sandbox":
         """
-        Create a new desktop sandbox.
+        同步创建或连接到一个桌面沙箱。
 
-        By default, the sandbox is created from the `desktop` template.
-
-        :param resolution: Startup the desktop with custom screen resolution. Defaults to (1024, 768)
-        :param dpi: Startup the desktop with custom DPI. Defaults to 96
-        :param display: Startup the desktop with custom display. Defaults to ":0"
-        :param template: Sandbox template name or ID
-        :param timeout: Timeout for the sandbox in **seconds**, default to 300 seconds. Maximum time a sandbox can be kept alive is 24 hours (86_400 seconds) for Pro users and 1 hour (3_600 seconds) for Hobby users
-        :param metadata: Custom metadata for the sandbox
-        :param envs: Custom environment variables for the sandbox
-        :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
-        :param domain: E2B domain to use for authentication, defaults to `E2B_DOMAIN` environment variable
-        :param debug: If True, the sandbox will be created in debug mode, defaults to `E2B_DEBUG` environment variable
-        :param sandbox_id: Sandbox ID to connect to, defaults to `E2B_SANDBOX_ID` environment variable
-        :param request_timeout: Timeout for the request in **seconds**
-        :param proxy: Proxy to use for the request and for the requests made to the returned sandbox
-
-        :return: sandbox instance for the new sandbox
+        参数含义与基类相同。首次创建时会自动启动 Xvfb + xfce4。
         """
-        self._display = display or ":0"
-        self._last_xfce4_pid = None
-
-        # Initialize environment variables with DISPLAY
+        display = display or ":0"
         if envs is None:
             envs = {}
-        envs["DISPLAY"] = self._display
+        envs["DISPLAY"] = display
 
-        super().__init__(
-            template=template,
+        # 1. 让父类工厂去实际创建 / 复用
+        base = SandboxBase.create(
+            template=template or cls.default_template,
             timeout=timeout,
             metadata=metadata,
             envs=envs,
@@ -245,32 +317,41 @@ class Sandbox(SandboxBase):
             proxy=proxy,
         )
 
-        # Only initialize desktop environment if we're not just connecting to an existing sandbox
-        print(sandbox_id)
-        if not sandbox_id:
-            width, height = resolution or (1024, 768)
+        # 2. 把类型动态升级成 Sandbox
+        base.__class__ = cls
+        base._display = display
+        base._last_xfce4_pid = None
 
-            # self.commands.run(
-            #     f"Xvfb {self._display} -ac -screen 0 {width}x{height}x24"
-            #     f" -retro -dpi {dpi or 96} -nolisten tcp -nolisten unix",
-            #     background=True,
-            #     timeout=0,
-            # )
-            self.commands.run(
-                f"Xvfb {self._display} -ac -screen 0 {width}x{height}x24"
-                f" -retro -dpi {dpi or 96} -nolisten tcp -nolisten unix &",
-                background=True,
-                timeout=0,
-            )
-            if not self._wait_and_verify(
-                    f"xdpyinfo -display {self._display}", lambda r: r.exit_code == 0
-            ):
-                raise TimeoutException("Could not start Xvfb")
-            self.__vnc_server = _VNCServer(self)
-            self._start_xfce4()
+        # 3. 首次创建才启动桌面
+        if not sandbox_id:
+            base._start_desktop(resolution, dpi)
         else:
-            # When connecting to existing sandbox, just initialize VNC server
-            self.__vnc_server = _VNCServer(self)
+            # 连接已有沙箱，仅初始化 VNC
+            base.__vnc_server = _VNCServer(base)
+
+        return base
+
+    # ====================== 子类私有方法 ======================
+    def _start_desktop(
+            self,
+            resolution: Optional[Tuple[int, int]] = None,
+            dpi: Optional[int] = None,
+    ) -> None:
+        """启动 Xvfb 并等待成功，然后起 xfce4 + VNC。"""
+        width, height = resolution or (1024, 768)
+        self.commands.run(
+            f"Xvfb {self._display} -ac -screen 0 {width}x{height}x24 "
+            f"-retro -dpi {dpi or 96} -nolisten tcp -nolisten unix",
+            background=True,
+            timeout=0,
+        )
+        if not self._wait_and_verify(
+                f"xdpyinfo -display {self._display}",
+                lambda r: r.exit_code == 0,
+        ):
+            raise TimeoutException("Could not start Xvfb")
+        self.__vnc_server = _VNCServer(self)
+        self._start_xfce4()
 
     def _wait_and_verify(
             self,
@@ -301,7 +382,7 @@ class Sandbox(SandboxBase):
                 self.commands.run(f"ps aux | grep {self._last_xfce4_pid} | grep -v grep | head -n 1").stdout.strip()
         ):
             self._last_xfce4_pid = self.commands.run(
-                f"DISPLAY={self._display} startxfce4", background=True, timeout=0
+                f"mkdir -p $HOME/.config $HOME/.cache $HOME/.dbus && DISPLAY={self._display} startxfce4",background=True, timeout=0,envs={"HOME": "/workspace"}
             ).pid
 
     @property
@@ -335,7 +416,7 @@ class Sandbox(SandboxBase):
         """
         screenshot_path = f"/tmp/screenshot-{uuid4()}.png"
 
-        self.commands.run(f"DISPLAY={self._display} scrot --pointer /uploads/{screenshot_path}")
+        self.commands.run(f"DISPLAY={self._display} scrot --pointer {screenshot_path}")
 
         file = self.files.read(screenshot_path, format=format)
         self.files.remove(screenshot_path)

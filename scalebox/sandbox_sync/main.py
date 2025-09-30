@@ -274,7 +274,7 @@ class Sandbox(SandboxSetup, SandboxApi):
                 status_forcelist=[500, 502, 503, 504]
             ),
             # SSL 设置
-            "cert_reqs": 'CERT_NONE',
+            # "cert_reqs": 'CERT_NONE',
             "ca_certs": None,
             # 套接字选项
             "socket_options": [
@@ -498,13 +498,35 @@ class Sandbox(SandboxSetup, SandboxApi):
         same_sandbox = Sandbox.connect(sandbox_id)
         ```
         """
+        connection_headers = {"Authorization": "Bearer root"}
 
-        return cls(
-            sandbox_id=sandbox_id,
+        response = SandboxApi._cls_get_info(
+            sandbox_id,
             api_key=api_key,
             domain=domain,
             debug=debug,
             proxy=proxy,
+        )
+
+        if response._envd_access_token is not None and not isinstance(
+            response._envd_access_token, Unset
+        ):
+            connection_headers["X-Access-Token"] = response._envd_access_token
+
+        connection_config = ConnectionConfig(
+            api_key=api_key,
+            domain=domain,
+            debug=debug,
+            headers=connection_headers,
+            proxy=proxy,
+        )
+
+        return cls(
+            sandbox_id=sandbox_id,
+            sandbox_domain=response.sandbox_domain,
+            envd_version=response.envd_version,
+            envd_access_token=response._envd_access_token,
+            connection_config=connection_config,
         )
 
     def __enter__(self):

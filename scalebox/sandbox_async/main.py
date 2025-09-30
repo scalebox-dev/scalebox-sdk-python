@@ -159,7 +159,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             limit_per_host=20,  # 每主机最大连接数
             keepalive_timeout=30,  # 保持连接超时（秒）
             enable_cleanup_closed=True,  # 清理已关闭的连接
-            ssl=False  # 是否使用 SSL
+            ssl=True  # 是否使用 SSL
         )
         self._session = aiohttp.ClientSession(connector=connector,
                                               timeout=aiohttp.ClientTimeout(total=None))
@@ -345,7 +345,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         same_sandbox = await AsyncSandbox.connect(sandbox_id)
         """
 
-        connection_headers = {}
+        connection_headers = {"Authorization": "Bearer root"}
 
         response = await SandboxApi._cls_get_info(
             sandbox_id,

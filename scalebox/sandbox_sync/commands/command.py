@@ -234,7 +234,7 @@ class Commands:
                 process=api_pb2.ProcessConfig(
                     cmd="/bin/bash",
                     envs=envs,
-                    args=["-l", "-c", cmd],
+                    args=["-l","-c", cmd],
                     cwd=cwd,
                 ),
             ),
