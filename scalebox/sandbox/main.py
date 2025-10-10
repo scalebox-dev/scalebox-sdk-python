@@ -23,28 +23,23 @@ class SandboxSetup(ABC):
 
     @property
     @abstractmethod
-    def connection_config(self) -> ConnectionConfig:
-        ...
+    def connection_config(self) -> ConnectionConfig: ...
 
     @property
     @abstractmethod
-    def _envd_access_token(self) -> Optional[str]:
-        ...
+    def _envd_access_token(self) -> Optional[str]: ...
 
     @property
     @abstractmethod
-    def envd_api_url(self) -> str:
-        ...
+    def envd_api_url(self) -> str: ...
 
     @property
     @abstractmethod
-    def sandbox_id(self) -> str:
-        ...
+    def sandbox_id(self) -> str: ...
 
     @property
     @abstractmethod
-    def sandbox_domain(self) -> str:
-        ...
+    def sandbox_domain(self) -> str: ...
 
     def _file_url(
         self,

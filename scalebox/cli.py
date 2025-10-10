@@ -19,33 +19,39 @@ def create_parser() -> argparse.ArgumentParser:
         description="ScaleBox Python SDK - Multi-language code execution sandbox",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    
+
     parser.add_argument(
         "--version",
         action="version",
         version=f"ScaleBox Python SDK {__version__}",
     )
-    
+
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
+
     # Sandbox command
     sandbox_parser = subparsers.add_parser("sandbox", help="Sandbox operations")
-    sandbox_parser.add_argument("--create", action="store_true", help="Create a new sandbox")
+    sandbox_parser.add_argument(
+        "--create", action="store_true", help="Create a new sandbox"
+    )
     sandbox_parser.add_argument("--list", action="store_true", help="List sandboxes")
     sandbox_parser.add_argument("--destroy", help="Destroy a sandbox by ID")
-    
+
     # Code execution command
     exec_parser = subparsers.add_parser("exec", help="Execute code")
     exec_parser.add_argument("--code", required=True, help="Code to execute")
-    exec_parser.add_argument("--language", default="python", help="Programming language")
+    exec_parser.add_argument(
+        "--language", default="python", help="Programming language"
+    )
     exec_parser.add_argument("--sandbox-id", help="Sandbox ID to use")
-    exec_parser.add_argument("--async-mode", action="store_true", help="Use async execution")
-    
+    exec_parser.add_argument(
+        "--async-mode", action="store_true", help="Use async execution"
+    )
+
     # Configuration
     parser.add_argument("--api-key", help="API key for authentication")
     parser.add_argument("--domain", help="API domain")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
-    
+
     return parser
 
 
@@ -53,18 +59,18 @@ async def async_main():
     """Async main function."""
     parser = create_parser()
     args = parser.parse_args()
-    
+
     if not args.command:
         parser.print_help()
         return
-    
+
     # Create connection config
     config = ConnectionConfig(
         api_key=args.api_key,
         domain=args.domain,
         debug=args.debug,
     )
-    
+
     if args.command == "sandbox":
         if args.create:
             print("Creating sandbox...")
@@ -82,11 +88,11 @@ async def async_main():
             print(f"Destroying sandbox: {args.destroy}")
             # TODO: Implement sandbox destruction
             print("Sandbox destruction not implemented yet")
-    
+
     elif args.command == "exec":
         print(f"Executing {args.language} code...")
         print(f"Code: {args.code}")
-        
+
         if args.async_mode:
             sandbox = await AsyncSandbox.create()
             try:

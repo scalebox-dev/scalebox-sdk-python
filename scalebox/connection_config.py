@@ -63,9 +63,7 @@ class ConnectionConfig:
         else:
             self.request_timeout = REQUEST_TIMEOUT
 
-        self.api_url = (
-            f"https://{self.domain}"
-        )
+        self.api_url = f"https://{self.domain}"
 
     @staticmethod
     def _get_request_timeout(

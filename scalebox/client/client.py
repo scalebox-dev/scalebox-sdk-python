@@ -2,7 +2,7 @@ import sys, os
 
 from utils.httpxclient import HTTPXClient
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'generated'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "generated"))
 
 import httpx
 import asyncio
@@ -25,7 +25,7 @@ class CustomHTTPClient:
                 url=url,
                 headers=headers,
                 content=content,
-                timeout=timeout
+                timeout=timeout,
             )
             return response
         except TypeError as e:
@@ -37,7 +37,7 @@ class CustomHTTPClient:
                     "url": url,
                     "headers": headers,
                     "content": content,
-                    "timeout": timeout
+                    "timeout": timeout,
                 }
                 # 移除可能引起问题的参数
                 if "body" in str(e):
@@ -50,7 +50,9 @@ class CustomHTTPClient:
 
 async def main():
     # 创建客户端
-    client = AsyncFilesystemClient(base_url="http://localhost:8080",http_client=HTTPXClient)
+    client = AsyncFilesystemClient(
+        base_url="http://localhost:8080", http_client=HTTPXClient
+    )
 
     # 调用服务器流式方法
     # extra = {"Authorization": "Bearer root","Transfer-Encoding":"chunked",
@@ -63,7 +65,9 @@ async def main():
     # request = RequestType(your_field="value")
 
     # 处理流式响应
-    async for response in client.watch_dir(api_pb2.WatchDirRequest(path="/root"), extra_headers=extra):
+    async for response in client.watch_dir(
+        api_pb2.WatchDirRequest(path="/root"), extra_headers=extra
+    ):
         print(f"Received: {response}")
         # 处理每个响应项
 

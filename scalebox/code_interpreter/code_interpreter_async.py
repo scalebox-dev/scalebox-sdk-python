@@ -209,11 +209,11 @@ class AsyncSandbox(BaseAsyncSandbox):
                 limit_per_host=20,
                 keepalive_timeout=30,
                 enable_cleanup_closed=True,
-                ssl=False
+                ssl=False,
             )
             self._session = aiohttp.ClientSession(
                 connector=connector,
-                timeout=aiohttp.ClientTimeout(total=request_timeout)
+                timeout=aiohttp.ClientTimeout(total=request_timeout),
             )
 
         # Set headers
@@ -233,7 +233,7 @@ class AsyncSandbox(BaseAsyncSandbox):
                 code=code,
                 language=language or "",
                 context_id=context_id or "",
-                env_vars=envs or {}
+                env_vars=envs or {},
             )
 
             # Execute request and get response stream
@@ -292,11 +292,11 @@ class AsyncSandbox(BaseAsyncSandbox):
                 limit_per_host=20,
                 keepalive_timeout=30,
                 enable_cleanup_closed=True,
-                ssl=False
+                ssl=False,
             )
             self._session = aiohttp.ClientSession(
                 connector=connector,
-                timeout=aiohttp.ClientTimeout(total=request_timeout)
+                timeout=aiohttp.ClientTimeout(total=request_timeout),
             )
 
         data = {}
@@ -327,9 +327,9 @@ class AsyncSandbox(BaseAsyncSandbox):
             )
             return Context.from_json(
                 {
-                    "id":response.id,
-                    "language":response.language,
-                    "cwd":response.cwd,
+                    "id": response.id,
+                    "language": response.language,
+                    "cwd": response.cwd,
                 }
             )
         except Exception as e:
@@ -356,11 +356,11 @@ class AsyncSandbox(BaseAsyncSandbox):
                 limit_per_host=20,
                 keepalive_timeout=30,
                 enable_cleanup_closed=True,
-                ssl=False
+                ssl=False,
             )
             self._session = aiohttp.ClientSession(
                 connector=connector,
-                timeout=aiohttp.ClientTimeout(total=request_timeout)
+                timeout=aiohttp.ClientTimeout(total=request_timeout),
             )
 
         # Create destroy context request
@@ -376,6 +376,6 @@ class AsyncSandbox(BaseAsyncSandbox):
             headers = {
                 "Authorization": "Bearer root",
             }
-            await client.destroy_context(destroy_context_request,extra_headers=headers)
+            await client.destroy_context(destroy_context_request, extra_headers=headers)
         except Exception as e:
             logger.warning(f"Failed to destroy context {context.id}: {e}")

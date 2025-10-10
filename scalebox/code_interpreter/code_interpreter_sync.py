@@ -7,7 +7,7 @@ import urllib3
 from httpx import Timeout
 from urllib3 import Retry
 
-from ..generated import api_pb2,api_pb2_connect
+from ..generated import api_pb2, api_pb2_connect
 from ..sandbox_sync.main import Sandbox as BaseSandbox
 from ..exceptions import InvalidArgumentException
 
@@ -64,16 +64,16 @@ class Sandbox(BaseSandbox):
 
     @overload
     def run_code(
-            self,
-            code: str,
-            language: Union[Literal["python"], None] = "python",
-            on_stdout: Optional[OutputHandler[OutputMessage]] = None,
-            on_stderr: Optional[OutputHandler[OutputMessage]] = None,
-            on_result: Optional[OutputHandler[Result]] = None,
-            on_error: Optional[OutputHandler[ExecutionError]] = None,
-            envs: Optional[Dict[str, str]] = None,
-            timeout: Optional[float] = None,
-            request_timeout: Optional[float] = None,
+        self,
+        code: str,
+        language: Union[Literal["python"], None] = "python",
+        on_stdout: Optional[OutputHandler[OutputMessage]] = None,
+        on_stderr: Optional[OutputHandler[OutputMessage]] = None,
+        on_result: Optional[OutputHandler[Result]] = None,
+        on_error: Optional[OutputHandler[ExecutionError]] = None,
+        envs: Optional[Dict[str, str]] = None,
+        timeout: Optional[float] = None,
+        request_timeout: Optional[float] = None,
     ) -> Execution:
         """
         Runs the code as Python.
@@ -98,16 +98,16 @@ class Sandbox(BaseSandbox):
 
     @overload
     def run_code(
-            self,
-            code: str,
-            language: Optional[str] = "python",
-            on_stdout: Optional[OutputHandler[OutputMessage]] = None,
-            on_stderr: Optional[OutputHandler[OutputMessage]] = None,
-            on_result: Optional[OutputHandler[Result]] = None,
-            on_error: Optional[OutputHandler[ExecutionError]] = None,
-            envs: Optional[Dict[str, str]] = None,
-            timeout: Optional[float] = None,
-            request_timeout: Optional[float] = None,
+        self,
+        code: str,
+        language: Optional[str] = "python",
+        on_stdout: Optional[OutputHandler[OutputMessage]] = None,
+        on_stderr: Optional[OutputHandler[OutputMessage]] = None,
+        on_result: Optional[OutputHandler[Result]] = None,
+        on_error: Optional[OutputHandler[ExecutionError]] = None,
+        envs: Optional[Dict[str, str]] = None,
+        timeout: Optional[float] = None,
+        request_timeout: Optional[float] = None,
     ) -> Execution:
         """
         Runs the code for the specified language.
@@ -133,16 +133,16 @@ class Sandbox(BaseSandbox):
 
     @overload
     def run_code(
-            self,
-            code: str,
-            context: Optional[Context] = None,
-            on_stdout: Optional[OutputHandler[OutputMessage]] = None,
-            on_stderr: Optional[OutputHandler[OutputMessage]] = None,
-            on_result: Optional[OutputHandler[Result]] = None,
-            on_error: Optional[OutputHandler[ExecutionError]] = None,
-            envs: Optional[Dict[str, str]] = None,
-            timeout: Optional[float] = None,
-            request_timeout: Optional[float] = None,
+        self,
+        code: str,
+        context: Optional[Context] = None,
+        on_stdout: Optional[OutputHandler[OutputMessage]] = None,
+        on_stderr: Optional[OutputHandler[OutputMessage]] = None,
+        on_result: Optional[OutputHandler[Result]] = None,
+        on_error: Optional[OutputHandler[ExecutionError]] = None,
+        envs: Optional[Dict[str, str]] = None,
+        timeout: Optional[float] = None,
+        request_timeout: Optional[float] = None,
     ) -> Execution:
         """
         Runs the code in the specified context, if not specified, the default context is used.
@@ -166,17 +166,17 @@ class Sandbox(BaseSandbox):
         ...
 
     def run_code(
-            self,
-            code: str,
-            language: Optional[str] = None,
-            context: Optional[Context] = None,
-            on_stdout: Optional[OutputHandler[OutputMessage]] = None,
-            on_stderr: Optional[OutputHandler[OutputMessage]] = None,
-            on_result: Optional[OutputHandler[Result]] = None,
-            on_error: Optional[OutputHandler[ExecutionError]] = None,
-            envs: Optional[Dict[str, str]] = None,
-            timeout: Optional[float] = None,
-            request_timeout: Optional[float] = None,
+        self,
+        code: str,
+        language: Optional[str] = None,
+        context: Optional[Context] = None,
+        on_stdout: Optional[OutputHandler[OutputMessage]] = None,
+        on_stderr: Optional[OutputHandler[OutputMessage]] = None,
+        on_result: Optional[OutputHandler[Result]] = None,
+        on_error: Optional[OutputHandler[ExecutionError]] = None,
+        envs: Optional[Dict[str, str]] = None,
+        timeout: Optional[float] = None,
+        request_timeout: Optional[float] = None,
     ) -> Execution:
         logger.debug(f"Executing code {code}")
 
@@ -244,10 +244,10 @@ class Sandbox(BaseSandbox):
                 raise e
 
     def create_code_context(
-            self,
-            cwd: Optional[str] = None,
-            language: Optional[str] = None,
-            request_timeout: Optional[float] = None,
+        self,
+        cwd: Optional[str] = None,
+        language: Optional[str] = None,
+        request_timeout: Optional[float] = None,
     ) -> Context:
         """
         Creates a new context to run code in.
@@ -277,7 +277,8 @@ class Sandbox(BaseSandbox):
             # Create context via gRPC
             response = client.create_context(
                 create_context_request,
-                timeout_seconds=request_timeout or self._connection_config.request_timeout,
+                timeout_seconds=request_timeout
+                or self._connection_config.request_timeout,
                 extra_headers=headers,
             )
 
@@ -318,7 +319,7 @@ class Sandbox(BaseSandbox):
             headers = {
                 "Authorization": "Bearer root",
             }
-            client.destroy_context(destroy_context_request,extra_headers=headers)
+            client.destroy_context(destroy_context_request, extra_headers=headers)
 
         except Exception as e:
             logger.warning(f"Failed to destroy context {context.id}: {e}")

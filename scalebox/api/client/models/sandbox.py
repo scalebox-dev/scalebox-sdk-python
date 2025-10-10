@@ -72,11 +72,11 @@ class Sandbox:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        dd=d.pop("data")
-        data=dict(dd) if dd else None
-        client_id = data.pop("clientID","")
+        dd = d.pop("data")
+        data = dict(dd) if dd else None
+        client_id = data.pop("clientID", "")
 
-        envd_version = data.pop("envdVersion","")
+        envd_version = data.pop("envdVersion", "")
 
         sandbox_id = data.pop("sandbox_id")
 
