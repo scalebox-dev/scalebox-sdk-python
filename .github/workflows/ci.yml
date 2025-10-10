@@ -28,7 +28,7 @@ on:
 jobs:
   auto-version:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     outputs:
       new_version: ${{ steps.bump.outputs.new_version }}
       should_publish: ${{ steps.bump.outputs.should_publish }}
@@ -55,8 +55,9 @@ jobs:
         CURRENT_VERSION=$(python -c "from scalebox.version import get_version; print(get_version())")
         echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
         
-        # Run version bump
-        python scripts/bump_version.py ${{ github.event.inputs.bump_type }} --no-tag
+        # Run version bump (default to patch for automatic bumps)
+        BUMP_TYPE="${{ github.event.inputs.bump_type || 'patch' }}"
+        python scripts/bump_version.py $BUMP_TYPE --no-tag
         
         # Get new version
         NEW_VERSION=$(python -c "from scalebox.version import get_version; print(get_version())")
@@ -72,7 +73,7 @@ jobs:
         fi
     
     - name: Commit and push changes
-      if: steps.bump.outputs.should_publish == 'true' && github.event.inputs.auto_commit == 'true'
+      if: steps.bump.outputs.should_publish == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
@@ -81,7 +82,7 @@ jobs:
         git push origin main
     
     - name: Create and push tag
-      if: steps.bump.outputs.should_publish == 'true' && github.event.inputs.auto_commit == 'true'
+      if: steps.bump.outputs.should_publish == 'true'
       run: |
         git tag -a "v${{ steps.bump.outputs.new_version }}" -m "Release v${{ steps.bump.outputs.new_version }}"
         git push origin "v${{ steps.bump.outputs.new_version }}"
