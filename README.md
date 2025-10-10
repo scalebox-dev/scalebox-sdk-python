@@ -234,6 +234,81 @@ python3 -m py_compile test_code_interpreter_async_comprehensive.py
 
 建议在虚拟环境中准备依赖并按需安装语言运行时（如 R、Node、Deno、JDK/IJAVA 等），确保各内核能够被后端执行。
 
+## 版本管理（Version Management）
+
+本项目使用自动化版本管理，支持语义化版本控制（Semantic Versioning）。
+
+### 🚀 自动版本升级
+
+使用内置脚本进行版本升级：
+
+```bash
+# 升级补丁版本 (0.1.1 -> 0.1.2)
+python scripts/bump_version.py patch
+
+# 升级次要版本 (0.1.1 -> 0.2.0)
+python scripts/bump_version.py minor
+
+# 升级主要版本 (0.1.1 -> 1.0.0)
+python scripts/bump_version.py major
+```
+
+### 📦 自动发布流程
+
+#### 🚀 方法1：GitHub Actions 一键升级（推荐）
+
+1. **进入 GitHub Actions 页面**
+2. **选择 "CI/CD Pipeline" workflow**
+3. **点击 "Run workflow" 按钮**
+4. **选择版本类型**：
+   - `patch`: 补丁版本 (0.1.1 → 0.1.2)
+   - `minor`: 次要版本 (0.1.1 → 0.2.0)  
+   - `major`: 主要版本 (0.1.1 → 1.0.0)
+5. **选择自动提交选项**
+6. **点击运行** - 系统会自动完成所有步骤！
+
+#### 🔧 方法2：本地脚本升级
+
+1. **版本升级**：使用 `bump_version.py` 脚本
+2. **GitHub Actions**：自动构建和发布到PyPI
+3. **触发条件**：
+   - 推送到 `main` 分支
+   - 创建 `v*` 标签（如 `v0.1.2`）
+
+### 🔧 版本文件同步
+
+脚本会自动更新以下文件中的版本：
+- `scalebox/__init__.py`
+- `scalebox/version.py`
+- `pyproject.toml`
+- `CHANGELOG.md`（可选）
+
+### 📋 发布步骤
+
+```bash
+# 1. 升级版本
+python scripts/bump_version.py patch
+
+# 2. 检查更改
+git diff
+
+# 3. 提交更改
+git add .
+git commit -m "Bump version to 0.1.2"
+
+# 4. 推送并创建标签
+git push origin main
+git push origin --tags
+
+# 5. GitHub Actions 会自动发布到 PyPI
+```
+
+### 🏷️ 版本规则
+
+- **MAJOR**：不兼容的API更改
+- **MINOR**：向后兼容的功能添加
+- **PATCH**：向后兼容的错误修复
+
 ## 常见问题（Troubleshooting）
 - Import/依赖错误：请确认已激活 venv 并正确安装 `scalebox/requirements.txt` 所需依赖
 - `ModuleNotFoundError`：在测试脚本中添加项目根路径到 `sys.path`，或从项目根目录运行
