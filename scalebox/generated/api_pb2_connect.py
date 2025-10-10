@@ -33,7 +33,7 @@ except ImportError:
         pass
 
     class ConnectProtocol:
-        pass
+        CONNECT_PROTOBUF = "connect_protobuf"
 
     class ConnectClient:
         pass
