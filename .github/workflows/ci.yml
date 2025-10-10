@@ -212,7 +212,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
+        ref: main
         fetch-depth: 0
+    
+    - name: Pull latest changes from auto-version
+      run: |
+        git pull origin main
     
     - name: Set up Python
       uses: actions/setup-python@v5
