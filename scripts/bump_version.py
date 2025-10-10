@@ -57,9 +57,17 @@ def update_version_files(new_version: str):
             
             # Update version in different file formats
             if file_path.endswith(".py"):
+                # Update __version__
                 content = re.sub(
                     r'__version__ = "[^"]+"', 
                     f'__version__ = "{new_version}"', 
+                    content
+                )
+                # Update __version_info__ tuple
+                major, minor, patch = parse_version(new_version)
+                content = re.sub(
+                    r'__version_info__ = \([^)]+\)', 
+                    f'__version_info__ = ({major}, {minor}, {patch})', 
                     content
                 )
             elif file_path.endswith(".toml"):
