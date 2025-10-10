@@ -15,7 +15,7 @@ __email__ = "dev@scalebox.dev"
 
 # API client imports
 from .api.client import Client
-from .api.client.errors import APIError
+from .api.client.errors import UnexpectedStatus
 
 # Core imports
 from .code_interpreter import AsyncSandbox, Sandbox
@@ -42,8 +42,8 @@ from .exceptions import (
 )
 
 # Sandbox imports
-from .sandbox import Sandbox as BaseSandbox
-from .sandbox_async import AsyncSandbox as BaseAsyncSandbox
+from .sandbox_sync.main import Sandbox as BaseSandbox
+from .sandbox_async.main import AsyncSandbox as BaseAsyncSandbox
 
 __all__ = [
     # Version info
