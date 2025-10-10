@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "ScaleBox Python SDK - A multi-language code execution sandbox with Python, R, Node.js, Deno/TypeScript, Java, and Bash support"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {file = "LICENSE"}
+license = {text = "MIT"}
 authors = [
     {name = "ScaleBox Team", email = "dev@scalebox.dev"},
 ]
@@ -19,7 +19,6 @@ keywords = ["sandbox", "code-execution", "multi-language", "python", "r", "nodej
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -39,14 +38,12 @@ dependencies = [
     "grpcio>=1.74.0",
     "grpcio-tools>=1.74.0",
     "protobuf>=4.21",
-    "connect-python[protobuf]>=0.4.2",
     "attrs>=21.4.0",
     "dataclasses-json>=0.5.0",
     "python-dateutil>=2.8.0",
     "tenacity>=8.0.0",
     "packaging>=21.0",
     "typing-extensions>=4.0.0",
-    "asyncio-mqtt>=0.11.0",
 ]
 
 [project.optional-dependencies]
