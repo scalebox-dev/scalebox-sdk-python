@@ -2,10 +2,10 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, release ]
     tags: [ 'v*' ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, release ]
   release:
     types: [ published ]
   workflow_dispatch:
@@ -28,7 +28,7 @@ on:
 jobs:
   auto-version:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/release' || startsWith(github.ref, 'refs/tags/v'))
     outputs:
       new_version: ${{ steps.bump.outputs.new_version }}
       should_publish: ${{ steps.bump.outputs.should_publish }}
@@ -55,8 +55,39 @@ jobs:
         CURRENT_VERSION=$(python -c "from scalebox.version import get_version; print(get_version())")
         echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
         
-        # Run version bump (default to patch for automatic bumps)
-        BUMP_TYPE="${{ github.event.inputs.bump_type || 'patch' }}"
+        # Determine bump type based on trigger
+        if startsWith(github.ref, 'refs/tags/v'); then
+          # Tag-based release: use patch by default
+          BUMP_TYPE="patch"
+          echo "Tag-based release, using patch bump"
+        elif github.ref == 'refs/heads/release'; then
+          # Release branch: analyze recent commits for bump type
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          echo "Release branch commit: $COMMIT_MSG"
+          
+          # Check for conventional commit patterns
+          if echo "$COMMIT_MSG" | grep -qiE "^(feat|feature):"; then
+            BUMP_TYPE="minor"
+            echo "Detected feature commit, using minor bump"
+          elif echo "$COMMIT_MSG" | grep -qiE "^(fix|bugfix|hotfix):"; then
+            BUMP_TYPE="patch"
+            echo "Detected fix commit, using patch bump"
+          elif echo "$COMMIT_MSG" | grep -qiE "^(breaking|break):"; then
+            BUMP_TYPE="major"
+            echo "Detected breaking change, using major bump"
+          else
+            BUMP_TYPE="patch"
+            echo "Default to patch bump for release branch"
+          fi
+        else
+          # Manual trigger or fallback
+          BUMP_TYPE="${{ github.event.inputs.bump_type || 'patch' }}"
+          echo "Using manual/fallback bump type: $BUMP_TYPE"
+        fi
+        
+        echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+        
+        # Run version bump
         python scripts/bump_version.py $BUMP_TYPE --no-tag
         
         # Get new version
