@@ -2,7 +2,7 @@ import datetime
 import logging
 import socket
 import time
-from typing import Dict, List, Optional, TypedDict, Unpack, overload
+from typing import Dict, List, Optional, TypedDict, overload
 
 import httpx
 import urllib3
@@ -134,7 +134,7 @@ class Sandbox(SandboxSetup, SandboxApi):
     #     proxy: Optional[ProxyTypes] = None,
     #     allow_internet_access: Optional[bool] = True,
     # ):
-    def __init__(self,**opts: Unpack[SandboxOpts]):
+    def __init__(self, **opts):
         """
         Create a new sandbox.
 
