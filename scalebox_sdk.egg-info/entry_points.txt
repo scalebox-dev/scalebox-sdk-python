@@ -1,0 +1,2 @@
+[console_scripts]
+scalebox = scalebox.cli:main
