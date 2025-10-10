@@ -5,11 +5,12 @@ These tests don't require external services or complex dependencies.
 """
 
 import pytest
+
 from scalebox import __version__
 from scalebox.exceptions import (
+    AuthenticationException,
     SandboxException,
     TimeoutException,
-    AuthenticationException,
 )
 
 
@@ -35,8 +36,7 @@ def test_exceptions_can_be_imported():
 
 def test_package_imports():
     """Test that main package components can be imported."""
-    from scalebox import Client
-    from scalebox import Sandbox, AsyncSandbox
+    from scalebox import AsyncSandbox, Client, Sandbox
 
     # Test that classes can be instantiated (basic check)
     assert Client is not None
