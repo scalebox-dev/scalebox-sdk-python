@@ -1,5 +1,16 @@
 # Scalebox Python SDK
 
+[![CI/CD Pipeline](https://github.com/scalebox-dev/scalebox-sdk-python/actions/workflows/ci.yml/badge.svg)](https://github.com/scalebox-dev/scalebox-sdk-python/actions/workflows/ci.yml)
+[![Python Version](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PyPI Version](https://img.shields.io/pypi/v/scalebox-sdk.svg)](https://pypi.org/project/scalebox-sdk/)
+[![Downloads](https://img.shields.io/pypi/dm/scalebox-sdk.svg)](https://pypi.org/project/scalebox-sdk/)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Type Check: MyPy](https://img.shields.io/badge/type%20check-mypy-blue.svg)](https://mypy.readthedocs.io/)
+[![Linting: Flake8](https://img.shields.io/badge/linting-flake8-green.svg)](https://flake8.pycqa.org/)
+[![Import Sorting: isort](https://img.shields.io/badge/imports-isort-blue.svg)](https://pycqa.github.io/isort/)
+[![Multi-Language Support](https://img.shields.io/badge/languages-Python%20%7C%20R%20%7C%20Node.js%20%7C%20TypeScript%20%7C%20Java%20%7C%20Bash-orange.svg)](https://github.com/scalebox-dev/scalebox-sdk-python)
+
 一个用于在可控沙箱中执行多语言代码的 Python SDK，支持同步与异步模式，以及多语言 Kernel（Python、R、Node.js、Deno/TypeScript、Java/IJAVA、Bash）。已提供全面的真实环境测试用例与脚本。
 
 ## 功能特性
