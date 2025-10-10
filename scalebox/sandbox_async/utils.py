@@ -1,4 +1,4 @@
-from typing import TypeVar, Union, Callable, Awaitable
+from typing import Awaitable, Callable, TypeVar, Union
 
 T = TypeVar("T")
 OutputHandler = Union[

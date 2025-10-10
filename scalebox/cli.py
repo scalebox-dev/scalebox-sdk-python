@@ -8,7 +8,7 @@ import sys
 from typing import Optional
 
 from . import __version__
-from .code_interpreter import Sandbox, AsyncSandbox
+from .code_interpreter import AsyncSandbox, Sandbox
 from .connection_config import ConnectionConfig
 
 

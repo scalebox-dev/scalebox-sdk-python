@@ -1,13 +1,14 @@
-import sys, os
+import os
+import sys
 
 from utils.httpxclient import HTTPXClient
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "generated"))
 
-import httpx
 import asyncio
-from generated import api_pb2
 
+import httpx
+from generated import api_pb2
 from generated.api_pb2_connect import AsyncFilesystemClient
 
 

@@ -1,18 +1,17 @@
 import base64
-
 from typing import Optional
-from ..csx_connect.client import Code, ConnectException
 
+from ..connection_config import Username, default_username
+from ..csx_connect.client import Code, ConnectException
 from ..exceptions import (
-    SandboxException,
+    AuthenticationException,
     InvalidArgumentException,
     NotFoundException,
+    RateLimitException,
+    SandboxException,
     TimeoutException,
     sandbox_timeout_exception,
-    AuthenticationException,
-    RateLimitException,
 )
-from ..connection_config import Username, default_username
 
 
 def handle_rpc_exception(e: Exception):

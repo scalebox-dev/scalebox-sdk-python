@@ -1,8 +1,9 @@
-import httpx
 import asyncio
-from typing import Any, Dict, Optional, Union, AsyncGenerator, Generator
 import contextlib
 import json
+from typing import Any, AsyncGenerator, Dict, Generator, Optional, Union
+
+import httpx
 
 
 class HTTPXClient:

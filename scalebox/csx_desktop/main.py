@@ -1,18 +1,14 @@
 import time
 from re import search as re_search
 from shlex import quote as quote_string
-from typing import Callable, Dict, Iterator, Literal, Optional, overload, Tuple, Union
+from typing import Callable, Dict, Iterator, Literal, Optional, Tuple, Union, overload
 from uuid import uuid4
 
 from httpx._types import ProxyTypes
 
-from ..sandbox_sync import (
-    Sandbox as SandboxBase,
-    CommandHandle,
-    CommandResult,
-    CommandExitException,
-)
 from ..exceptions import TimeoutException
+from ..sandbox_sync import CommandExitException, CommandHandle, CommandResult
+from ..sandbox_sync import Sandbox as SandboxBase
 
 MOUSE_BUTTONS = {"left": 1, "right": 3, "middle": 2}
 

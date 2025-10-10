@@ -1,7 +1,8 @@
 import asyncio
 
-from scalebox.sandbox.commands.command_handle import PtySize
 from sandbox_async.main import AsyncSandbox
+
+from scalebox.sandbox.commands.command_handle import PtySize
 
 # from scalebox.sandbox_async.main import AsyncSandbox
 

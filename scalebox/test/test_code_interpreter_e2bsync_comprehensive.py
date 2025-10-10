@@ -12,21 +12,22 @@ This test suite demonstrates and validates all key functionality of the CodeInte
 """
 
 import datetime
+import json
 import logging
 import os
-import time
 import tempfile
-import json
-from typing import List, Optional, Dict, Any
+import time
 from io import StringIO
+from typing import Any, Dict, List, Optional
+
 from e2b_code_interpreter import (
-    Sandbox,
     Context,
     Execution,
     ExecutionError,
-    Result,
-    OutputMessage,
     Logs,
+    OutputMessage,
+    Result,
+    Sandbox,
 )
 
 # from scalebox.code_interpreter import Sandbox, Context, Execution, ExecutionError, Result, OutputMessage, Logs

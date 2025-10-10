@@ -4,16 +4,16 @@ import aiohttp
 
 from ... import csx_connect
 from ...connection_config import (
-    ConnectionConfig,
-    Username,
     KEEPALIVE_PING_HEADER,
     KEEPALIVE_PING_INTERVAL_SEC,
+    ConnectionConfig,
+    Username,
 )
-from ...generated import api_pb2_connect,api_pb2
-from ...generated.rpc import handle_rpc_exception
 from ...exceptions import SandboxException
-from ...sandbox.commands.main import ProcessInfo
+from ...generated import api_pb2, api_pb2_connect
+from ...generated.rpc import handle_rpc_exception
 from ...sandbox.commands.command_handle import CommandResult
+from ...sandbox.commands.main import ProcessInfo
 from ...sandbox_async.commands.command_handle import AsyncCommandHandle, Stderr, Stdout
 from ...sandbox_async.utils import OutputHandler
 

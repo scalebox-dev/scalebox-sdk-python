@@ -13,33 +13,33 @@ __version__ = "0.1.0"
 __author__ = "ScaleBox Team"
 __email__ = "dev@scalebox.dev"
 
+# API client imports
+from .api.client import Client
+from .api.client.errors import APIError
+
 # Core imports
-from .code_interpreter import Sandbox, AsyncSandbox
+from .code_interpreter import AsyncSandbox, Sandbox
 from .code_interpreter.models import (
     Context,
     Execution,
     ExecutionError,
-    Result,
-    MIMEType,
     Logs,
+    MIMEType,
     OutputHandler,
     OutputMessage,
+    Result,
 )
+from .connection_config import ConnectionConfig
 from .exceptions import (
-    SandboxException,
-    TimeoutException,
+    AuthenticationException,
     InvalidArgumentException,
     NotEnoughSpaceException,
     NotFoundException,
-    AuthenticationException,
-    TemplateException,
     RateLimitException,
+    SandboxException,
+    TemplateException,
+    TimeoutException,
 )
-from .connection_config import ConnectionConfig
-
-# API client imports
-from .api.client import Client
-from .api.client.errors import APIError
 
 # Sandbox imports
 from .sandbox import Sandbox as BaseSandbox

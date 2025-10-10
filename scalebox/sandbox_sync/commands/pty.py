@@ -1,17 +1,17 @@
+from typing import Dict, Optional
+
 import httpcore
 import urllib3
 
 from ... import csx_connect
-from typing import Dict, Optional
-
-from ...generated import api_pb2,api_pb2_connect
 from ...connection_config import (
-    Username,
-    ConnectionConfig,
     KEEPALIVE_PING_HEADER,
     KEEPALIVE_PING_INTERVAL_SEC,
+    ConnectionConfig,
+    Username,
 )
 from ...exceptions import SandboxException
+from ...generated import api_pb2, api_pb2_connect
 from ...generated.rpc import authentication_header, handle_rpc_exception
 from ...sandbox.commands.command_handle import PtySize
 from ...sandbox_sync.commands.command_handle import CommandHandle

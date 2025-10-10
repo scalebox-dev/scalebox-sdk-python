@@ -1,38 +1,26 @@
 import logging
+from typing import Dict, Literal, Optional, Union, overload
 
 import aiohttp
 import httpx
-
-from typing import Optional, Dict, overload, Union, Literal
-
 from aiohttp import TCPConnector
 from httpx import AsyncClient
 
-from ..generated import api_pb2_connect, api_pb2
-from ..sandbox_async.main import (
-    AsyncSandbox as BaseAsyncSandbox,
-)
-from ..exceptions import InvalidArgumentException
 from ..connection_config import ConnectionConfig
-
-from .constants import (
-    DEFAULT_TEMPLATE,
-    JUPYTER_PORT,
-    DEFAULT_TIMEOUT,
-)
+from ..exceptions import InvalidArgumentException
+from ..generated import api_pb2, api_pb2_connect
+from ..sandbox_async.main import AsyncSandbox as BaseAsyncSandbox
+from .constants import DEFAULT_TEMPLATE, DEFAULT_TIMEOUT, JUPYTER_PORT
+from .exceptions import format_execution_timeout_error, format_request_timeout_error
 from .models import (
+    Context,
     Execution,
     ExecutionError,
-    Context,
+    OutputHandler,
+    OutputMessage,
     Result,
     aextract_exception,
     parse_output,
-    OutputHandler,
-    OutputMessage,
-)
-from .exceptions import (
-    format_execution_timeout_error,
-    format_request_timeout_error,
 )
 
 logger = logging.getLogger(__name__)

@@ -15,18 +15,16 @@ import asyncio
 import datetime
 import logging
 import os
-import time
 import tempfile
+import time
 from doctest import debug
 from io import BytesIO, StringIO
 from typing import List, Optional
 
-from scalebox.sandbox_async.main import AsyncSandbox
-from scalebox.sandbox.commands.command_handle import PtySize
-from scalebox.sandbox.filesystem.filesystem import EntryInfo, WriteInfo, FileType
 from scalebox.exceptions import SandboxException
-
-from scalebox.sandbox.commands.command_handle import CommandExitException
+from scalebox.sandbox.commands.command_handle import CommandExitException, PtySize
+from scalebox.sandbox.filesystem.filesystem import EntryInfo, FileType, WriteInfo
+from scalebox.sandbox_async.main import AsyncSandbox
 
 # 配置日志
 logging.basicConfig(

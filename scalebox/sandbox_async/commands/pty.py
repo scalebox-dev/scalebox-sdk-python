@@ -1,16 +1,16 @@
 from typing import Dict, Optional
 
 import aiohttp
-from ... import csx_connect
 
-from ...generated import api_pb2_connect,api_pb2
+from ... import csx_connect
 from ...connection_config import (
-    Username,
-    ConnectionConfig,
     KEEPALIVE_PING_HEADER,
     KEEPALIVE_PING_INTERVAL_SEC,
+    ConnectionConfig,
+    Username,
 )
 from ...exceptions import SandboxException
+from ...generated import api_pb2, api_pb2_connect
 from ...generated.rpc import authentication_header, handle_rpc_exception
 from ...sandbox.commands.command_handle import PtySize
 from ...sandbox_async.commands.command_handle import (

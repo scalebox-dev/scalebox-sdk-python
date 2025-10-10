@@ -1,27 +1,28 @@
+from io import IOBase
+from typing import IO, AsyncIterator, List, Literal, Optional, Union, overload
+
+import aiohttp
 import httpcore
 import httpx
-import aiohttp
-from io import IOBase
 from packaging.version import Version
-from typing import AsyncIterator, IO, List, Literal, Optional, overload, Union
 
-from ...sandbox.filesystem.filesystem import FileType
-from ...sandbox.filesystem.filesystem import WriteEntry
 from ... import csx_connect as connect
 from ...connection_config import (
-    ConnectionConfig,
-    Username,
     KEEPALIVE_PING_HEADER,
     KEEPALIVE_PING_INTERVAL_SEC,
+    ConnectionConfig,
+    Username,
 )
+from ...exceptions import InvalidArgumentException, SandboxException, TemplateException
+from ...generated import api_pb2, api_pb2_connect
 from ...generated.api import ENVD_API_FILES_ROUTE, ahandle_envd_api_exception
-from ...generated import api_pb2,api_pb2_connect
 from ...generated.rpc import authentication_header, handle_rpc_exception
 from ...generated.versions import ENVD_VERSION_RECURSIVE_WATCH
-from ...exceptions import SandboxException, TemplateException, InvalidArgumentException
 from ...sandbox.filesystem.filesystem import (
-    WriteInfo,
     EntryInfo,
+    FileType,
+    WriteEntry,
+    WriteInfo,
     map_file_type,
 )
 from ...sandbox.filesystem.watch_handle import FilesystemEvent

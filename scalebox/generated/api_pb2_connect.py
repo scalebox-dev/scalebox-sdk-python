@@ -1,29 +1,22 @@
 # Generated Connect client code
 
 from __future__ import annotations
-from collections.abc import AsyncIterator
-from collections.abc import Iterator
-from collections.abc import Iterable
+
+import sys
+import typing
+from collections.abc import AsyncIterator, Iterable, Iterator
+
 import aiohttp
 import urllib3
-import typing
-import sys
-
 from connectrpc.client_async import AsyncConnectClient
-from connectrpc.client_sync import ConnectClient
-from connectrpc.client_protocol import ConnectProtocol
 from connectrpc.client_connect import ConnectProtocolError
+from connectrpc.client_protocol import ConnectProtocol
+from connectrpc.client_sync import ConnectClient
 from connectrpc.headers import HeaderInput
-from connectrpc.server import ClientRequest
-from connectrpc.server import ClientStream
-from connectrpc.server import ServerResponse
-from connectrpc.server import ServerStream
+from connectrpc.server import ClientRequest, ClientStream, ServerResponse, ServerStream
 from connectrpc.server_sync import ConnectWSGI
-from connectrpc.streams import StreamInput
-from connectrpc.streams import AsyncStreamOutput
-from connectrpc.streams import StreamOutput
-from connectrpc.unary import UnaryOutput
-from connectrpc.unary import ClientStreamingOutput
+from connectrpc.streams import AsyncStreamOutput, StreamInput, StreamOutput
+from connectrpc.unary import ClientStreamingOutput, UnaryOutput
 
 if typing.TYPE_CHECKING:
     # wsgiref.types was added in Python 3.11.

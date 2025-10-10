@@ -1,33 +1,25 @@
 import logging
 import socket
 import time
-from typing import Optional, Dict, overload, Literal, Union, Iterator
+from typing import Dict, Iterator, Literal, Optional, Union, overload
 
 import urllib3
 from httpx import Timeout
 from urllib3 import Retry
 
+from ..exceptions import InvalidArgumentException
 from ..generated import api_pb2, api_pb2_connect
 from ..sandbox_sync.main import Sandbox as BaseSandbox
-from ..exceptions import InvalidArgumentException
-
-from .constants import (
-    DEFAULT_TEMPLATE,
-    JUPYTER_PORT,
-    DEFAULT_TIMEOUT,
-)
+from .constants import DEFAULT_TEMPLATE, DEFAULT_TIMEOUT, JUPYTER_PORT
+from .exceptions import format_execution_timeout_error, format_request_timeout_error
 from .models import (
-    ExecutionError,
-    Execution,
     Context,
-    Result,
-    parse_output,
+    Execution,
+    ExecutionError,
     OutputHandler,
     OutputMessage,
-)
-from .exceptions import (
-    format_execution_timeout_error,
-    format_request_timeout_error,
+    Result,
+    parse_output,
 )
 
 logger = logging.getLogger(__name__)

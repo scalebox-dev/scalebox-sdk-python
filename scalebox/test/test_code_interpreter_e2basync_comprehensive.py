@@ -13,11 +13,12 @@ This test suite demonstrates and validates all key functionality of the AsyncCod
 
 import asyncio
 import datetime
+import json
 import logging
 import os
 import time
-import json
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
+
 from e2b_code_interpreter import Sandbox
 
 from scalebox.code_interpreter import (
@@ -25,9 +26,9 @@ from scalebox.code_interpreter import (
     Context,
     Execution,
     ExecutionError,
-    Result,
-    OutputMessage,
     Logs,
+    OutputMessage,
+    Result,
 )
 
 # 配置日志

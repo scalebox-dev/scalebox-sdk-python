@@ -1,7 +1,8 @@
+import contextlib
 import json
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+
 import httpcore
-import contextlib
 
 
 class HTTPXCoreTool:

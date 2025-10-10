@@ -1,6 +1,6 @@
 import os
+from typing import Dict, Literal, Optional
 
-from typing import Literal, Optional, Dict
 from httpx._types import ProxyTypes
 
 # from .api.metadata import package_version

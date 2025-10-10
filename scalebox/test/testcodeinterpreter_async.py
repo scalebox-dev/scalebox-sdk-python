@@ -5,6 +5,7 @@ Similar to testsandbox_async.py but for code interpreter functionality.
 """
 
 import asyncio
+
 from scalebox.code_interpreter import AsyncSandbox, Context
 
 

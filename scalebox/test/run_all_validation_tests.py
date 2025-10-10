@@ -13,7 +13,7 @@ import sys
 import time
 import traceback
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 # 添加项目根目录到Python路径
 project_root = Path(__file__).parent.parent

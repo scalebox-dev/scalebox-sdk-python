@@ -4,7 +4,7 @@ Simple sync CodeInterpreter test example.
 Similar to testsandbox_sync.py but for code interpreter functionality.
 """
 
-from scalebox.code_interpreter import Sandbox, Context
+from scalebox.code_interpreter import Context, Sandbox
 
 
 def output_handler(output):

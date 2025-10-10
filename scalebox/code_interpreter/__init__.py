@@ -1,12 +1,12 @@
-from .code_interpreter_sync import Sandbox
 from .code_interpreter_async import AsyncSandbox
+from .code_interpreter_sync import Sandbox
 from .models import (
     Context,
     Execution,
     ExecutionError,
-    Result,
-    MIMEType,
     Logs,
+    MIMEType,
     OutputHandler,
     OutputMessage,
+    Result,
 )

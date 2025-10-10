@@ -1,34 +1,28 @@
 import datetime
 import urllib.parse
+from typing import Dict, List, Optional
 
-from typing import Optional, Dict, List
 from packaging.version import Version
 
-
-from ..sandbox.sandbox_api import (
-    SandboxInfo,
-    SandboxApiBase,
-    SandboxQuery,
-    ListedSandbox,
-    SandboxMetrics,
-)
-from ..exceptions import TemplateException, SandboxException
-from ..api import AsyncApiClient, SandboxCreateResponse
-from ..api.client.models import (
-    NewSandbox,
-    PostSandboxesSandboxIDTimeoutBody,
-    Error,
-)
+from ..api import AsyncApiClient, SandboxCreateResponse, handle_api_exception
 from ..api.client.api.sandboxes import (
-    get_sandboxes_sandbox_id,
-    post_sandboxes_sandbox_id_timeout,
-    get_sandboxes,
     delete_sandboxes_sandbox_id,
-    post_sandboxes,
+    get_sandboxes,
+    get_sandboxes_sandbox_id,
     get_sandboxes_sandbox_id_metrics,
+    post_sandboxes,
+    post_sandboxes_sandbox_id_timeout,
 )
+from ..api.client.models import Error, NewSandbox, PostSandboxesSandboxIDTimeoutBody
 from ..connection_config import ConnectionConfig, ProxyTypes
-from ..api import handle_api_exception
+from ..exceptions import SandboxException, TemplateException
+from ..sandbox.sandbox_api import (
+    ListedSandbox,
+    SandboxApiBase,
+    SandboxInfo,
+    SandboxMetrics,
+    SandboxQuery,
+)
 
 
 class SandboxApi(SandboxApiBase):

@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Optional, Dict
 from datetime import datetime
+from typing import Dict, Optional
 
 from httpx import Limits
 

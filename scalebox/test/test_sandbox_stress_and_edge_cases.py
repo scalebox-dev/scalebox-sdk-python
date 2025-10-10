@@ -13,20 +13,20 @@ This test suite focuses on:
 """
 
 import asyncio
+import concurrent.futures
 import datetime
 import logging
 import os
 import random
 import string
-import time
 import threading
-import concurrent.futures
+import time
 from typing import List, Optional
 
+from scalebox.exceptions import SandboxException
+from scalebox.sandbox.commands.command_handle import PtySize
 from scalebox.sandbox_async.main import AsyncSandbox
 from scalebox.sandbox_sync.main import Sandbox
-from scalebox.sandbox.commands.command_handle import PtySize
-from scalebox.exceptions import SandboxException
 
 # 配置日志
 logging.basicConfig(
