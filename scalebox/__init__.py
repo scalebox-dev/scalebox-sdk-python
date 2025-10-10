@@ -40,10 +40,10 @@ from .exceptions import (
     TemplateException,
     TimeoutException,
 )
+from .sandbox_async.main import AsyncSandbox as BaseAsyncSandbox
 
 # Sandbox imports
 from .sandbox_sync.main import Sandbox as BaseSandbox
-from .sandbox_async.main import AsyncSandbox as BaseAsyncSandbox
 
 __all__ = [
     # Version info
