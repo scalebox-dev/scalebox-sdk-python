@@ -1,12 +1,16 @@
 import asyncio
 
-from scalebox.sandbox.commands.command_handle import PtySize
 from sandbox_async.main import AsyncSandbox
+
+from scalebox.sandbox.commands.command_handle import PtySize
+
 # from scalebox.sandbox_async.main import AsyncSandbox
+
 
 async def pty_output_handler(output):
     """处理 PTY 输出的回调函数"""
     print(f"PTY 输出: {output}")
+
 
 async def main():
     sandbox = AsyncSandbox()
@@ -21,25 +25,19 @@ async def main():
         cwd="/root",
         envs={"CUSTOM_ENV": "value"},
         timeout=120,
-        request_timeout=30
+        request_timeout=30,
     )
     print(f"PTY 已创建，PID: {pty_handle.pid}")
 
     # 5. 向 PTY 发送输入
     await sandbox.pty.send_stdin(
-        pid=pty_handle.pid,
-        data=b"echo 'Hello from PTY'\n",
-        request_timeout=10
+        pid=pty_handle.pid, data=b"echo 'Hello from PTY'\n", request_timeout=10
     )
     await asyncio.sleep(2)
 
     # 6. 调整 PTY 大小
     new_size = PtySize(rows=30, cols=100)
-    await sandbox.pty.resize(
-        pid=pty_handle.pid,
-        size=new_size,
-        request_timeout=10
-    )
+    await sandbox.pty.resize(pid=pty_handle.pid, size=new_size, request_timeout=10)
     print("PTY 大小已调整")
     killed = await sandbox.pty.kill(pty_handle.pid)
     print(f"PTY 是否被杀死: {killed}")
@@ -103,8 +101,7 @@ async def context_manager_example():
 
     # 创建和使用 PTY
     pty_handle = await sandbox.pty.create(
-        size=PtySize(rows=24, cols=80),
-        on_data=pty_output_handler
+        size=PtySize(rows=24, cols=80), on_data=pty_output_handler
     )
 
     # 发送命令
@@ -113,9 +110,9 @@ async def context_manager_example():
     # 等待一段时间
     await asyncio.sleep(10)
 
+
 if __name__ == "__main__":
     # asyncio.run(main())0
     # asyncio.run(static_methods_example())
     # asyncio.run(connect_example())
     asyncio.run(context_manager_example())
-

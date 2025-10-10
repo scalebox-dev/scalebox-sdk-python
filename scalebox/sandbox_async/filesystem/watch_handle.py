@@ -1,10 +1,9 @@
 import asyncio
 import inspect
-
 from typing import Any, AsyncGenerator, Optional
 
-from ...generated.rpc import handle_rpc_exception
 from ...generated.api_pb2 import WatchDirResponse
+from ...generated.rpc import handle_rpc_exception
 from ...sandbox.filesystem.watch_handle import FilesystemEvent, map_event_type
 from ...sandbox_async.utils import OutputHandler
 

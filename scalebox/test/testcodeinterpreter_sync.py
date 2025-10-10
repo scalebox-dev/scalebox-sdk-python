@@ -4,32 +4,39 @@ Simple sync CodeInterpreter test example.
 Similar to testsandbox_sync.py but for code interpreter functionality.
 """
 
-from scalebox.code_interpreter import Sandbox, Context
+from scalebox.code_interpreter import Context, Sandbox
+
 
 def output_handler(output):
     """处理输出的回调函数"""
     print(f"输出: {output.content}")
 
+
 def result_handler(result):
     """处理结果的回调函数"""
     print(f"结果: {result}")
 
+
 def error_handler(error):
     """处理错误的回调函数"""
     print(f"错误: {error.name} - {error.value}")
+
 
 # 创建代码解释器沙箱
 sandbox = Sandbox(template="code-interpreter-v1")
 
 print("=== 基础Python代码执行 ===")
 # 基础Python代码执行
-result = sandbox.run_code('''
+result = sandbox.run_code(
+    """
 print("Hello from CodeInterpreter!")
 x = 1 + 2
 y = x * 3
 print(f"计算结果: x={x}, y={y}")
 {"x": x, "y": y}
-''', language="python")
+""",
+    language="python",
+)
 
 print(f"执行结果: {result}")
 print(f"标准输出: {result.logs.stdout}")
@@ -38,7 +45,8 @@ if result.error:
 
 print("\n=== 数学计算示例 ===")
 # 数学计算
-math_result = sandbox.run_code('''
+math_result = sandbox.run_code(
+    """
 import math
 import numpy as np
 
@@ -57,13 +65,15 @@ mean_val = np.mean(arr)
 print(f"数组平均值: {mean_val}")
 
 {"radius": radius, "area": area, "mean": mean_val}
-''')
+"""
+)
 
 print(f"数学计算结果: {math_result}")
 
 print("\n=== 使用回调函数 ===")
 # 使用回调函数
-callback_result = sandbox.run_code('''
+callback_result = sandbox.run_code(
+    """
 print("开始执行带回调的代码")
 for i in range(3):
     print(f"步骤 {i+1}")
@@ -71,10 +81,11 @@ for i in range(3):
 result_data = {"steps": 3, "status": "completed"}
 print(f"执行完成: {result_data}")
 result_data
-''', 
-on_stdout=output_handler,
-on_result=result_handler,
-on_error=error_handler)
+""",
+    on_stdout=output_handler,
+    on_result=result_handler,
+    on_error=error_handler,
+)
 
 print("\n=== 创建和使用上下文 ===")
 # 创建上下文
@@ -82,37 +93,47 @@ context = sandbox.create_code_context(language="python", cwd="/tmp")
 print(f"创建上下文: {context.id}")
 
 # 在上下文中执行代码
-context_result1 = sandbox.run_code('''
+context_result1 = sandbox.run_code(
+    """
 # 在上下文中定义变量
 context_var = "Hello from context"
 numbers = [1, 2, 3, 4, 5]
 print(f"定义了变量: {context_var}")
 print(f"数组: {numbers}")
-''', context=context)
+""",
+    context=context,
+)
 
 # 在同一上下文中使用变量
-context_result2 = sandbox.run_code('''
+context_result2 = sandbox.run_code(
+    """
 print(f"从上下文读取: {context_var}")
 numbers.append(6)
 print(f"修改后的数组: {numbers}")
 sum(numbers)
-''', context=context)
+""",
+    context=context,
+)
 
 print(f"上下文测试结果: {context_result2}")
 
 print("\n=== 错误处理示例 ===")
 # 故意产生错误
-error_result = sandbox.run_code('''
+error_result = sandbox.run_code(
+    """
 print("这行会执行")
 x = 10 / 0  # 这里会产生除零错误
 print("这行不会执行")
-''', on_error=error_handler)
+""",
+    on_error=error_handler,
+)
 
 print(f"错误处理结果: {error_result.error}")
 
 print("\n=== 数据处理示例 ===")
 # 数据处理
-data_result = sandbox.run_code('''
+data_result = sandbox.run_code(
+    """
 import pandas as pd
 
 # 创建示例数据
@@ -131,13 +152,15 @@ avg_age = df['age'].mean()
 print(f"平均年龄: {avg_age}")
 
 {"total_people": len(df), "avg_age": avg_age}
-''')
+"""
+)
 
 print(f"数据处理结果: {data_result}")
 
 print("\n=== 结果格式示例 ===")
 # 展示不同格式的结果生成
-format_result = sandbox.run_code('''
+format_result = sandbox.run_code(
+    """
 import matplotlib.pyplot as plt
 import numpy as np
 import json
@@ -207,7 +230,8 @@ print(f"图像: PNG base64编码 ({len(img_base64)} 字符)")
         "description": "多格式结果演示完成"
     }
 }
-''')
+"""
+)
 
 print(f"结果格式测试: {format_result}")
 

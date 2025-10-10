@@ -5,27 +5,33 @@ Similar to testsandbox_async.py but for code interpreter functionality.
 """
 
 import asyncio
+
 from scalebox.code_interpreter import AsyncSandbox, Context
+
 
 async def async_output_handler(output):
     """处理异步输出的回调函数"""
     print(f"异步输出: {output.content}")
 
+
 async def async_result_handler(result):
     """处理异步结果的回调函数"""
     print(f"异步结果: {result}")
+
 
 async def async_error_handler(error):
     """处理异步错误的回调函数"""
     print(f"异步错误: {error.name} - {error.value}")
 
+
 async def main():
     # 创建异步代码解释器沙箱
     sandbox = AsyncSandbox(template="code-interpreter-v1")
-    
+
     print("=== 基础异步Python代码执行 ===")
     # 基础异步Python代码执行
-    result = await sandbox.run_code('''
+    result = await sandbox.run_code(
+        """
 import asyncio
 
 print("开始异步代码执行")
@@ -40,7 +46,9 @@ async def async_task():
 result = await async_task()
 print(f"最终结果: {result}")
 result
-''', language="python")
+""",
+        language="python",
+    )
 
     print(f"异步执行结果: {result}")
     print(f"标准输出: {result.logs.stdout}")
@@ -48,46 +56,48 @@ result
     print("\n=== 并发代码执行 ===")
     # 并发执行多个代码片段
     codes = [
-        '''
+        """
 import asyncio
 print("任务1开始")
 await asyncio.sleep(0.1)
 result = {"task": 1, "value": 100}
 print(f"任务1完成: {result}")
 result
-''',
-        '''
+""",
+        """
 import asyncio
 print("任务2开始")
 await asyncio.sleep(0.1)
 result = {"task": 2, "value": 200}
 print(f"任务2完成: {result}")
 result
-''',
-        '''
+""",
+        """
 import asyncio
 print("任务3开始")
 await asyncio.sleep(0.1)
 result = {"task": 3, "value": 300}
 print(f"任务3完成: {result}")
 result
-'''
+""",
     ]
-    
+
     # 并发执行
     import time
+
     start_time = time.time()
     tasks = [sandbox.run_code(code) for code in codes]
     results = await asyncio.gather(*tasks)
     duration = time.time() - start_time
-    
+
     print(f"并发执行完成，耗时: {duration:.3f}s")
     for i, result in enumerate(results):
         print(f"任务 {i+1} 结果: {result.logs.stdout}")
 
     print("\n=== 异步数据处理 ===")
     # 异步数据处理
-    async_data_result = await sandbox.run_code('''
+    async_data_result = await sandbox.run_code(
+        """
 import asyncio
 import pandas as pd
 import json
@@ -119,13 +129,15 @@ async def process_data_async():
 result = await process_data_async()
 print(f"异步数据处理结果: {json.dumps(result, indent=2)}")
 result
-''')
+"""
+    )
 
     print(f"异步数据处理结果: {async_data_result}")
 
     print("\n=== 使用异步回调函数 ===")
     # 使用异步回调函数
-    callback_result = await sandbox.run_code('''
+    callback_result = await sandbox.run_code(
+        """
 import asyncio
 
 print("开始执行带异步回调的代码")
@@ -141,10 +153,11 @@ async def async_workflow():
 
 result = await async_workflow()
 result
-''', 
-on_stdout=async_output_handler,
-on_result=async_result_handler,
-on_error=async_error_handler)
+""",
+        on_stdout=async_output_handler,
+        on_result=async_result_handler,
+        on_error=async_error_handler,
+    )
 
     print("\n=== 异步上下文管理 ===")
     # 创建异步上下文
@@ -152,7 +165,8 @@ on_error=async_error_handler)
     print(f"创建异步上下文: {context.id}")
 
     # 在异步上下文中执行代码
-    context_result1 = await sandbox.run_code('''
+    context_result1 = await sandbox.run_code(
+        """
 import asyncio
 
 # 在异步上下文中定义变量
@@ -171,10 +185,13 @@ for i in range(3):
 
 print(f"异步上下文变量: {async_context_var}")
 print(f"异步数据: {async_data}")
-''', context=context)
+""",
+        context=context,
+    )
 
     # 在同一异步上下文中使用变量
-    context_result2 = await sandbox.run_code('''
+    context_result2 = await sandbox.run_code(
+        """
 print(f"从异步上下文读取: {async_context_var}")
 print(f"当前数据: {async_data}")
 
@@ -192,13 +209,16 @@ async_data["processed"] = processed_items
 
 print(f"处理完成: {len(processed_items)} 个项目")
 {"original_items": len(async_data["items"]), "processed_items": len(processed_items)}
-''', context=context)
+""",
+        context=context,
+    )
 
     print(f"异步上下文测试结果: {context_result2}")
 
     print("\n=== 异步错误处理示例 ===")
     # 异步错误处理
-    async_error_result = await sandbox.run_code('''
+    async_error_result = await sandbox.run_code(
+        """
 import asyncio
 
 async def failing_async_task():
@@ -210,13 +230,16 @@ async def failing_async_task():
 
 print("开始可能失败的异步任务")
 result = await failing_async_task()
-''', on_error=async_error_handler)
+""",
+        on_error=async_error_handler,
+    )
 
     print(f"异步错误处理结果: {async_error_result.error}")
 
     print("\n=== 异步批处理示例 ===")
     # 异步批处理
-    batch_result = await sandbox.run_code('''
+    batch_result = await sandbox.run_code(
+        '''
 import asyncio
 import time
 
@@ -253,13 +276,15 @@ print(f"  处理时间: {result['processing_time']:.3f}s")
 print(f"  吞吐量: {result['throughput']:.1f} items/s")
 
 result
-''')
+'''
+    )
 
     print(f"异步批处理结果: {batch_result}")
 
     print("\n=== 异步结果格式示例 ===")
     # 展示异步多格式结果生成
-    async_format_result = await sandbox.run_code('''
+    async_format_result = await sandbox.run_code(
+        '''
 import asyncio
 import json
 import base64
@@ -467,7 +492,8 @@ final_result = {
 
 print("\\n异步多格式结果演示完成!")
 final_result
-''')
+'''
+    )
 
     print(f"异步格式结果测试: {async_format_result}")
 
@@ -476,6 +502,7 @@ final_result
 
     # 清理
     await sandbox.kill()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

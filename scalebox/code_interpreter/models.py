@@ -1,25 +1,25 @@
+import asyncio
 import json
 import logging
-import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Iterable,
     List,
     Optional,
-    Iterable,
-    Dict,
     TypeVar,
-    Callable,
-    Awaitable,
-    Any,
     Union,
 )
 
-from httpx import Response
 from google.protobuf.timestamp_pb2 import Timestamp
+from httpx import Response
 
+from ..exceptions import NotFoundException, SandboxException, TimeoutException
 from ..generated import api_pb2
-from ..exceptions import NotFoundException, TimeoutException, SandboxException
 
 T = TypeVar("T")
 OutputHandler = Union[
@@ -84,10 +84,12 @@ class ExecutionError:
         data = {"name": self.name, "value": self.value, "traceback": self.traceback}
         return json.dumps(data)
 
+
 class MIMEType(str):
     """
     Represents a MIME type.
     """
+
 
 @dataclass
 class Result:
@@ -133,26 +135,26 @@ class Result:
     """Extra data."""
 
     def __init__(
-            self,
-            exit_code: int = 0,
-            started_at: Optional[Timestamp] = None,
-            finished_at: Optional[Timestamp] = None,
-            text: Optional[str] = None,
-            html: Optional[str] = None,
-            markdown: Optional[str] = None,
-            svg: Optional[str] = None,
-            png: Optional[str] = None,
-            jpeg: Optional[str] = None,
-            pdf: Optional[str] = None,
-            latex: Optional[str] = None,
-            json: Optional[str] = None,
-            javascript: Optional[str] = None,
-            data: Optional[str] = None,
-            chart: Optional[api_pb2.Chart] = None,
-            execution_count: Optional[int] = None,
-            is_main_result: bool = False,
-            extra: Optional[Dict[str, str]] = None,
-            **kwargs,
+        self,
+        exit_code: int = 0,
+        started_at: Optional[Timestamp] = None,
+        finished_at: Optional[Timestamp] = None,
+        text: Optional[str] = None,
+        html: Optional[str] = None,
+        markdown: Optional[str] = None,
+        svg: Optional[str] = None,
+        png: Optional[str] = None,
+        jpeg: Optional[str] = None,
+        pdf: Optional[str] = None,
+        latex: Optional[str] = None,
+        json: Optional[str] = None,
+        javascript: Optional[str] = None,
+        data: Optional[str] = None,
+        chart: Optional[api_pb2.Chart] = None,
+        execution_count: Optional[int] = None,
+        is_main_result: bool = False,
+        extra: Optional[Dict[str, str]] = None,
+        **kwargs,
     ):
         self.exit_code = exit_code
         self.started_at = self._convert_timestamp(started_at) if started_at else None
@@ -269,12 +271,12 @@ class Execution:
     """Execution count."""
 
     def __init__(
-            self,
-            results: List[Result] = None,
-            logs: Logs = None,
-            error: Optional[ExecutionError] = None,
-            execution_count: Optional[int] = None,
-            **kwargs,
+        self,
+        results: List[Result] = None,
+        logs: Logs = None,
+        error: Optional[ExecutionError] = None,
+        execution_count: Optional[int] = None,
+        **kwargs,
     ):
         self.results = results or []
         self.logs = logs or Logs()
@@ -313,7 +315,9 @@ class Execution:
         serialized = {
             "exit_code": result.exit_code,
             "started_at": result.started_at.isoformat() if result.started_at else None,
-            "finished_at": result.finished_at.isoformat() if result.finished_at else None,
+            "finished_at": (
+                result.finished_at.isoformat() if result.finished_at else None
+            ),
             "text": result.text,
             "html": result.html,
             "markdown": result.markdown,
@@ -362,12 +366,12 @@ class Context:
 
 
 def parse_output(
-        execution: Execution,
-        output: api_pb2.ExecuteResponse,
-        on_stdout: Optional[OutputHandler[OutputMessage]] = None,
-        on_stderr: Optional[OutputHandler[OutputMessage]] = None,
-        on_result: Optional[OutputHandler[Result]] = None,
-        on_error: Optional[OutputHandler[ExecutionError]] = None,
+    execution: Execution,
+    output: api_pb2.ExecuteResponse,
+    on_stdout: Optional[OutputHandler[OutputMessage]] = None,
+    on_stderr: Optional[OutputHandler[OutputMessage]] = None,
+    on_result: Optional[OutputHandler[Result]] = None,
+    on_error: Optional[OutputHandler[ExecutionError]] = None,
 ):
     """
     Parse the output from the execution service and update the execution object.
@@ -376,7 +380,11 @@ def parse_output(
         content = output.stdout.content
         execution.logs.stdout.append(content)
         if on_stdout:
-            message = OutputMessage(content=content, timestamp=int(datetime.now().timestamp() * 1e9), error=False)
+            message = OutputMessage(
+                content=content,
+                timestamp=int(datetime.now().timestamp() * 1e9),
+                error=False,
+            )
             if asyncio.iscoroutinefunction(on_stdout):
                 asyncio.create_task(on_stdout(message))
             else:
@@ -386,7 +394,11 @@ def parse_output(
         content = output.stderr.content
         execution.logs.stderr.append(content)
         if on_stderr:
-            message = OutputMessage(content=content, timestamp=int(datetime.now().timestamp() * 1e9), error=True)
+            message = OutputMessage(
+                content=content,
+                timestamp=int(datetime.now().timestamp() * 1e9),
+                error=True,
+            )
             if asyncio.iscoroutinefunction(on_stderr):
                 asyncio.create_task(on_stderr(message))
             else:
