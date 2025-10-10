@@ -39,7 +39,7 @@ def create_parser() -> argparse.ArgumentParser:
     exec_parser.add_argument("--code", required=True, help="Code to execute")
     exec_parser.add_argument("--language", default="python", help="Programming language")
     exec_parser.add_argument("--sandbox-id", help="Sandbox ID to use")
-    exec_parser.add_argument("--async", action="store_true", help="Use async execution")
+    exec_parser.add_argument("--async-mode", action="store_true", help="Use async execution")
     
     # Configuration
     parser.add_argument("--api-key", help="API key for authentication")
@@ -68,7 +68,7 @@ async def async_main():
     if args.command == "sandbox":
         if args.create:
             print("Creating sandbox...")
-            if args.async:
+            if args.async_mode:
                 sandbox = await AsyncSandbox.create()
                 print(f"Created async sandbox: {sandbox.id}")
             else:
@@ -87,7 +87,7 @@ async def async_main():
         print(f"Executing {args.language} code...")
         print(f"Code: {args.code}")
         
-        if args.async:
+        if args.async_mode:
             sandbox = await AsyncSandbox.create()
             try:
                 result = await sandbox.run_code(args.code, language=args.language)
