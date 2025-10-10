@@ -1,8 +1,7 @@
 import base64
 import hashlib
 import time
-
-from typing import Optional, TypedDict, Literal
+from typing import Literal, Optional, TypedDict
 
 Operation = Literal["read", "write"]
 

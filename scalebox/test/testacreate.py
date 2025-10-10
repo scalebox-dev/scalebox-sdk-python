@@ -6,9 +6,9 @@ from scalebox.sandbox_async import AsyncSandbox
 
 async def main():
     sandbox = await AsyncSandbox.create(
-        template="base",      # 或自定义模板名
+        template="base",  # 或自定义模板名
         api_key="sk-Wk4IgtUYOqnttxGaxZmELEV4p2FXh15Evt0FIcSa",
-        timeout=3600
+        timeout=3600,
     )
     print("✅ 沙箱已启动，sandbox_domain:", sandbox.sandbox_domain)
     print("✅ 沙箱已启动，ID:", sandbox.sandbox_id)

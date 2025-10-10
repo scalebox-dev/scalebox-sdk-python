@@ -1,5 +1,5 @@
 import enum
-from typing import Any, List, Tuple, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 
 class ChartType(str, enum.Enum):
@@ -43,7 +43,7 @@ class Chart:
 
     elements: List[Any]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._raw_data = kwargs
         self.type = ChartType(kwargs["type"] or ChartType.UNKNOWN)
         self.title = kwargs["title"]
@@ -59,7 +59,7 @@ class Chart2D(Chart):
     x_unit: Optional[str]
     y_unit: Optional[str]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.x_label = kwargs["x_label"]
         self.y_label = kwargs["y_label"]
@@ -71,7 +71,7 @@ class PointData:
     label: str
     points: List[Tuple[Union[str, float], Union[str, float]]]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.label = kwargs["label"]
         self.points = [(x, y) for x, y in kwargs["points"]]
 
@@ -87,7 +87,7 @@ class PointChart(Chart2D):
 
     elements: List[PointData]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.x_label = kwargs["x_label"]
 
@@ -125,7 +125,7 @@ class BarData:
     group: str
     value: str
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.label = kwargs["label"]
         self.value = kwargs["value"]
         self.group = kwargs["group"]
@@ -136,7 +136,7 @@ class BarChart(Chart2D):
 
     elements: List[BarData]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.elements = [BarData(**d) for d in kwargs["elements"]]
 
@@ -146,7 +146,7 @@ class PieData:
     angle: float
     radius: float
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.label = kwargs["label"]
         self.angle = kwargs["angle"]
         self.radius = kwargs["radius"]
@@ -157,7 +157,7 @@ class PieChart(Chart):
 
     elements: List[PieData]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.elements = [PieData(**d) for d in kwargs["elements"]]
 
@@ -171,7 +171,7 @@ class BoxAndWhiskerData:
     max: float
     outliers: List[float]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.label = kwargs["label"]
         self.min = kwargs["min"]
         self.first_quartile = kwargs["first_quartile"]
@@ -186,7 +186,7 @@ class BoxAndWhiskerChart(Chart2D):
 
     elements: List[BoxAndWhiskerData]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.elements = [BoxAndWhiskerData(**d) for d in kwargs["elements"]]
 
@@ -198,7 +198,7 @@ class SuperChart(Chart):
         Union[LineChart, ScatterChart, BarChart, PieChart, BoxAndWhiskerChart]
     ]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.elements = [_deserialize_chart(g) for g in kwargs["elements"]]
 

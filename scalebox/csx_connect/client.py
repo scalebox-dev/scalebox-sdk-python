@@ -1,17 +1,17 @@
 import gzip
 import json
 import struct
+from enum import Enum, Flag
+from typing import Any, Callable, Dict, Generator, Optional, Tuple
 
+from google.protobuf import json_format
 from httpcore import (
-    ConnectionPool,
+    URL,
     AsyncConnectionPool,
+    ConnectionPool,
     RemoteProtocolError,
     Response,
 )
-from enum import Flag, Enum
-from typing import Callable, Optional, Dict, Any, Generator, Tuple
-from google.protobuf import json_format
-from httpcore import URL
 
 
 class EnvelopeFlags(Flag):

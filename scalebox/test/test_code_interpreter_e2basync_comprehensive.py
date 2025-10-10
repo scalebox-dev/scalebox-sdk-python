@@ -13,43 +13,56 @@ This test suite demonstrates and validates all key functionality of the AsyncCod
 
 import asyncio
 import datetime
+import json
 import logging
 import os
 import time
-import json
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
+
 from e2b_code_interpreter import Sandbox
 
-from scalebox.code_interpreter import AsyncSandbox, Context, Execution, ExecutionError, Result, OutputMessage, Logs
+from scalebox.code_interpreter import (
+    AsyncSandbox,
+    Context,
+    Execution,
+    ExecutionError,
+    Logs,
+    OutputMessage,
+    Result,
+)
 
 # 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
 class AsyncCodeInterpreterValidator:
     """Comprehensive AsyncCodeInterpreter validation test suite."""
-    
+
     def __init__(self):
         self.sandbox: Optional[AsyncSandbox] = None
         self.test_results = []
         self.failed_tests = []
         self.contexts: Dict[str, Context] = {}
-        
-    async def log_test_result(self, test_name: str, success: bool, message: str = "", duration: float = 0):
+
+    async def log_test_result(
+        self, test_name: str, success: bool, message: str = "", duration: float = 0
+    ):
         """记录测试结果"""
         status = "✅ PASS" if success else "❌ FAIL"
         result = {
-            'test': test_name,
-            'success': success,
-            'message': message,
-            'duration': duration
+            "test": test_name,
+            "success": success,
+            "message": message,
+            "duration": duration,
         }
         self.test_results.append(result)
-        
+
         if not success:
             self.failed_tests.append(test_name)
-            
+
         logger.info(f"{status} {test_name} ({duration:.3f}s) {message}")
 
     async def run_test(self, test_func, test_name: str):
@@ -64,7 +77,7 @@ class AsyncCodeInterpreterValidator:
             await self.log_test_result(test_name, False, str(e), duration=duration)
 
     # ======================== 基础异步代码解释器操作测试 ========================
-    
+
     async def test_async_code_interpreter_creation(self):
         """测试异步代码解释器创建"""
         self.sandbox = await AsyncSandbox.create(
@@ -72,17 +85,19 @@ class AsyncCodeInterpreterValidator:
             timeout=3600,
             debug=True,
             metadata={"test": "async_code_interpreter_validation"},
-            envs={"CI_TEST": "async_test"}
+            envs={"CI_TEST": "async_test"},
         )
         # time.sleep(5)
         assert self.sandbox is not None
         assert self.sandbox.sandbox_id is not None
-        logger.info(f"Created AsyncCodeInterpreter sandbox with ID: {self.sandbox.sandbox_id}")
+        logger.info(
+            f"Created AsyncCodeInterpreter sandbox with ID: {self.sandbox.sandbox_id}"
+        )
 
     async def test_basic_async_python_execution(self):
         """测试基础异步Python代码执行"""
         assert self.sandbox is not None
-        
+
         code = """
 import asyncio
 import time
@@ -108,7 +123,7 @@ async def main_async():
 result = await main_async()
 print(f"最终结果: {result}")
 """
-        
+
         execution = await self.sandbox.run_code(code, language="python")
         assert isinstance(execution, Execution)
         assert execution.error is None
@@ -119,53 +134,53 @@ print(f"最终结果: {result}")
     async def test_concurrent_code_execution(self):
         """测试并发代码执行"""
         assert self.sandbox is not None
-        
+
         codes = [
-            '''
+            """
 import asyncio
 print(f"任务 1 开始")
 await asyncio.sleep(0.1)
 result = {"task": 1, "value": 10}
 print(f"任务 1 完成: {result}")
 result
-''',
-            '''
+""",
+            """
 import asyncio
 print(f"任务 2 开始")
 await asyncio.sleep(0.1)
 result = {"task": 2, "value": 20}
 print(f"任务 2 完成: {result}")
 result
-''',
-            '''
+""",
+            """
 import asyncio
 print(f"任务 3 开始")
 await asyncio.sleep(0.1)
 result = {"task": 3, "value": 30}
 print(f"任务 3 完成: {result}")
 result
-'''
+""",
         ]
-        
+
         # 并发执行多个代码片段
         start_time = time.time()
         tasks = [self.sandbox.run_code(code, language="python") for code in codes]
         results = await asyncio.gather(*tasks)
         duration = time.time() - start_time
-        
+
         # 验证结果
         assert len(results) == 3
         for execution in results:
             assert execution.error is None
             assert len(execution.logs.stdout) > 0
-        
+
         logger.info(f"Concurrent execution completed in {duration:.3f}s")
         assert duration < 2.0  # 并发执行应该比串行快
 
     async def test_async_data_science_workflow(self):
         """测试异步数据科学工作流"""
         assert self.sandbox is not None
-        
+
         code = """
 import asyncio
 import pandas as pd
@@ -245,42 +260,42 @@ report = {
 print(f"\\n工作流完成，处理了 {report['total_datapoints']} 个数据点")
 report
 """
-        
-        execution = await self.sandbox.run_code(code,language="python")
+
+        execution = await self.sandbox.run_code(code, language="python")
         assert execution.error is None
         assert any("数据科学工作流" in line for line in execution.logs.stdout)
 
     # ======================== 异步回调函数测试 ========================
-    
+
     async def test_async_callback_handling(self):
         """测试异步回调函数处理"""
         assert self.sandbox is not None
-        
+
         stdout_messages = []
         stderr_messages = []
         results = []
         errors = []
-        
+
         async def async_stdout_callback(msg: OutputMessage):
             await asyncio.sleep(0.001)  # 模拟异步处理
             stdout_messages.append(msg.content)
             logger.info(f"ASYNC STDOUT: {msg.content}")
-        
+
         async def async_stderr_callback(msg: OutputMessage):
             await asyncio.sleep(0.001)
             stderr_messages.append(msg.content)
             logger.info(f"ASYNC STDERR: {msg.content}")
-        
+
         async def async_result_callback(result: Result):
             await asyncio.sleep(0.001)
             results.append(result)
             logger.info(f"ASYNC RESULT: {result}")
-        
+
         async def async_error_callback(error: ExecutionError):
             await asyncio.sleep(0.001)
             errors.append(error)
             logger.info(f"ASYNC ERROR: {error.name} - {error.value}")
-        
+
         code = """
 import asyncio
 import sys
@@ -302,35 +317,34 @@ result = await async_output_generator()
 print("异步回调测试完成")
 result
 """
-        
+
         execution = await self.sandbox.run_code(
             code,
             language="python",
             on_stdout=async_stdout_callback,
             on_stderr=async_stderr_callback,
             on_result=async_result_callback,
-            on_error=async_error_callback
+            on_error=async_error_callback,
         )
-        
+
         assert execution.error is None
         logger.info(f"Async callback test completed")
 
     # ======================== 异步上下文管理测试 ========================
-    
+
     async def test_async_context_creation(self):
         """测试异步上下文创建"""
         assert self.sandbox is not None
-        
+
         # 创建Python上下文
         python_context = await self.sandbox.create_code_context(
-            language="python", 
-            cwd="/tmp"
+            language="python", cwd="/tmp"
         )
         assert isinstance(python_context, Context)
         assert python_context.id is not None
         self.contexts["async_python"] = python_context
         logger.info(f"Created async Python context: {python_context.id}")
-        
+
         # 测试完成后立即清理context
         try:
             await self.sandbox.destroy_context(python_context)
@@ -344,11 +358,11 @@ result
     async def test_async_context_state_management(self):
         """测试异步上下文状态管理"""
         assert self.sandbox is not None
-        
+
         # 创建新的上下文用于状态管理测试
         context = await self.sandbox.create_code_context(language="python", cwd="/tmp")
         self.contexts["async_state_test"] = context
-        
+
         # 在上下文中设置异步状态
         setup_code = """
 import asyncio
@@ -375,10 +389,10 @@ for i in range(3):
 print(f"初始化完成，连接数: {connection_count}")
 async_state
 """
-        
+
         execution1 = await self.sandbox.run_code(setup_code, context=context)
         assert execution1.error is None
-        
+
         # 在同一上下文中使用已设置的状态
         use_code = """
 print(f"当前连接数: {len(async_state['connections'])}")
@@ -398,11 +412,11 @@ async_state["processed"] = processed
 print(f"处理完成: {len(processed)} 个连接")
 {"total_connections": len(async_state["connections"]), "processed": len(processed)}
 """
-        
+
         execution2 = await self.sandbox.run_code(use_code, context=context)
         assert execution2.error is None
         assert any("处理完成" in line for line in execution2.logs.stdout)
-        
+
         # 测试完成后立即清理context
         try:
             await self.sandbox.destroy_context(context)
@@ -414,11 +428,11 @@ print(f"处理完成: {len(processed)} 个连接")
             logger.warning(f"Failed to destroy async state context {context.id}: {e}")
 
     # ======================== 异步性能测试 ========================
-    
+
     async def test_async_performance_concurrent_tasks(self):
         """测试异步性能 - 并发任务"""
         assert self.sandbox is not None
-        
+
         code = """
 import asyncio
 import time
@@ -488,11 +502,11 @@ print(f"平均IO任务耗时: {avg_io_duration:.3f}s")
     "concurrency_efficiency": (sum(r["delay"] for r in io_results) / overall_duration) if overall_duration > 0 else 0
 }
 """
-        
+
         start_test_time = time.time()
-        execution = await self.sandbox.run_code(code,language="python")
+        execution = await self.sandbox.run_code(code, language="python")
         test_duration = time.time() - start_test_time
-        
+
         assert execution.error is None
         assert any("性能测试开始" in line for line in execution.logs.stdout)
         logger.info(f"Async performance test completed in {test_duration:.3f}s")
@@ -500,7 +514,7 @@ print(f"平均IO任务耗时: {avg_io_duration:.3f}s")
     async def test_async_batch_processing(self):
         """测试异步批处理"""
         assert self.sandbox is not None
-        
+
         code = """
 import asyncio
 import json
@@ -574,23 +588,23 @@ print(f"处理吞吐量: {throughput:.1f} items/s")
     "efficiency": avg_batch_time / total_time * len(results)  # 并发效率指标
 }
 """
-        
-        execution = await self.sandbox.run_code(code,language="python")
+
+        execution = await self.sandbox.run_code(code, language="python")
         assert execution.error is None
         assert any("批处理完成" in line for line in execution.logs.stdout)
 
     # ======================== 异步错误处理测试 ========================
-    
+
     async def test_async_error_handling(self):
         """测试异步错误处理"""
         assert self.sandbox is not None
-        
+
         error_captured = []
-        
+
         async def async_error_callback(error: ExecutionError):
             error_captured.append(error)
             logger.info(f"捕获异步错误: {error.name} - {error.value}")
-        
+
         # 测试异步错误
         error_code = """
 import asyncio
@@ -614,18 +628,20 @@ async def error_handler_demo():
 # 执行会产生错误的异步代码
 await error_handler_demo()
 """
-        
-        execution = await self.sandbox.run_code(error_code,language="python", on_error=async_error_callback)
+
+        execution = await self.sandbox.run_code(
+            error_code, language="python", on_error=async_error_callback
+        )
         assert execution.error is not None
         assert "ZeroDivisionError" in execution.error.name
         logger.info("Async error handling test passed")
 
     # ======================== 异步结果格式测试 ========================
-    
+
     async def test_async_text_result(self):
         """测试异步文本格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 import asyncio
 
@@ -657,8 +673,8 @@ text_result = await generate_async_text()
 print("生成异步文本格式结果")
 text_result
 """
-        
-        execution = await self.sandbox.run_code(code,language="python")
+
+        execution = await self.sandbox.run_code(code, language="python")
         assert execution.error is None
         assert len(execution.results) > 0
         logger.info("异步文本格式结果测试完成")
@@ -666,7 +682,7 @@ text_result
     async def test_async_mixed_format_result(self):
         """测试异步混合格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 import asyncio
 import json
@@ -821,8 +837,8 @@ async def generate_async_mixed_results():
 result = await generate_async_mixed_results()
 result
 """
-        
-        execution = await self.sandbox.run_code(code,language="python")
+
+        execution = await self.sandbox.run_code(code, language="python")
         assert execution.error is None
         assert any("异步混合格式结果生成完成" in line for line in execution.logs.stdout)
         logger.info("异步混合格式结果测试完成")
@@ -830,7 +846,7 @@ result
     async def test_async_realtime_data_result(self):
         """测试异步实时数据结果"""
         assert self.sandbox is not None
-        
+
         code = """
 import asyncio
 import json
@@ -980,18 +996,18 @@ result = {
 print(f"\\n异步实时数据系统测试完成!")
 result
 """
-        
-        execution = await self.sandbox.run_code(code,language="python")
+
+        execution = await self.sandbox.run_code(code, language="python")
         assert execution.error is None
         assert any("异步实时数据系统测试完成" in line for line in execution.logs.stdout)
         logger.info("异步实时数据结果测试完成")
 
     # ======================== 异步R语言测试 ========================
-    
+
     async def test_async_r_language_basic_execution(self):
         """测试异步R语言基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 # 异步R语言基础执行测试
 print("Hello from Async R Language!")
@@ -1028,17 +1044,19 @@ list(
   data_frame = df
 )
 """
-        
+
         execution = await self.sandbox.run_code(code, language="r")
         assert execution.error is None
-        assert any("Hello from Async R Language!" in line for line in execution.logs.stdout)
+        assert any(
+            "Hello from Async R Language!" in line for line in execution.logs.stdout
+        )
         assert any("Sum:" in line for line in execution.logs.stdout)
         logger.info("Async R language basic execution test passed")
 
     async def test_async_r_language_data_analysis(self):
         """测试异步R语言数据分析"""
         assert self.sandbox is not None
-        
+
         code = """
 # 异步R语言数据分析测试
 library(dplyr)
@@ -1088,17 +1106,20 @@ list(
   high_scores_count = nrow(high_scores)
 )
 """
-        
+
         execution = await self.sandbox.run_code(code, language="r")
         assert execution.error is None
-        assert any("Async dataset created with 150 rows" in line for line in execution.logs.stdout)
+        assert any(
+            "Async dataset created with 150 rows" in line
+            for line in execution.logs.stdout
+        )
         assert any("Summary statistics" in line for line in execution.logs.stdout)
         logger.info("Async R language data analysis test passed")
 
     async def test_async_r_language_visualization(self):
         """测试异步R语言数据可视化"""
         assert self.sandbox is not None
-        
+
         code = """
 # 异步R语言数据可视化测试
 library(ggplot2)
@@ -1152,17 +1173,22 @@ plot_info <- list(
 print("All async visualizations completed successfully")
 plot_info
 """
-        
+
         execution = await self.sandbox.run_code(code, language="r")
         assert execution.error is None
-        assert any("Creating async visualizations..." in line for line in execution.logs.stdout)
-        assert any("All async visualizations completed successfully" in line for line in execution.logs.stdout)
+        assert any(
+            "Creating async visualizations..." in line for line in execution.logs.stdout
+        )
+        assert any(
+            "All async visualizations completed successfully" in line
+            for line in execution.logs.stdout
+        )
         logger.info("Async R language visualization test passed")
 
     async def test_async_r_language_statistics(self):
         """测试异步R语言统计分析"""
         assert self.sandbox is not None
-        
+
         code = """
 # 异步R语言统计分析测试
 library(stats)
@@ -1223,21 +1249,24 @@ list(
   normality_test2_p = shapiro_test2$p.value
 )
 """
-        
+
         execution = await self.sandbox.run_code(code, language="r")
         assert execution.error is None
-        assert any("Created two async sample datasets" in line for line in execution.logs.stdout)
+        assert any(
+            "Created two async sample datasets" in line
+            for line in execution.logs.stdout
+        )
         assert any("Async T-test performed" in line for line in execution.logs.stdout)
         logger.info("Async R language statistics test passed")
 
     async def test_async_r_language_context_management(self):
         """测试异步R语言上下文管理"""
         assert self.sandbox is not None
-        
+
         # 创建R语言上下文
         r_context = await self.sandbox.create_code_context(language="r", cwd="/tmp")
         self.contexts["async_r_language"] = r_context
-        
+
         # 在上下文中定义变量和函数
         setup_code = """
 # 异步R语言上下文设置
@@ -1276,11 +1305,14 @@ list(
   data_rows = nrow(sample_data)
 )
 """
-        
+
         execution1 = await self.sandbox.run_code(setup_code, context=r_context)
         assert execution1.error is None
-        assert any("Setting up async R language context..." in line for line in execution1.logs.stdout)
-        
+        assert any(
+            "Setting up async R language context..." in line
+            for line in execution1.logs.stdout
+        )
+
         # 在同一上下文中使用之前定义的变量和函数
         use_code = """
 # 使用异步R语言上下文中的变量和函数
@@ -1314,13 +1346,18 @@ list(
   context_active = TRUE
 )
 """
-        
+
         execution2 = await self.sandbox.run_code(use_code, context=r_context)
         assert execution2.error is None
-        assert any("Using async R language context..." in line for line in execution2.logs.stdout)
-        assert any("Counter after increment:" in line for line in execution2.logs.stdout)
+        assert any(
+            "Using async R language context..." in line
+            for line in execution2.logs.stdout
+        )
+        assert any(
+            "Counter after increment:" in line for line in execution2.logs.stdout
+        )
         logger.info("Async R language context management test passed")
-        
+
         # 测试完成后立即清理context
         try:
             await self.sandbox.destroy_context(r_context)
@@ -1332,11 +1369,11 @@ list(
             logger.warning(f"Failed to destroy async R context {r_context.id}: {e}")
 
     # ======================== 异步Node.js/JavaScript 测试 ========================
-    
+
     async def test_async_nodejs_basic_execution(self):
         """测试异步Node.js基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 // Node.js 基础执行（异步）
 console.log("Hello from Async Node.js Kernel!");
@@ -1345,17 +1382,19 @@ console.log(`Sum: ${a + b}`);
 console.log(`Product: ${a * b}`);
 ({ sum: a + b, product: a * b })
 """
-        
+
         execution = await self.sandbox.run_code(code, language="javascript")
         assert execution.error is None
-        assert any("Hello from Async Node.js Kernel!" in line for line in execution.logs.stdout)
+        assert any(
+            "Hello from Async Node.js Kernel!" in line for line in execution.logs.stdout
+        )
         assert any("Sum:" in line for line in execution.logs.stdout)
         logger.info("Async Node.js basic execution test passed")
 
     async def test_async_nodejs_async_promises(self):
         """测试异步Node.js Promise/async"""
         assert self.sandbox is not None
-        
+
         code = """
 function delay(ms){ return new Promise(r=>setTimeout(r, ms)); }
 async function run(){
@@ -1373,7 +1412,7 @@ async function run(){
 }
 run();
 """
-        
+
         execution = await self.sandbox.run_code(code, language="javascript")
         assert execution.error is None
         assert any("Async tasks start" in line for line in execution.logs.stdout)
@@ -1383,7 +1422,7 @@ run();
     async def test_async_nodejs_data_processing(self):
         """测试异步Node.js数据处理"""
         assert self.sandbox is not None
-        
+
         code = """
 const rows = Array.from({length: 120}, (_, i) => ({ id: i+1, value: Math.round(Math.random()*100), group: ['X','Y','Z'][i%3] }));
 const stats = rows.reduce((acc, r)=>{ if(!acc[r.group]) acc[r.group]={count:0,sum:0}; acc[r.group].count++; acc[r.group].sum+=r.value; return acc; }, {});
@@ -1391,16 +1430,18 @@ const out = Object.entries(stats).map(([g,s])=>({ group: g, count: s.count, mean
 console.log("Async grouped stats ready");
 ({ total: rows.length, groups: out })
 """
-        
+
         execution = await self.sandbox.run_code(code, language="javascript")
         assert execution.error is None
-        assert any("Async grouped stats ready" in line for line in execution.logs.stdout)
+        assert any(
+            "Async grouped stats ready" in line for line in execution.logs.stdout
+        )
         logger.info("Async Node.js data processing test passed")
 
     async def test_async_nodejs_chart_data(self):
         """测试异步Node.js图表数据生成"""
         assert self.sandbox is not None
-        
+
         code = """
 const labels = Array.from({length: 5}, (_, i)=>`T${i+1}`);
 const values = labels.map(()=> Math.round(Math.random()*50+50));
@@ -1408,43 +1449,47 @@ const chart = { type: 'bar', data: { labels, datasets: [{ label: 'Load', data: v
 console.log("Async chart data generated");
 ({ chart })
 """
-        
+
         execution = await self.sandbox.run_code(code, language="javascript")
         assert execution.error is None
-        assert any("Async chart data generated" in line for line in execution.logs.stdout)
+        assert any(
+            "Async chart data generated" in line for line in execution.logs.stdout
+        )
         assert len(execution.results) > 0
         logger.info("Async Node.js chart data test passed")
 
     async def test_async_nodejs_context_management(self):
         """测试异步Node.js上下文管理"""
         assert self.sandbox is not None
-        
+
         # 创建Node.js上下文
-        js_context = await self.sandbox.create_code_context(language="javascript", cwd="/tmp")
+        js_context = await self.sandbox.create_code_context(
+            language="javascript", cwd="/tmp"
+        )
         self.contexts["async_nodejs"] = js_context
-        
+
         setup = """
 console.log("Setup async Node.js context");
 globalThis.state = { counter: 0 };
 function inc(){ globalThis.state.counter += 1; return globalThis.state.counter; }
 ({ counter: globalThis.state.counter })
 """
-        
+
         e1 = await self.sandbox.run_code(setup, context=js_context)
         assert e1.error is None
         assert any("Setup async Node.js context" in line for line in e1.logs.stdout)
-        
+
         use = """
 console.log("Use async Node.js context");
 const c1 = inc();
 const c2 = inc();
 ({ after: c2 })
 """
-        
+
         e2 = await self.sandbox.run_code(use, context=js_context)
         assert e2.error is None
         assert any("Use async Node.js context" in line for line in e2.logs.stdout)
-        
+
         # 清理上下文
         try:
             await self.sandbox.destroy_context(js_context)
@@ -1455,11 +1500,11 @@ const c2 = inc();
             logger.warning(f"Failed to destroy async Node.js context: {e}")
 
     # ======================== 异步Bash 测试 ========================
-    
+
     async def test_async_bash_basic_execution(self):
         """测试异步Bash基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 echo "Hello from Async Bash Kernel!"
 NAME="scalebox"
@@ -1467,17 +1512,19 @@ echo "Hello, ${NAME}!"
 whoami
 date
 """
-        
+
         execution = await self.sandbox.run_code(code, language="bash")
         assert execution.error is None
-        assert any("Hello from Async Bash Kernel!" in line for line in execution.logs.stdout)
+        assert any(
+            "Hello from Async Bash Kernel!" in line for line in execution.logs.stdout
+        )
         assert any("Hello, scalebox!" in line for line in execution.logs.stdout)
         logger.info("Async Bash basic execution test passed")
 
     async def test_async_bash_file_operations(self):
         """测试异步Bash文件操作"""
         assert self.sandbox is not None
-        
+
         code = """
 set -e
 WORKDIR="/tmp/abash_demo"
@@ -1490,7 +1537,7 @@ ls -l
 wc -l both.txt
 echo "ABASH_DONE"
 """
-        
+
         execution = await self.sandbox.run_code(code, language="bash")
         assert execution.error is None
         assert any("ABASH_DONE" in line for line in execution.logs.stdout)
@@ -1499,12 +1546,12 @@ echo "ABASH_DONE"
     async def test_async_bash_pipelines_and_grep(self):
         """测试异步Bash管道与grep"""
         assert self.sandbox is not None
-        
+
         code = """
 printf "%s\n" a b a c a | grep -n "a" | awk -F: '{print "row", $1, ":", $2}'
 echo "ABASH_PIPE_OK"
 """
-        
+
         execution = await self.sandbox.run_code(code, language="bash")
         assert execution.error is None
         assert any("ABASH_PIPE_OK" in line for line in execution.logs.stdout)
@@ -1513,14 +1560,14 @@ echo "ABASH_PIPE_OK"
     async def test_async_bash_env_and_exit_codes(self):
         """测试异步Bash环境变量与退出码"""
         assert self.sandbox is not None
-        
+
         code = """
 export MODE=async
 echo "MODE=$MODE"
 (exit 9)
 echo $?
 """
-        
+
         execution = await self.sandbox.run_code(code, language="bash")
         assert execution.error is None
         assert any("MODE=async" in line for line in execution.logs.stdout)
@@ -1530,32 +1577,32 @@ echo $?
     async def test_async_bash_context_management(self):
         """测试异步Bash上下文管理"""
         assert self.sandbox is not None
-        
+
         # 创建Bash上下文
         bash_ctx = await self.sandbox.create_code_context(language="bash", cwd="/tmp")
         self.contexts["async_bash"] = bash_ctx
-        
+
         setup = """
 echo "Setup async Bash context"
 COUNT=3
 echo $COUNT
 """
-        
-        e1 = await self.sandbox.run_code(setup,  context=bash_ctx)
+
+        e1 = await self.sandbox.run_code(setup, context=bash_ctx)
         assert e1.error is None
         assert any("Setup async Bash context" in line for line in e1.logs.stdout)
-        
+
         use = """
 echo "Use async Bash context"
 COUNT=$((COUNT+2))
 echo "COUNT_AFTER=$COUNT"
 """
-        
+
         e2 = await self.sandbox.run_code(use, context=bash_ctx)
         assert e2.error is None
         assert any("Use async Bash context" in line for line in e2.logs.stdout)
         assert any("COUNT_AFTER=5" in line for line in e2.logs.stdout)
-        
+
         # 清理上下文
         try:
             await self.sandbox.destroy_context(bash_ctx)
@@ -1566,11 +1613,11 @@ echo "COUNT_AFTER=$COUNT"
             logger.warning(f"Failed to destroy async Bash context: {e}")
 
     # ======================== 异步IJAVA 测试 ========================
-    
+
     async def test_async_ijava_basic_execution(self):
         """测试异步IJAVA基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 // 异步IJAVA 基础执行测试
 System.out.println("Hello from Async IJAVA Kernel!");
@@ -1604,10 +1651,12 @@ sum;
 product;
 total;
 """
-        
+
         execution = await self.sandbox.run_code(code, language="java")
         assert execution.error is None
-        assert any("Hello from Async IJAVA Kernel!" in line for line in execution.logs.stdout)
+        assert any(
+            "Hello from Async IJAVA Kernel!" in line for line in execution.logs.stdout
+        )
         assert any("Sum: 40" in line for line in execution.logs.stdout)
         assert any("Array sum: 30" in line for line in execution.logs.stdout)
         logger.info("Async IJAVA basic execution test passed")
@@ -1615,7 +1664,7 @@ total;
     async def test_async_ijava_oop_features(self):
         """测试异步IJAVA面向对象特性"""
         assert self.sandbox is not None
-        
+
         code = """
 // 异步IJAVA 面向对象特性测试
 System.out.println("Testing Async IJAVA OOP features...");
@@ -1668,18 +1717,23 @@ student;
 
 System.out.println("Async IJAVA OOP test completed successfully!");
 """
-        
+
         execution = await self.sandbox.run_code(code, language="java")
         assert execution.error is None
-        assert any("Testing Async IJAVA OOP features..." in line for line in execution.logs.stdout)
+        assert any(
+            "Testing Async IJAVA OOP features..." in line
+            for line in execution.logs.stdout
+        )
         assert any("Hi, I'm Eve" in line for line in execution.logs.stdout)
-        assert any("I'm studying Data Science" in line for line in execution.logs.stdout)
+        assert any(
+            "I'm studying Data Science" in line for line in execution.logs.stdout
+        )
         logger.info("Async IJAVA OOP features test passed")
 
     async def test_async_ijava_collections(self):
         """测试异步IJAVA集合框架"""
         assert self.sandbox is not None
-        
+
         code = """
 import java.util.*;
 
@@ -1724,18 +1778,25 @@ uniqueWords.contains("hello");
 
 System.out.println("Async IJAVA Collections test completed!");
 """
-        
+
         execution = await self.sandbox.run_code(code, language="java")
         assert execution.error is None
-        assert any("Testing Async IJAVA Collections..." in line for line in execution.logs.stdout)
-        assert any("Colors: [Red, Green, Blue]" in line for line in execution.logs.stdout)
-        assert any("Unique words: [hello, world]" in line for line in execution.logs.stdout)
+        assert any(
+            "Testing Async IJAVA Collections..." in line
+            for line in execution.logs.stdout
+        )
+        assert any(
+            "Colors: [Red, Green, Blue]" in line for line in execution.logs.stdout
+        )
+        assert any(
+            "Unique words: [hello, world]" in line for line in execution.logs.stdout
+        )
         logger.info("Async IJAVA collections test passed")
 
     async def test_async_ijava_file_io(self):
         """测试异步IJAVA文件I/O"""
         assert self.sandbox is not None
-        
+
         code = """
 import java.io.*;
 import java.nio.file.*;
@@ -1776,22 +1837,30 @@ try {
     System.err.println("Error: " + e.getMessage());
 }
 """
-        
+
         execution = await self.sandbox.run_code(code, language="java")
         assert execution.error is None
-        assert any("Testing Async IJAVA File I/O..." in line for line in execution.logs.stdout)
-        assert any("File written successfully" in line for line in execution.logs.stdout)
-        assert any("Hello from Async IJAVA File I/O!" in line for line in execution.logs.stdout)
+        assert any(
+            "Testing Async IJAVA File I/O..." in line for line in execution.logs.stdout
+        )
+        assert any(
+            "File written successfully" in line for line in execution.logs.stdout
+        )
+        assert any(
+            "Hello from Async IJAVA File I/O!" in line for line in execution.logs.stdout
+        )
         logger.info("Async IJAVA file I/O test passed")
 
     async def test_async_ijava_context_management(self):
         """测试异步IJAVA上下文管理"""
         assert self.sandbox is not None
-        
+
         # 创建IJAVA上下文
-        ijava_context = await self.sandbox.create_code_context(language="java", cwd="/tmp")
+        ijava_context = await self.sandbox.create_code_context(
+            language="java", cwd="/tmp"
+        )
         self.contexts["async_ijava"] = ijava_context
-        
+
         # 在上下文中定义类和变量
         setup_code = """
 System.out.println("Setting up async IJAVA context...");
@@ -1834,12 +1903,15 @@ counter;
 message;
 getCounter();
 """
-        
+
         execution1 = await self.sandbox.run_code(setup_code, context=ijava_context)
         assert execution1.error is None
-        assert any("Setting up async IJAVA context..." in line for line in execution1.logs.stdout)
+        assert any(
+            "Setting up async IJAVA context..." in line
+            for line in execution1.logs.stdout
+        )
         assert any("Initial counter: 0" in line for line in execution1.logs.stdout)
-        
+
         # 在同一上下文中使用之前定义的变量和方法
         use_code = """
 System.out.println("Using async IJAVA context...");
@@ -1867,30 +1939,36 @@ AsyncContextDemo.getStaticCounter();
 
 System.out.println("Async IJAVA context usage completed!");
 """
-        
+
         execution2 = await self.sandbox.run_code(use_code, context=ijava_context)
         assert execution2.error is None
-        assert any("Using async IJAVA context..." in line for line in execution2.logs.stdout)
+        assert any(
+            "Using async IJAVA context..." in line for line in execution2.logs.stdout
+        )
         assert any("Current counter: 2" in line for line in execution2.logs.stdout)
         assert any("Static counter: 1" in line for line in execution2.logs.stdout)
         logger.info("Async IJAVA context management test passed")
-        
+
         # 测试完成后立即清理context
         try:
             await self.sandbox.destroy_context(ijava_context)
-            logger.info(f"Successfully destroyed async IJAVA context: {ijava_context.id}")
+            logger.info(
+                f"Successfully destroyed async IJAVA context: {ijava_context.id}"
+            )
             # 从contexts字典中移除
             if "async_ijava" in self.contexts:
                 del self.contexts["async_ijava"]
         except Exception as e:
-            logger.warning(f"Failed to destroy async IJAVA context {ijava_context.id}: {e}")
+            logger.warning(
+                f"Failed to destroy async IJAVA context {ijava_context.id}: {e}"
+            )
 
     # ======================== 异步Deno 测试 ========================
-    
+
     async def test_async_deno_basic_execution(self):
         """测试异步Deno基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 // 异步Deno 基础执行测试
 console.log("Hello from Async Deno Kernel!");
@@ -1922,10 +2000,12 @@ const person = {
 };
 console.log(`Person: ${person.name}, ${person.age} years old`);
 """
-        
+
         execution = await self.sandbox.run_code(code, language="typescript")
         assert execution.error is None
-        assert any("Hello from Async Deno Kernel!" in line for line in execution.logs.stdout)
+        assert any(
+            "Hello from Async Deno Kernel!" in line for line in execution.logs.stdout
+        )
         assert any("Sum: 30" in line for line in execution.logs.stdout)
         assert any("Array sum: 30" in line for line in execution.logs.stdout)
         logger.info("Async Deno basic execution test passed")
@@ -1933,7 +2013,7 @@ console.log(`Person: ${person.name}, ${person.age} years old`);
     async def test_async_deno_typescript_features(self):
         """测试异步Deno TypeScript特性"""
         assert self.sandbox is not None
-        
+
         code = """
 // 异步Deno TypeScript 特性测试
 interface AsyncUser {
@@ -2006,10 +2086,13 @@ processAsyncItems(numbers, (num) => console.log(`Processing: ${num}`));
 console.log(`Status: ${AsyncStatus.APPROVED}`);
 console.log("Async TypeScript features test completed!");
 """
-        
+
         execution = await self.sandbox.run_code(code, language="typescript")
         assert execution.error is None
-        assert any("Testing Async Deno TypeScript features..." in line for line in execution.logs.stdout)
+        assert any(
+            "Testing Async Deno TypeScript features..." in line
+            for line in execution.logs.stdout
+        )
         assert any("Added user: Async John" in line for line in execution.logs.stdout)
         assert any("Total users: 2" in line for line in execution.logs.stdout)
         logger.info("Async Deno TypeScript features test passed")
@@ -2017,7 +2100,7 @@ console.log("Async TypeScript features test completed!");
     async def test_async_deno_async_await(self):
         """测试异步Deno异步/await"""
         assert self.sandbox is not None
-        
+
         code = """
 // 异步Deno 异步/await 测试
 async function asyncDelay(ms: number): Promise<void> {
@@ -2058,18 +2141,26 @@ async function asyncMain(): Promise<void> {
 
 asyncMain();
 """
-        
+
         execution = await self.sandbox.run_code(code, language="typescript")
         assert execution.error is None
-        assert any("Testing Async Deno async/await..." in line for line in execution.logs.stdout)
-        assert any("Starting async batch processing..." in line for line in execution.logs.stdout)
-        assert any("Async batch processing completed" in line for line in execution.logs.stdout)
+        assert any(
+            "Testing Async Deno async/await..." in line
+            for line in execution.logs.stdout
+        )
+        assert any(
+            "Starting async batch processing..." in line
+            for line in execution.logs.stdout
+        )
+        assert any(
+            "Async batch processing completed" in line for line in execution.logs.stdout
+        )
         logger.info("Async Deno async/await test passed")
 
     async def test_async_deno_file_operations(self):
         """测试异步Deno文件操作"""
         assert self.sandbox is not None
-        
+
         code = """
 // 异步Deno 文件操作测试
 import { ensureDir, writeTextFile, readTextFile, remove } from "https://deno.land/std@0.208.0/fs/mod.ts";
@@ -2111,22 +2202,32 @@ async function asyncFileOperations(): Promise<void> {
 
 asyncFileOperations();
 """
-        
+
         execution = await self.sandbox.run_code(code, language="typescript")
         assert execution.error is None
-        assert any("Testing Async Deno file operations..." in line for line in execution.logs.stdout)
-        assert any("Async file written successfully" in line for line in execution.logs.stdout)
-        assert any("Hello from Async Deno File Operations!" in line for line in execution.logs.stdout)
+        assert any(
+            "Testing Async Deno file operations..." in line
+            for line in execution.logs.stdout
+        )
+        assert any(
+            "Async file written successfully" in line for line in execution.logs.stdout
+        )
+        assert any(
+            "Hello from Async Deno File Operations!" in line
+            for line in execution.logs.stdout
+        )
         logger.info("Async Deno file operations test passed")
 
     async def test_async_deno_context_management(self):
         """测试异步Deno上下文管理"""
         assert self.sandbox is not None
-        
+
         # 创建Deno上下文
-        deno_context = await self.sandbox.create_code_context(language="typescript", cwd="/tmp")
+        deno_context = await self.sandbox.create_code_context(
+            language="typescript", cwd="/tmp"
+        )
         self.contexts["async_deno"] = deno_context
-        
+
         # 在上下文中定义变量和函数
         setup_code = """
 // 异步Deno 上下文设置
@@ -2162,12 +2263,17 @@ console.log(`Initial async counter: ${asyncCounter}`);
 console.log(`Async cache size: ${asyncCache.size}`);
 console.log(`Async context data: ${asyncContextData.value}`);
 """
-        
+
         execution1 = await self.sandbox.run_code(setup_code, context=deno_context)
         assert execution1.error is None
-        assert any("Setting up async Deno context..." in line for line in execution1.logs.stdout)
-        assert any("Initial async counter: 0" in line for line in execution1.logs.stdout)
-        
+        assert any(
+            "Setting up async Deno context..." in line
+            for line in execution1.logs.stdout
+        )
+        assert any(
+            "Initial async counter: 0" in line for line in execution1.logs.stdout
+        )
+
         # 在同一上下文中使用之前定义的变量和函数
         use_code = """
 // 使用异步Deno 上下文中的变量和函数
@@ -2194,14 +2300,22 @@ console.log(`Modified async context data: ${asyncContextData.value}`);
 
 console.log("Async context usage completed!");
 """
-        
+
         execution2 = await self.sandbox.run_code(use_code, context=deno_context)
         assert execution2.error is None
-        assert any("Using async Deno context..." in line for line in execution2.logs.stdout)
-        assert any("Async counter after increment: 1" in line for line in execution2.logs.stdout)
-        assert any("Async cache size after addition: 1" in line for line in execution2.logs.stdout)
+        assert any(
+            "Using async Deno context..." in line for line in execution2.logs.stdout
+        )
+        assert any(
+            "Async counter after increment: 1" in line
+            for line in execution2.logs.stdout
+        )
+        assert any(
+            "Async cache size after addition: 1" in line
+            for line in execution2.logs.stdout
+        )
         logger.info("Async Deno context management test passed")
-        
+
         # 测试完成后立即清理context
         try:
             await self.sandbox.destroy_context(deno_context)
@@ -2210,14 +2324,16 @@ console.log("Async context usage completed!");
             if "async_deno" in self.contexts:
                 del self.contexts["async_deno"]
         except Exception as e:
-            logger.warning(f"Failed to destroy async Deno context {deno_context.id}: {e}")
+            logger.warning(
+                f"Failed to destroy async Deno context {deno_context.id}: {e}"
+            )
 
     # ======================== 高级异步功能测试 ========================
-    
+
     async def test_async_websocket_simulation(self):
         """测试异步WebSocket模拟"""
         assert self.sandbox is not None
-        
+
         code = """
 import asyncio
 import json
@@ -2332,8 +2448,8 @@ print(f"消息吞吐量: {(total_sent + total_received) / total_duration:.1f} me
     "client_results": results
 }
 """
-        
-        execution = await self.sandbox.run_code(code,language="python")
+
+        execution = await self.sandbox.run_code(code, language="python")
         assert execution.error is None
         assert any("WebSocket模拟" in line for line in execution.logs.stdout)
 
@@ -2342,22 +2458,37 @@ print(f"消息吞吐量: {(total_sent + total_received) / total_duration:.1f} me
     async def run_all_tests(self):
         """运行所有异步测试"""
         logger.info("开始AsyncCodeInterpreter综合验证测试...")
-        
+
         # 基础异步操作测试
-        await self.run_test(self.test_async_code_interpreter_creation, "Async CodeInterpreter Creation")
-        await self.run_test(self.test_basic_async_python_execution, "Basic Async Python Execution")
-        await self.run_test(self.test_concurrent_code_execution, "Concurrent Code Execution")
-        await self.run_test(self.test_async_data_science_workflow, "Async Data Science Workflow")
+        await self.run_test(
+            self.test_async_code_interpreter_creation, "Async CodeInterpreter Creation"
+        )
+        await self.run_test(
+            self.test_basic_async_python_execution, "Basic Async Python Execution"
+        )
+        await self.run_test(
+            self.test_concurrent_code_execution, "Concurrent Code Execution"
+        )
+        await self.run_test(
+            self.test_async_data_science_workflow, "Async Data Science Workflow"
+        )
 
         # 异步回调测试
-        await self.run_test(self.test_async_callback_handling, "Async Callback Handling")
+        await self.run_test(
+            self.test_async_callback_handling, "Async Callback Handling"
+        )
 
         # 异步上下文管理测试
         await self.run_test(self.test_async_context_creation, "Async Context Creation")
-        await self.run_test(self.test_async_context_state_management, "Async Context State Management")
+        await self.run_test(
+            self.test_async_context_state_management, "Async Context State Management"
+        )
 
         # 异步性能测试
-        await self.run_test(self.test_async_performance_concurrent_tasks, "Async Performance Concurrent Tasks")
+        await self.run_test(
+            self.test_async_performance_concurrent_tasks,
+            "Async Performance Concurrent Tasks",
+        )
         await self.run_test(self.test_async_batch_processing, "Async Batch Processing")
 
         # 异步错误处理测试
@@ -2365,46 +2496,101 @@ print(f"消息吞吐量: {(total_sent + total_received) / total_duration:.1f} me
 
         # 异步结果格式测试
         await self.run_test(self.test_async_text_result, "Async Text Result Format")
-        await self.run_test(self.test_async_mixed_format_result, "Async Mixed Format Result")
-        await self.run_test(self.test_async_realtime_data_result, "Async Realtime Data Result")
+        await self.run_test(
+            self.test_async_mixed_format_result, "Async Mixed Format Result"
+        )
+        await self.run_test(
+            self.test_async_realtime_data_result, "Async Realtime Data Result"
+        )
 
         # 异步R语言测试
-        await self.run_test(self.test_async_r_language_basic_execution, "Async R Language Basic Execution")
-        await self.run_test(self.test_async_r_language_data_analysis, "Async R Language Data Analysis")
-        await self.run_test(self.test_async_r_language_visualization, "Async R Language Visualization")
-        await self.run_test(self.test_async_r_language_statistics, "Async R Language Statistics")
-        await self.run_test(self.test_async_r_language_context_management, "Async R Language Context Management")
-        
+        await self.run_test(
+            self.test_async_r_language_basic_execution,
+            "Async R Language Basic Execution",
+        )
+        await self.run_test(
+            self.test_async_r_language_data_analysis, "Async R Language Data Analysis"
+        )
+        await self.run_test(
+            self.test_async_r_language_visualization, "Async R Language Visualization"
+        )
+        await self.run_test(
+            self.test_async_r_language_statistics, "Async R Language Statistics"
+        )
+        await self.run_test(
+            self.test_async_r_language_context_management,
+            "Async R Language Context Management",
+        )
+
         # 异步Node.js/JavaScript 测试
-        await self.run_test(self.test_async_nodejs_basic_execution, "Async Node.js Basic Execution")
-        await self.run_test(self.test_async_nodejs_async_promises, "Async Node.js Async Promises")
-        await self.run_test(self.test_async_nodejs_data_processing, "Async Node.js Data Processing")
-        await self.run_test(self.test_async_nodejs_chart_data, "Async Node.js Chart Data Generation")
-        await self.run_test(self.test_async_nodejs_context_management, "Async Node.js Context Management")
-        
+        await self.run_test(
+            self.test_async_nodejs_basic_execution, "Async Node.js Basic Execution"
+        )
+        await self.run_test(
+            self.test_async_nodejs_async_promises, "Async Node.js Async Promises"
+        )
+        await self.run_test(
+            self.test_async_nodejs_data_processing, "Async Node.js Data Processing"
+        )
+        await self.run_test(
+            self.test_async_nodejs_chart_data, "Async Node.js Chart Data Generation"
+        )
+        await self.run_test(
+            self.test_async_nodejs_context_management,
+            "Async Node.js Context Management",
+        )
+
         # 异步Bash 测试
-        await self.run_test(self.test_async_bash_basic_execution, "Async Bash Basic Execution")
-        await self.run_test(self.test_async_bash_file_operations, "Async Bash File Operations")
-        await self.run_test(self.test_async_bash_pipelines_and_grep, "Async Bash Pipelines and Grep")
-        await self.run_test(self.test_async_bash_env_and_exit_codes, "Async Bash Env and Exit Codes")
-        await self.run_test(self.test_async_bash_context_management, "Async Bash Context Management")
-        
+        await self.run_test(
+            self.test_async_bash_basic_execution, "Async Bash Basic Execution"
+        )
+        await self.run_test(
+            self.test_async_bash_file_operations, "Async Bash File Operations"
+        )
+        await self.run_test(
+            self.test_async_bash_pipelines_and_grep, "Async Bash Pipelines and Grep"
+        )
+        await self.run_test(
+            self.test_async_bash_env_and_exit_codes, "Async Bash Env and Exit Codes"
+        )
+        await self.run_test(
+            self.test_async_bash_context_management, "Async Bash Context Management"
+        )
+
         # 异步IJAVA 测试
-        await self.run_test(self.test_async_ijava_basic_execution, "Async IJAVA Basic Execution")
-        await self.run_test(self.test_async_ijava_oop_features, "Async IJAVA OOP Features")
-        await self.run_test(self.test_async_ijava_collections, "Async IJAVA Collections")
+        await self.run_test(
+            self.test_async_ijava_basic_execution, "Async IJAVA Basic Execution"
+        )
+        await self.run_test(
+            self.test_async_ijava_oop_features, "Async IJAVA OOP Features"
+        )
+        await self.run_test(
+            self.test_async_ijava_collections, "Async IJAVA Collections"
+        )
         await self.run_test(self.test_async_ijava_file_io, "Async IJAVA File I/O")
-        await self.run_test(self.test_async_ijava_context_management, "Async IJAVA Context Management")
-        
+        await self.run_test(
+            self.test_async_ijava_context_management, "Async IJAVA Context Management"
+        )
+
         # 异步Deno 测试
-        await self.run_test(self.test_async_deno_basic_execution, "Async Deno Basic Execution")
-        await self.run_test(self.test_async_deno_typescript_features, "Async Deno TypeScript Features")
+        await self.run_test(
+            self.test_async_deno_basic_execution, "Async Deno Basic Execution"
+        )
+        await self.run_test(
+            self.test_async_deno_typescript_features, "Async Deno TypeScript Features"
+        )
         await self.run_test(self.test_async_deno_async_await, "Async Deno Async/Await")
-        await self.run_test(self.test_async_deno_file_operations, "Async Deno File Operations")
-        await self.run_test(self.test_async_deno_context_management, "Async Deno Context Management")
-        
+        await self.run_test(
+            self.test_async_deno_file_operations, "Async Deno File Operations"
+        )
+        await self.run_test(
+            self.test_async_deno_context_management, "Async Deno Context Management"
+        )
+
         # 高级异步功能测试
-        await self.run_test(self.test_async_websocket_simulation, "Async WebSocket Simulation")
+        await self.run_test(
+            self.test_async_websocket_simulation, "Async WebSocket Simulation"
+        )
 
     async def cleanup(self):
         """清理资源"""
@@ -2412,13 +2598,15 @@ print(f"消息吞吐量: {(total_sent + total_received) / total_duration:.1f} me
         for name, context in self.contexts.items():
             try:
                 await self.sandbox.destroy_context(context)
-                logger.info(f"Successfully destroyed async context {name}: {context.id}")
+                logger.info(
+                    f"Successfully destroyed async context {name}: {context.id}"
+                )
             except Exception as e:
                 logger.warning(f"Error cleaning up async context {name}: {e}")
-        
+
         # 清空contexts字典
         self.contexts.clear()
-        
+
         # 清理异步沙箱
         if self.sandbox:
             try:
@@ -2430,32 +2618,32 @@ print(f"消息吞吐量: {(total_sent + total_received) / total_duration:.1f} me
     def print_summary(self):
         """打印测试摘要"""
         total_tests = len(self.test_results)
-        passed_tests = sum(1 for r in self.test_results if r['success'])
+        passed_tests = sum(1 for r in self.test_results if r["success"])
         failed_tests = total_tests - passed_tests
-        
-        total_duration = sum(r['duration'] for r in self.test_results)
-        
-        print("\n" + "="*60)
+
+        total_duration = sum(r["duration"] for r in self.test_results)
+
+        print("\n" + "=" * 60)
         print("AsyncCodeInterpreter综合验证测试报告")
-        print("="*60)
+        print("=" * 60)
         print(f"总测试数: {total_tests}")
         print(f"通过数: {passed_tests}")
         print(f"失败数: {failed_tests}")
         print(f"总耗时: {total_duration:.3f}秒")
         print(f"成功率: {(passed_tests/total_tests*100):.1f}%")
-        
+
         if self.failed_tests:
             print(f"\n失败的测试:")
             for test in self.failed_tests:
                 print(f"  ❌ {test}")
-        
-        print("="*60)
+
+        print("=" * 60)
 
 
 async def main():
     """主函数"""
     validator = AsyncCodeInterpreterValidator()
-    
+
     try:
         await validator.run_all_tests()
     finally:

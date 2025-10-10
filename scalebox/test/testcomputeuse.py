@@ -1,4 +1,5 @@
 import time
+
 from scalebox.csx_desktop.main import Sandbox
 
 
@@ -7,7 +8,7 @@ def desktop_automation_demo():
 
     # 1. 创建桌面沙箱实例
     print("正在启动桌面沙箱...")
-    desktop = Sandbox(timeout=3600,template="browser-use")
+    desktop = Sandbox(timeout=3600, template="browser-use")
     # print(f"沙箱已启动，ID: {desktop.sandbox_id}")
 
     # 2. 启动VNC流以便远程查看桌面
@@ -109,7 +110,9 @@ def desktop_automation_demo():
     test_content = """Hello World!
 This is a test file created from SBX Sandbox SDK.
 Current time: {time}
-""".format(time=time.ctime())
+""".format(
+        time=time.ctime()
+    )
 
     desktop.files.write("/tmp/test_file.txt", test_content)
     print("已创建测试文件")
@@ -138,7 +141,9 @@ Current time: {time}
     terminal_windows = desktop.get_application_windows("xfce4-terminal")
     if terminal_windows:
         # 激活终端窗口
-        desktop.commands.run(f"DISPLAY={desktop._display} xdotool windowactivate {terminal_windows[0]}")
+        desktop.commands.run(
+            f"DISPLAY={desktop._display} xdotool windowactivate {terminal_windows[0]}"
+        )
 
         # 创建Python脚本并执行
         python_script = """#!/usr/bin/env python3

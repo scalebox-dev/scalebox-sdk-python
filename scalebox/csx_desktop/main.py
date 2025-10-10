@@ -1,19 +1,16 @@
 import time
 from re import search as re_search
 from shlex import quote as quote_string
-from typing import Callable, Dict, Iterator, Literal, Optional, overload, Tuple, Union
+from typing import Callable, Dict, Iterator, Literal, Optional, Tuple, Union, overload
 from uuid import uuid4
 
 from httpx._types import ProxyTypes
 
-from ..sandbox_sync import Sandbox as SandboxBase, CommandHandle, CommandResult, CommandExitException
 from ..exceptions import TimeoutException
+from ..sandbox_sync import CommandExitException, CommandHandle, CommandResult
+from ..sandbox_sync import Sandbox as SandboxBase
 
-MOUSE_BUTTONS = {
-    "left": 1,
-    "right": 3,
-    "middle": 2
-}
+MOUSE_BUTTONS = {"left": 1, "right": 3, "middle": 2}
 
 KEYS = {
     "alt": "Alt_L",
@@ -69,7 +66,7 @@ KEYS = {
     "tab": "Tab",
     "up": "Up",
     "win": "Super_L",
-    "windows": "Super_L"
+    "windows": "Super_L",
 }
 
 
@@ -101,7 +98,7 @@ class _VNCServer:
 
     def _check_vnc_running(self) -> bool:
         try:
-            self.__desktop.commands.run('pgrep -x x11vnc')
+            self.__desktop.commands.run("pgrep -x x11vnc")
             return True
         except CommandExitException:
             return False
@@ -112,10 +109,15 @@ class _VNCServer:
         import string
 
         characters = string.ascii_letters + string.digits
-        return ''.join(secrets.choice(characters) for _ in range(length))
+        return "".join(secrets.choice(characters) for _ in range(length))
 
-    def get_url(self, auto_connect: bool = True, view_only: bool = False, resize: str = "scale",
-                auth_key: Optional[str] = None) -> str:
+    def get_url(
+        self,
+        auto_connect: bool = True,
+        view_only: bool = False,
+        resize: str = "scale",
+        auth_key: Optional[str] = None,
+    ) -> str:
         params = []
         if auto_connect:
             params.append("autoconnect=true")
@@ -131,14 +133,21 @@ class _VNCServer:
 
     def get_auth_key(self) -> str:
         if not self._novnc_password:
-            raise RuntimeError('Unable to retrieve stream auth key, check if require_auth is enabled')
+            raise RuntimeError(
+                "Unable to retrieve stream auth key, check if require_auth is enabled"
+            )
         return self._novnc_password
 
-    def start(self, vnc_port: Optional[int] = None, port: Optional[int] = None, require_auth: bool = False,
-              window_id: Optional[str] = None) -> None:
+    def start(
+        self,
+        vnc_port: Optional[int] = None,
+        port: Optional[int] = None,
+        require_auth: bool = False,
+        window_id: Optional[str] = None,
+    ) -> None:
         # If stream is already running, throw an error
         if self._check_vnc_running():
-            raise RuntimeError('Stream is already running')
+            raise RuntimeError("Stream is already running")
 
         # Update parameters if provided
         self._vnc_port = vnc_port or self._vnc_port
@@ -154,7 +163,9 @@ class _VNCServer:
         pwd_flag = "-nopw"
         if self._novnc_auth_enabled:
             self.__desktop.commands.run("mkdir -p ~/.vnc")
-            self.__desktop.commands.run(f"x11vnc -storepasswd {self._novnc_password} ~/.vnc/passwd")
+            self.__desktop.commands.run(
+                f"x11vnc -storepasswd {self._novnc_password} ~/.vnc/passwd"
+            )
             pwd_flag = "-usepw"
         window_id_flag = ""
         if window_id:
@@ -171,13 +182,15 @@ class _VNCServer:
         )
 
         self.__desktop.commands.run(vnc_command)
-        self.__novnc_handle = self.__desktop.commands.run(novnc_command, background=True, timeout=0)
+        self.__novnc_handle = self.__desktop.commands.run(
+            novnc_command, background=True, timeout=0
+        )
         if not self._wait_for_port(self._port):
             raise TimeoutException("Could not start noVNC server")
 
     def stop(self) -> None:
         if self._check_vnc_running():
-            self.__desktop.commands.run('pkill x11vnc')
+            self.__desktop.commands.run("pkill x11vnc")
 
         if self.__novnc_handle:
             self.__novnc_handle.kill()
@@ -278,20 +291,20 @@ class Sandbox(SandboxBase):
 
     @classmethod
     def create(
-            cls,
-            resolution: Optional[Tuple[int, int]] = None,
-            dpi: Optional[int] = None,
-            display: Optional[str] = None,
-            template: Optional[str] = None,
-            timeout: Optional[int] = None,
-            metadata: Optional[Dict[str, str]] = None,
-            envs: Optional[Dict[str, str]] = None,
-            api_key: Optional[str] = None,
-            domain: Optional[str] = None,
-            debug: Optional[bool] = None,
-            sandbox_id: Optional[str] = None,
-            request_timeout: Optional[float] = None,
-            proxy: Optional[ProxyTypes] = None,
+        cls,
+        resolution: Optional[Tuple[int, int]] = None,
+        dpi: Optional[int] = None,
+        display: Optional[str] = None,
+        template: Optional[str] = None,
+        timeout: Optional[int] = None,
+        metadata: Optional[Dict[str, str]] = None,
+        envs: Optional[Dict[str, str]] = None,
+        api_key: Optional[str] = None,
+        domain: Optional[str] = None,
+        debug: Optional[bool] = None,
+        sandbox_id: Optional[str] = None,
+        request_timeout: Optional[float] = None,
+        proxy: Optional[ProxyTypes] = None,
     ) -> "Sandbox":
         """
         同步创建或连接到一个桌面沙箱。
@@ -333,9 +346,9 @@ class Sandbox(SandboxBase):
 
     # ====================== 子类私有方法 ======================
     def _start_desktop(
-            self,
-            resolution: Optional[Tuple[int, int]] = None,
-            dpi: Optional[int] = None,
+        self,
+        resolution: Optional[Tuple[int, int]] = None,
+        dpi: Optional[int] = None,
     ) -> None:
         """启动 Xvfb 并等待成功，然后起 xfce4 + VNC。"""
         width, height = resolution or (1024, 768)
@@ -346,19 +359,19 @@ class Sandbox(SandboxBase):
             timeout=0,
         )
         if not self._wait_and_verify(
-                f"xdpyinfo -display {self._display}",
-                lambda r: r.exit_code == 0,
+            f"xdpyinfo -display {self._display}",
+            lambda r: r.exit_code == 0,
         ):
             raise TimeoutException("Could not start Xvfb")
         self.__vnc_server = _VNCServer(self)
         self._start_xfce4()
 
     def _wait_and_verify(
-            self,
-            cmd: str,
-            on_result: Callable[[CommandResult], bool],
-            timeout: int = 10,
-            interval: float = 0.5
+        self,
+        cmd: str,
+        on_result: Callable[[CommandResult], bool],
+        timeout: int = 10,
+        interval: float = 0.5,
     ) -> bool:
 
         elapsed = 0
@@ -379,10 +392,15 @@ class Sandbox(SandboxBase):
         Start xfce4 session if logged out or not running.
         """
         if self._last_xfce4_pid is None or "[xfce4-session] <defunct>" in (
-                self.commands.run(f"ps aux | grep {self._last_xfce4_pid} | grep -v grep | head -n 1").stdout.strip()
+            self.commands.run(
+                f"ps aux | grep {self._last_xfce4_pid} | grep -v grep | head -n 1"
+            ).stdout.strip()
         ):
             self._last_xfce4_pid = self.commands.run(
-                f"mkdir -p $HOME/.config $HOME/.cache $HOME/.dbus && DISPLAY={self._display} startxfce4",background=True, timeout=0,envs={"HOME": "/workspace"}
+                f"mkdir -p $HOME/.config $HOME/.cache $HOME/.dbus && DISPLAY={self._display} startxfce4",
+                background=True,
+                timeout=0,
+                envs={"HOME": "/workspace"},
             ).pid
 
     @property
@@ -397,16 +415,16 @@ class Sandbox(SandboxBase):
 
     @overload
     def screenshot(
-            self,
-            format: Literal["bytes"],
+        self,
+        format: Literal["bytes"],
     ) -> bytearray:
         """
         Take a screenshot and return it as a bytearray.
         """
 
     def screenshot(
-            self,
-            format: Literal["bytes", "stream"] = "bytes",
+        self,
+        format: Literal["bytes", "stream"] = "bytes",
     ):
         """
         Take a screenshot and return it in the specified format.
@@ -480,13 +498,17 @@ class Sandbox(SandboxBase):
         """
         Press the mouse button.
         """
-        self.commands.run(f"DISPLAY={self._display} xdotool mousedown {MOUSE_BUTTONS[button]}")
+        self.commands.run(
+            f"DISPLAY={self._display} xdotool mousedown {MOUSE_BUTTONS[button]}"
+        )
 
     def mouse_release(self, button: Literal["left", "right", "middle"] = "left"):
         """
         Release the mouse button.
         """
-        self.commands.run(f"DISPLAY={self._display} xdotool mouseup {MOUSE_BUTTONS[button]}")
+        self.commands.run(
+            f"DISPLAY={self._display} xdotool mouseup {MOUSE_BUTTONS[button]}"
+        )
 
     def get_cursor_position(self) -> tuple[int, int]:
         """
@@ -499,7 +521,9 @@ class Sandbox(SandboxBase):
 
         groups = re_search(r"x:(\d+)\s+y:(\d+)", result.stdout)
         if not groups:
-            raise RuntimeError(f"Failed to parse cursor position from output: {result.stdout}")
+            raise RuntimeError(
+                f"Failed to parse cursor position from output: {result.stdout}"
+            )
 
         x, y = groups.group(1), groups.group(2)
         if not x or not y:
@@ -518,19 +542,16 @@ class Sandbox(SandboxBase):
 
         _match = re_search(r"(\d+x\d+)", result.stdout)
         if not _match:
-            raise RuntimeError(f"Failed to parse screen size from output: {result.stdout}")
+            raise RuntimeError(
+                f"Failed to parse screen size from output: {result.stdout}"
+            )
 
         try:
             return tuple(map(int, _match.group(1).split("x")))  # type: ignore
         except (ValueError, IndexError) as e:
             raise RuntimeError(f"Invalid screen size format: {_match.group(1)}") from e
 
-    def write(self,
-              text: str,
-              *,
-              chunk_size: int = 25,
-              delay_in_ms: int = 75
-              ) -> None:
+    def write(self, text: str, *, chunk_size: int = 25, delay_in_ms: int = 75) -> None:
         """
         Write the given text at the current cursor position.
 
@@ -541,7 +562,7 @@ class Sandbox(SandboxBase):
 
         def break_into_chunks(text: str, n: int):
             for i in range(0, len(text), n):
-                yield text[i: i + n]
+                yield text[i : i + n]
 
         for chunk in break_into_chunks(text, chunk_size):
             self.commands.run(
@@ -587,28 +608,44 @@ class Sandbox(SandboxBase):
 
         :param file_or_url: The file or URL to open.
         """
-        self.commands.run(f"DISPLAY={self._display} xdg-open {file_or_url}", background=True)
+        self.commands.run(
+            f"DISPLAY={self._display} xdg-open {file_or_url}", background=True
+        )
 
     def get_current_window_id(self) -> str:
         """
         Get the current window ID.
         """
-        return self.commands.run(f"DISPLAY={self._display} xdotool getwindowfocus").stdout.strip()
+        return self.commands.run(
+            f"DISPLAY={self._display} xdotool getwindowfocus"
+        ).stdout.strip()
 
     def get_application_windows(self, application: str) -> list[str]:
         """
         Get the window IDs of all windows for the given application.
         """
-        return self.commands.run(f"DISPLAY={self._display} xdotool search --onlyvisible --class {application}").stdout.strip().split("\n")
+        return (
+            self.commands.run(
+                f"DISPLAY={self._display} xdotool search --onlyvisible --class {application}"
+            )
+            .stdout.strip()
+            .split("\n")
+        )
 
     def get_window_title(self, window_id: str) -> str:
         """
         Get the title of the window with the given ID.
         """
-        return self.commands.run(f"DISPLAY={self._display} xdotool getwindowname {window_id}").stdout.strip()
+        return self.commands.run(
+            f"DISPLAY={self._display} xdotool getwindowname {window_id}"
+        ).stdout.strip()
 
     def launch(self, application: str, uri: Optional[str] = None):
         """
         Launch an application.
         """
-        self.commands.run(f"DISPLAY={self._display} gtk-launch {application} {uri or ''}", background=True, timeout=0)
+        self.commands.run(
+            f"DISPLAY={self._display} gtk-launch {application} {uri or ''}",
+            background=True,
+            timeout=0,
+        )

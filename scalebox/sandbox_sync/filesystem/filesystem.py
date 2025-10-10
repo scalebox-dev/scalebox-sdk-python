@@ -1,29 +1,32 @@
 from io import IOBase
-from typing import IO, Iterator, List, Literal, Optional, overload, Union
+from typing import IO, Iterator, List, Literal, Optional, Union, overload
 
-import urllib3
-
-from ...sandbox.filesystem.filesystem import WriteEntry, FileType
-
-from ... import csx_connect
 import httpcore
 import httpx
+import urllib3
 from packaging.version import Version
 
-from ...generated.versions import ENVD_VERSION_RECURSIVE_WATCH
-from ...exceptions import TemplateException, InvalidArgumentException
+from ... import csx_connect
 from ...connection_config import (
-    ConnectionConfig,
-    Username,
     KEEPALIVE_PING_HEADER,
     KEEPALIVE_PING_INTERVAL_SEC,
+    ConnectionConfig,
+    Username,
 )
-from ...generated.api import ENVD_API_UPLOAD_FILES_ROUTE,ENVD_API_DOWNLOAD_FILES_ROUTE, handle_envd_api_exception
-from ...generated import api_pb2,api_pb2_connect
+from ...exceptions import InvalidArgumentException, TemplateException
+from ...generated import api_pb2, api_pb2_connect
+from ...generated.api import (
+    ENVD_API_DOWNLOAD_FILES_ROUTE,
+    ENVD_API_UPLOAD_FILES_ROUTE,
+    handle_envd_api_exception,
+)
 from ...generated.rpc import authentication_header, handle_rpc_exception
+from ...generated.versions import ENVD_VERSION_RECURSIVE_WATCH
 from ...sandbox.filesystem.filesystem import (
-    WriteInfo,
     EntryInfo,
+    FileType,
+    WriteEntry,
+    WriteInfo,
     map_file_type,
 )
 from ...sandbox_sync.filesystem.watch_handle import WatchHandle

@@ -1,9 +1,12 @@
 from scalebox.sandbox.commands.command_handle import PtySize
 from scalebox.sandbox_sync.main import Sandbox
 
+
 def output_handler(output):
     """处理 输出的回调函数"""
     print(f"PTY 输出: {output}")
+
+
 sandbox = Sandbox(api_key=f"sk-Wk4IgtUYOqnttxGaxZmELEV4p2FXh15Evt0FIcSa")
 # print(sandbox.files.list("/root",2))
 # proc = sandbox.commands._start(
@@ -28,8 +31,8 @@ sandbox = Sandbox(api_key=f"sk-Wk4IgtUYOqnttxGaxZmELEV4p2FXh15Evt0FIcSa")
 # )
 # print("exit_code =", result.exit_code)
 # print("full_output =", result.stdout)
-result=sandbox.commands.run(cmd="ls /",
-                     on_stdout=output_handler,
-                     on_stderr=output_handler)
+result = sandbox.commands.run(
+    cmd="ls /", on_stdout=output_handler, on_stderr=output_handler
+)
 print(result.exit_code)
 print(result.error)

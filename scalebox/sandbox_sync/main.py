@@ -2,11 +2,9 @@ import datetime
 import logging
 import socket
 import time
+from typing import Dict, List, Optional, TypedDict, overload
 
 import httpx
-
-from typing import Dict, Optional, overload, List, TypedDict, Unpack
-
 import urllib3
 from httpx import Timeout
 from packaging.version import Version
@@ -14,14 +12,14 @@ from urllib3 import Retry
 
 from ..api.client.types import Unset
 from ..connection_config import ConnectionConfig, ProxyTypes
-from ..generated.api import ENVD_API_HEALTH_ROUTE, handle_envd_api_exception
 from ..exceptions import SandboxException, request_timeout_error
+from ..generated.api import ENVD_API_HEALTH_ROUTE, handle_envd_api_exception
 from ..sandbox.main import SandboxSetup
 from ..sandbox.sandbox_api import SandboxMetrics
 from ..sandbox.utils import class_method_variant
-from ..sandbox_sync.filesystem.filesystem import Filesystem
 from ..sandbox_sync.commands.command import Commands
 from ..sandbox_sync.commands.pty import Pty
+from ..sandbox_sync.filesystem.filesystem import Filesystem
 from ..sandbox_sync.sandbox_api import SandboxApi, SandboxInfo
 
 logger = logging.getLogger(__name__)
@@ -136,7 +134,7 @@ class Sandbox(SandboxSetup, SandboxApi):
     #     proxy: Optional[ProxyTypes] = None,
     #     allow_internet_access: Optional[bool] = True,
     # ):
-    def __init__(self,**opts: Unpack[SandboxOpts]):
+    def __init__(self, **opts):
         """
         Create a new sandbox.
 

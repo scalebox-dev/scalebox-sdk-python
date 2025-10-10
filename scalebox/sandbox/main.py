@@ -1,12 +1,12 @@
 import urllib.parse
-
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from .signature import get_signature
+from httpx import Limits
+
 from ..connection_config import ConnectionConfig
 from ..generated.api import ENVD_API_FILES_ROUTE
-from httpx import Limits
+from .signature import get_signature
 
 
 class SandboxSetup(ABC):
@@ -23,28 +23,23 @@ class SandboxSetup(ABC):
 
     @property
     @abstractmethod
-    def connection_config(self) -> ConnectionConfig:
-        ...
+    def connection_config(self) -> ConnectionConfig: ...
 
     @property
     @abstractmethod
-    def _envd_access_token(self) -> Optional[str]:
-        ...
+    def _envd_access_token(self) -> Optional[str]: ...
 
     @property
     @abstractmethod
-    def envd_api_url(self) -> str:
-        ...
+    def envd_api_url(self) -> str: ...
 
     @property
     @abstractmethod
-    def sandbox_id(self) -> str:
-        ...
+    def sandbox_id(self) -> str: ...
 
     @property
     @abstractmethod
-    def sandbox_domain(self) -> str:
-        ...
+    def sandbox_domain(self) -> str: ...
 
     def _file_url(
         self,

@@ -1,6 +1,6 @@
 import os
+from typing import Dict, Literal, Optional
 
-from typing import Literal, Optional, Dict
 from httpx._types import ProxyTypes
 
 # from .api.metadata import package_version
@@ -63,9 +63,7 @@ class ConnectionConfig:
         else:
             self.request_timeout = REQUEST_TIMEOUT
 
-        self.api_url = (
-            f"https://{self.domain}"
-        )
+        self.api_url = f"https://{self.domain}"
 
     @staticmethod
     def _get_request_timeout(

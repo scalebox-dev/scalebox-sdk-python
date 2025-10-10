@@ -1,0 +1,126 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scalebox-sdk"
+version = "0.1.0"
+description = "ScaleBox Python SDK - A multi-language code execution sandbox with Python, R, Node.js, Deno/TypeScript, Java, and Bash support"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "ScaleBox Team", email = "dev@scalebox.dev"},
+]
+maintainers = [
+    {name = "ScaleBox Team", email = "dev@scalebox.dev"},
+]
+keywords = ["sandbox", "code-execution", "multi-language", "python", "r", "nodejs", "typescript", "java", "bash"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Testing",
+    "Topic :: System :: Distributed Computing",
+]
+dependencies = [
+    "httpx>=0.24",
+    "aiohttp>=3.8.0",
+    "urllib3>=1.26.0",
+    "httpcore>=0.15.0",
+    "grpcio>=1.70.0",
+    "grpcio-tools>=1.70.0",
+    "protobuf>=4.0.0",
+    "attrs>=21.4.0",
+    "dataclasses-json>=0.5.0",
+    "python-dateutil>=2.8.0",
+    "tenacity>=8.0.0",
+    "packaging>=21.0",
+    "typing-extensions>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "isort>=5.0.0",
+    "flake8>=4.0.0",
+    "mypy>=0.950",
+    "pre-commit>=2.17.0",
+    "python-dotenv>=0.19.0",
+]
+connect = [
+    "connectrpc>=0.0.1; python_version>='3.13'",
+]
+docs = [
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "myst-parser>=0.18.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/scalebox-dev/scalebox-sdk-python"
+Documentation = "https://docs.scalebox.dev/python-sdk"
+Repository = "https://github.com/scalebox-dev/scalebox-sdk-python"
+Issues = "https://github.com/scalebox-dev/scalebox-sdk-python/issues"
+Changelog = "https://github.com/scalebox-dev/scalebox-sdk-python/blob/main/CHANGELOG.md"
+
+[project.scripts]
+scalebox = "scalebox.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scalebox*"]
+
+[tool.setuptools.package-data]
+scalebox = ["py.typed", "*.pyi"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["scalebox"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["scalebox/test"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]

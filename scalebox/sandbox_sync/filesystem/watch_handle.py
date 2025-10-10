@@ -2,10 +2,7 @@ from typing import List
 
 from ...exceptions import SandboxException
 from ...generated import api_pb2_connect
-from ...generated.api_pb2 import (
-    GetWatcherEventsRequest,
-    RemoveWatcherRequest,
-)
+from ...generated.api_pb2 import GetWatcherEventsRequest, RemoveWatcherRequest
 from ...generated.rpc import handle_rpc_exception
 from ...sandbox.filesystem.watch_handle import FilesystemEvent, map_event_type
 

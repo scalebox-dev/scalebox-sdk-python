@@ -1,13 +1,13 @@
-from typing import Optional, Callable, Any, Generator, Union, Tuple, Iterator
+from typing import Any, Callable, Generator, Iterator, Optional, Tuple, Union
 
-from ...generated.rpc import handle_rpc_exception
 from ...generated import api_pb2
+from ...generated.rpc import handle_rpc_exception
 from ...sandbox.commands.command_handle import (
     CommandExitException,
     CommandResult,
+    PtyOutput,
     Stderr,
     Stdout,
-    PtyOutput,
 )
 
 
