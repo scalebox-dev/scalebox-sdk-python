@@ -8,7 +8,6 @@ from collections.abc import AsyncIterator, Iterable, Iterator
 
 import aiohttp
 import urllib3
-
 from connectrpc.client_async import AsyncConnectClient
 from connectrpc.client_connect import ConnectProtocolError
 from connectrpc.client_protocol import ConnectProtocol
@@ -23,7 +22,6 @@ from connectrpc.server import (
 from connectrpc.server_sync import ConnectWSGI
 from connectrpc.streams import AsyncStreamOutput, StreamInput, StreamOutput
 from connectrpc.unary import ClientStreamingOutput, UnaryOutput
-
 
 if typing.TYPE_CHECKING:
     # wsgiref.types was added in Python 3.11.

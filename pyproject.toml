@@ -7,7 +7,7 @@ name = "scalebox-sdk"
 version = "0.1.9"
 description = "ScaleBox Python SDK - A multi-language code execution sandbox with Python, R, Node.js, Deno/TypeScript, Java, and Bash support"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
     {name = "ScaleBox Team", email = "dev@scalebox.dev"},
@@ -21,7 +21,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -40,8 +39,8 @@ dependencies = [
     "grpcio>=1.74.0",
     "grpcio-tools>=1.74.0",
     "protobuf>=4.21",
-    # ConnectRPC
-    "connect-python[protobuf]>=0.4.2",
+    # ConnectRPC (lock to 0.4.2 due to breaking changes in 0.5.0)
+    "connect-python>=0.4.2,<0.5.0",
     # Data structures and serialization
     "attrs>=21.4.0",
     "dataclasses-json>=0.5.0",
@@ -115,7 +114,7 @@ line_length = 88
 known_first_party = ["scalebox"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 ignore_missing_imports = true
 ignore_errors = true
 
