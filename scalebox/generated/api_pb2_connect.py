@@ -9,67 +9,20 @@ from collections.abc import AsyncIterator, Iterable, Iterator
 import aiohttp
 import urllib3
 
-try:
-    from connectrpc.client_async import AsyncConnectClient
-    from connectrpc.client_connect import ConnectProtocolError
-    from connectrpc.client_protocol import ConnectProtocol
-    from connectrpc.client_sync import ConnectClient
-    from connectrpc.headers import HeaderInput
-    from connectrpc.server import (
-        ClientRequest,
-        ClientStream,
-        ServerResponse,
-        ServerStream,
-    )
-    from connectrpc.server_sync import ConnectWSGI
-    from connectrpc.streams import AsyncStreamOutput, StreamInput, StreamOutput
-    from connectrpc.unary import ClientStreamingOutput, UnaryOutput
-except ImportError:
-    # connectrpc not available, define dummy classes
-    class AsyncConnectClient:
-        pass
-
-    class ConnectProtocolError(Exception):
-        pass
-
-    class ConnectProtocol:
-        CONNECT_PROTOBUF = "connect_protobuf"
-
-    class ConnectClient:
-        pass
-
-    class HeaderInput:
-        pass
-
-    class ClientRequest:
-        pass
-
-    class ClientStream:
-        pass
-
-    class ServerResponse:
-        pass
-
-    class ServerStream:
-        pass
-
-    class ConnectWSGI:
-        pass
-
-    class AsyncStreamOutput:
-        pass
-
-    class StreamInput:
-        pass
-
-    class StreamOutput:
-        pass
-
-    class ClientStreamingOutput:
-        pass
-
-    class UnaryOutput:
-        pass
+from connectrpc.client_async import AsyncConnectClient
+from connectrpc.client_connect import ConnectProtocolError
+from connectrpc.client_protocol import ConnectProtocol
+from connectrpc.client_sync import ConnectClient
+from connectrpc.headers import HeaderInput
+from connectrpc.server import (
+    ClientRequest,
+    ClientStream,
+    ServerResponse,
+    ServerStream,
+)
+from connectrpc.server_sync import ConnectWSGI
+from connectrpc.streams import AsyncStreamOutput, StreamInput, StreamOutput
+from connectrpc.unary import ClientStreamingOutput, UnaryOutput
 
 
 if typing.TYPE_CHECKING:

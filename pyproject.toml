@@ -31,18 +31,27 @@ classifiers = [
     "Topic :: System :: Distributed Computing",
 ]
 dependencies = [
+    # HTTP and networking
     "httpx>=0.24",
     "aiohttp>=3.8.0",
     "urllib3>=1.26.0",
     "httpcore>=0.15.0",
-    "grpcio>=1.70.0",
-    "grpcio-tools>=1.70.0",
-    "protobuf>=4.0.0",
+    # gRPC and protocol buffers
+    "grpcio>=1.74.0",
+    "grpcio-tools>=1.74.0",
+    "protobuf>=4.21",
+    # ConnectRPC
+    "connect-python[protobuf]>=0.4.2",
+    # Data structures and serialization
     "attrs>=21.4.0",
     "dataclasses-json>=0.5.0",
+    # Date and time handling
     "python-dateutil>=2.8.0",
+    # Retry and resilience
     "tenacity>=8.0.0",
+    # Version handling
     "packaging>=21.0",
+    # Type extensions
     "typing-extensions>=4.0.0",
 ]
 
@@ -57,9 +66,6 @@ dev = [
     "mypy>=0.950",
     "pre-commit>=2.17.0",
     "python-dotenv>=0.19.0",
-]
-connect = [
-    "connectrpc>=0.0.1; python_version>='3.13'",
 ]
 docs = [
     "sphinx>=4.0.0",
@@ -109,7 +115,7 @@ line_length = 88
 known_first_party = ["scalebox"]
 
 [tool.mypy]
-python_version = "0.1.9"
+python_version = "3.9"
 ignore_missing_imports = true
 ignore_errors = true
 
