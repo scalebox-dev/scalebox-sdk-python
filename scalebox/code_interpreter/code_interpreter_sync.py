@@ -199,13 +199,13 @@ class Sandbox(BaseSandbox):
 
             # Execute code via gRPC
             execution = Execution()
-            headers = {
-                "Authorization": "Bearer root",
-            }
+            # headers = {
+            #     "Authorization": "Bearer root",
+            # }
             response_stream = client.execute(
                 execute_request,
                 timeout_seconds=deadline - time.time(),
-                extra_headers=headers,
+                extra_headers=self.connection_config.headers,
             )
 
             # Process stream responses
@@ -263,9 +263,9 @@ class Sandbox(BaseSandbox):
                 base_url=self.envd_api_url,
                 http_client=self._urllib3_pool,
             )
-            headers = {
-                "Authorization": "Bearer root",
-            }
+            # headers = {
+            #     "Authorization": "Bearer root",
+            # }
             # Create context via gRPC
             response = client.create_context(
                 create_context_request,
@@ -308,10 +308,10 @@ class Sandbox(BaseSandbox):
                 base_url=self.envd_api_url,
                 http_client=self._urllib3_pool,
             )
-            headers = {
-                "Authorization": "Bearer root",
-            }
-            client.destroy_context(destroy_context_request, extra_headers=headers)
+            # headers = {
+            #     "Authorization": "Bearer root",
+            # }
+            client.destroy_context(destroy_context_request,extra_headers=self.connection_config.headers)
 
         except Exception as e:
             logger.warning(f"Failed to destroy context {context.id}: {e}")

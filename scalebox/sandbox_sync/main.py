@@ -335,7 +335,7 @@ class Sandbox(SandboxSetup, SandboxApi):
         :param timeout: Timeout for the sandbox in **seconds**, default to 300 seconds. Maximum time a sandbox can be kept alive is 24 hours (86_400 seconds) for Pro users and 1 hour (3_600 seconds) for Hobby users.
         :param metadata: Custom metadata for the sandbox
         :param envs: Custom environment variables for the sandbox
-        :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
+        :param api_key: scalebox API Key to use for authentication, defaults to `CSX_API_KEY` environment variable
         :param request_timeout: Timeout for the request in **seconds**
         :param proxy: Proxy to use for the request and for the **requests made to the returned sandbox**
         :param secure: Envd is secured with access token and cannot be used without it

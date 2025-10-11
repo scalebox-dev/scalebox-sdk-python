@@ -205,9 +205,9 @@ class AsyncSandbox(BaseAsyncSandbox):
             )
 
         # Set headers
-        headers = {
-            "Authorization": "Bearer root",
-        }
+        # headers = {
+        #     "Authorization": "Bearer root",
+        # }
 
         try:
             # Create client and execute request
@@ -227,7 +227,7 @@ class AsyncSandbox(BaseAsyncSandbox):
             # Execute request and get response stream
             responses = client.execute(
                 req=request,
-                extra_headers=headers,
+                extra_headers=self.connection_config.headers,
                 timeout_seconds=request_timeout,
             )
 
@@ -298,9 +298,9 @@ class AsyncSandbox(BaseAsyncSandbox):
                 http_client=self._session,
                 base_url=self.envd_api_url,
             )
-            headers = {
-                "Authorization": "Bearer root",
-            }
+            # headers = {
+            #     "Authorization": "Bearer root",
+            # }
 
             # Build request
             request = api_pb2.CreateContextRequest(
@@ -311,7 +311,7 @@ class AsyncSandbox(BaseAsyncSandbox):
             # Execute request and get response stream
             response = await client.create_context(
                 req=request,
-                extra_headers=headers,
+                extra_headers=self.connection_config.headers,
             )
             return Context.from_json(
                 {
@@ -361,9 +361,9 @@ class AsyncSandbox(BaseAsyncSandbox):
                 base_url=self.envd_api_url,
                 http_client=self._session,
             )
-            headers = {
-                "Authorization": "Bearer root",
-            }
-            await client.destroy_context(destroy_context_request, extra_headers=headers)
+            # headers = {
+            #     "Authorization": "Bearer root",
+            # }
+            await client.destroy_context(destroy_context_request,extra_headers=self.connection_config.headers)
         except Exception as e:
             logger.warning(f"Failed to destroy context {context.id}: {e}")

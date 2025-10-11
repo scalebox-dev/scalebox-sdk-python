@@ -690,7 +690,7 @@ class ProcessClient:
         extra_headers: HeaderInput | None = None,
         timeout_seconds: float | None = None,
     ) -> Iterator[api_pb2.ConnectResponse]:
-        stream_output = self.call_connect(req, extra_headers)
+        stream_output = self.call_connect(req, extra_headers,timeout_seconds)
         err = stream_output.error()
         if err is not None:
             raise err
@@ -725,7 +725,7 @@ class ProcessClient:
         extra_headers: HeaderInput | None = None,
         timeout_seconds: float | None = None,
     ) -> Iterator[api_pb2.StartResponse]:
-        stream_output = self.call_start(req, extra_headers)
+        stream_output = self.call_start(req, extra_headers,timeout_seconds)
         err = stream_output.error()
         if err is not None:
             raise err
@@ -943,7 +943,7 @@ class AsyncProcessClient:
         extra_headers: HeaderInput | None = None,
         timeout_seconds: float | None = None,
     ) -> AsyncIterator[api_pb2.StartResponse]:
-        stream_output = await self.call_start(req, extra_headers)
+        stream_output = await self.call_start(req, extra_headers,timeout_seconds)
         err = stream_output.error()
         if err is not None:
             raise err
