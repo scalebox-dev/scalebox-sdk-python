@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scalebox-sdk"
-version = "0.1.13"
+version = "0.1.14"
 description = "ScaleBox Python SDK - A multi-language code execution sandbox with Python, R, Node.js, Deno/TypeScript, Java, and Bash support"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -114,7 +114,7 @@ line_length = 88
 known_first_party = ["scalebox"]
 
 [tool.mypy]
-python_version = "0.1.13"
+python_version = "0.1.14"
 ignore_missing_imports = true
 ignore_errors = true
 
