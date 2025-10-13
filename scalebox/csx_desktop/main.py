@@ -228,10 +228,10 @@ class Sandbox(SandboxBase):
     #     :param timeout: Timeout for the sandbox in **seconds**, default to 300 seconds. Maximum time a sandbox can be kept alive is 24 hours (86_400 seconds) for Pro users and 1 hour (3_600 seconds) for Hobby users
     #     :param metadata: Custom metadata for the sandbox
     #     :param envs: Custom environment variables for the sandbox
-    #     :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
-    #     :param domain: E2B domain to use for authentication, defaults to `E2B_DOMAIN` environment variable
-    #     :param debug: If True, the sandbox will be created in debug mode, defaults to `E2B_DEBUG` environment variable
-    #     :param sandbox_id: Sandbox ID to connect to, defaults to `E2B_SANDBOX_ID` environment variable
+    #     :param api_key: API Key to use for authentication, defaults to `SBX_API_KEY` environment variable
+    #     :param domain: Domain to use for authentication, defaults to `SBX_DOMAIN` environment variable
+    #     :param debug: If True, the sandbox will be created in debug mode, defaults to `SBX_DEBUG` environment variable
+    #     :param sandbox_id: Sandbox ID to connect to, defaults to `SBX_SANDBOX_ID` environment variable
     #     :param request_timeout: Timeout for the request in **seconds**
     #     :param proxy: Proxy to use for the request and for the requests made to the returned sandbox
     #

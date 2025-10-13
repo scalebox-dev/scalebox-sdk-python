@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 class Sandbox(BaseSandbox):
     """
-    E2B cloud sandbox is a secure and isolated cloud environment.
+    Scalebox cloud sandbox is a secure and isolated cloud environment.
 
     The sandbox allows you to:
     - Access Linux OS
@@ -36,7 +36,7 @@ class Sandbox(BaseSandbox):
     - Run isolated code
     - Access the internet
 
-    Check docs [here](https://.dev/docs).
+    Check docs for more information.
 
     Use the `Sandbox()` to create a new sandbox.
 

@@ -48,7 +48,7 @@ cp -r scalebox venv/lib/python3.12/site-packages/
 ## 配置
 支持从环境变量或 `.env` 文件读取凭据：
 
-- `SBX_API_KEY` 或 `E2B_API_KEY`
+- `SBX_API_KEY`
 
 示例：
 ```env

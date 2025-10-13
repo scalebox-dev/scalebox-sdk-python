@@ -67,8 +67,8 @@ class ApiClient(AuthenticatedClient):
             if config.api_key is None:
                 raise AuthenticationException(
                     "API key is required, please visit the Team tab at https://dev/dashboard to get your API key. "
-                    "You can either set the environment variable `E2B_API_KEY` "
-                    'or you can pass it directly to the sandbox like Sandbox(api_key="e2b_...")',
+                    "You can either set the environment variable `SBX_API_KEY` "
+                    'or you can pass it directly to the sandbox like Sandbox(api_key="sbx_...")',
                 )
             token = config.api_key
 
@@ -76,7 +76,7 @@ class ApiClient(AuthenticatedClient):
             if config.access_token is None:
                 raise AuthenticationException(
                     "Access token is required, please visit the Personal tab at https://dev/dashboard to get your access token. "
-                    "You can set the environment variable `E2B_ACCESS_TOKEN` or pass the `access_token` in options.",
+                    "You can set the environment variable `SBX_ACCESS_TOKEN` or pass the `access_token` in options.",
                 )
             token = config.access_token
 

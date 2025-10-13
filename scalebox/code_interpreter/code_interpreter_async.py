@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 class AsyncSandbox(BaseAsyncSandbox):
     """
-    E2B cloud sandbox is a secure and isolated cloud environment.
+    Scalebox cloud sandbox is a secure and isolated cloud environment.
 
     The sandbox allows you to:
     - Access Linux OS
@@ -37,13 +37,13 @@ class AsyncSandbox(BaseAsyncSandbox):
     - Run isolated code
     - Access the internet
 
-    Check docs [here](https://e2b.dev/docs).
+    Check docs for more information.
 
     Use the `AsyncSandbox.create()` to create a new sandbox.
 
     Example:
     ```python
-    from e2b_code_interpreter import AsyncSandbox
+    from scalebox.code_interpreter import AsyncSandbox
     sandbox = await AsyncSandbox.create()
     ```
     """

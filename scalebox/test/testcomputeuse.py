@@ -8,8 +8,8 @@ def desktop_automation_demo():
 
     # 1. 创建桌面沙箱实例
     print("正在启动桌面沙箱...")
-    desktop = Sandbox.create(timeout=3600)
-    print(f"沙箱已启动，ID: {desktop.sandbox_id}")
+    desktop = Sandbox(timeout=3600, template="browser-use")
+    # print(f"沙箱已启动，ID: {desktop.sandbox_id}")
 
     # 2. 启动VNC流以便远程查看桌面
     print("启动VNC远程桌面...")
@@ -23,8 +23,6 @@ def desktop_automation_demo():
     time.sleep(3)
 
     # 3. 基本鼠标操作示例
-
-
     print("执行鼠标操作...")
 
     # 获取屏幕尺寸
@@ -110,7 +108,7 @@ def desktop_automation_demo():
 
     # 创建测试文件
     test_content = """Hello World!
-This is a test file created from SBX Sandbox SDK.
+This is a test file created from Scalebox Sandbox SDK.
 Current time: {time}
 """.format(
         time=time.ctime()
@@ -194,7 +192,7 @@ print("success!")
 #             desktop.write("https://www.google.com")
 #             desktop.press("enter")
 #             time.sleep(2)
-#             desktop.write("E2B Sandbox Automation")
+#             desktop.write("Scalebox Sandbox Automation")
 #             desktop.press("enter")
 #             # 更多网页自动化操作...
 #

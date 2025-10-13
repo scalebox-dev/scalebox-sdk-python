@@ -17,7 +17,7 @@ async def main():
         """
 import time
 for i in range(3):
-    print("Hello E2B", i)
+    print("Hello Scalebox", i)
     time.sleep(50)
 """,
         language="python3",
