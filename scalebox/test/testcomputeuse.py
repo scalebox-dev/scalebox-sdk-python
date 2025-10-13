@@ -8,8 +8,8 @@ def desktop_automation_demo():
 
     # 1. 创建桌面沙箱实例
     print("正在启动桌面沙箱...")
-    desktop = Sandbox(timeout=3600, template="browser-use")
-    # print(f"沙箱已启动，ID: {desktop.sandbox_id}")
+    desktop = Sandbox.create(timeout=3600)
+    print(f"沙箱已启动，ID: {desktop.sandbox_id}")
 
     # 2. 启动VNC流以便远程查看桌面
     print("启动VNC远程桌面...")
@@ -23,6 +23,8 @@ def desktop_automation_demo():
     time.sleep(3)
 
     # 3. 基本鼠标操作示例
+
+
     print("执行鼠标操作...")
 
     # 获取屏幕尺寸

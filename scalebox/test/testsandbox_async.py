@@ -13,7 +13,7 @@ async def pty_output_handler(output):
 
 
 async def main():
-    sandbox = AsyncSandbox()
+    sandbox = await (AsyncSandbox.create(timeout=3600))
     proc = await sandbox.commands.run("echo hello from async")
     print("exit_code =", proc.exit_code)
     print("stdout   =", proc.stdout)
@@ -24,16 +24,100 @@ async def main():
         on_data=pty_output_handler,
         cwd="/root",
         envs={"CUSTOM_ENV": "value"},
-        timeout=120,
-        request_timeout=30,
+        request_timeout=40
     )
     print(f"PTY 已创建，PID: {pty_handle.pid}")
 
     # 5. 向 PTY 发送输入
     await sandbox.pty.send_stdin(
-        pid=pty_handle.pid, data=b"echo 'Hello from PTY'\n", request_timeout=10
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 0s'\n",
+        request_timeout=10
     )
-    await asyncio.sleep(2)
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 30s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 60s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 90s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 120s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 150s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 180s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 210s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 240s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 270s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 300s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 330s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 360s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 390s'\n",
+        request_timeout=10
+    )
+    await asyncio.sleep(30)
+    await sandbox.pty.send_stdin(
+        pid=pty_handle.pid,
+        data=b"echo 'Hello from PTY 420s'\n",
+        request_timeout=10
+    )
 
     # 6. 调整 PTY 大小
     new_size = PtySize(rows=30, cols=100)
@@ -112,7 +196,7 @@ async def context_manager_example():
 
 
 if __name__ == "__main__":
-    # asyncio.run(main())0
+    asyncio.run(main())
     # asyncio.run(static_methods_example())
     # asyncio.run(connect_example())
-    asyncio.run(context_manager_example())
+    # asyncio.run(context_manager_example())

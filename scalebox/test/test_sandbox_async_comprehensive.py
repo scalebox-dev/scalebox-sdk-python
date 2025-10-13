@@ -76,7 +76,7 @@ class AsyncSandboxValidator:
         """测试沙箱创建"""
         self.sandbox = await AsyncSandbox.create(
             template="base",
-            debug=True,
+            debug=False,
             timeout=300,
             api_key="sk-Wk4IgtUYOqnttxGaxZmELEV4p2FXh15Evt0FIcSa",
             metadata={"test": "async_validation"},
@@ -212,7 +212,7 @@ class AsyncSandboxValidator:
         """测试列出目录内容"""
         assert self.sandbox is not None
 
-        entries = await self.sandbox.files.list("/workspace/tmp", depth=1)
+        entries = await self.sandbox.files.list("/tmp", depth=1)
         print(entries)
         assert isinstance(entries, list)
         assert len(entries) > 0
@@ -231,12 +231,12 @@ class AsyncSandboxValidator:
         assert self.sandbox is not None
 
         # 检查存在的文件
-        exists = await self.sandbox.files.exists("/workspace/tmp/test_async.txt")
+        exists = await self.sandbox.files.exists("/tmp/test_async.txt")
         print(exists)
         assert exists == True
 
         # 检查不存在的文件
-        not_exists = await self.sandbox.files.exists("/workspace/tmp/nonexistent.txt")
+        not_exists = await self.sandbox.files.exists("/tmp/nonexistent.txt")
         print(not_exists)
         assert not_exists == False
 
@@ -244,12 +244,12 @@ class AsyncSandboxValidator:
         """测试获取文件信息"""
         assert self.sandbox is not None
 
-        info = await self.sandbox.files.get_info("/workspace/tmp/test_async.txt")
+        info = await self.sandbox.files.get_info("/tmp/test_async.txt")
         print(info)
         assert isinstance(info, EntryInfo)
         assert info.name == "test_async.txt"
         assert info.type == FileType.FILE
-        assert info.path == "/workspace/tmp/test_async.txt"
+        assert info.path == "/tmp/test_async.txt"
         assert info.size > 0
 
     async def test_filesystem_make_dir(self):
@@ -257,12 +257,12 @@ class AsyncSandboxValidator:
         assert self.sandbox is not None
 
         # 创建新目录
-        result = await self.sandbox.files.make_dir("/workspace/tmp/test_dir/nested_dir")
+        result = await self.sandbox.files.make_dir("/tmp/test_dir/nested_dir")
         print(result)
         assert result == True
 
         # 再次创建同一目录应该返回False
-        result = await self.sandbox.files.make_dir("/workspace/tmp/test_dir")
+        result = await self.sandbox.files.make_dir("/tmp/test_dir")
         print(result)
         assert result == False
 
@@ -274,28 +274,26 @@ class AsyncSandboxValidator:
         await self.sandbox.files.write("/tmp/old_name.txt", "content to rename")
 
         # 重命名
-        result = await self.sandbox.files.rename(
-            "/workspace/tmp/old_name.txt", "/workspace/tmp/new_name.txt"
-        )
+        result = await self.sandbox.files.rename("/tmp/old_name.txt", "/tmp/new_name.txt")
         print(result)
         assert isinstance(result, EntryInfo)
         assert result.name == "new_name.txt"
 
         # 确认旧文件不存在，新文件存在
-        assert await self.sandbox.files.exists("/workspace/tmp/old_name.txt") == False
-        assert await self.sandbox.files.exists("/workspace/tmp/new_name.txt") == True
+        assert await self.sandbox.files.exists("/tmp/old_name.txt") == False
+        assert await self.sandbox.files.exists("/tmp/new_name.txt") == True
 
     async def test_filesystem_remove(self):
         """测试删除文件和目录"""
         assert self.sandbox is not None
 
         # 删除文件
-        await self.sandbox.files.remove("/workspace/tmp/new_name.txt")
-        assert await self.sandbox.files.exists("/workspace/tmp/new_name.txt") == False
-
+        await self.sandbox.files.remove("/tmp/new_name.txt")
+        assert await self.sandbox.files.exists("/tmp/new_name.txt") == False
+        
         # 删除目录
-        await self.sandbox.files.remove("/workspace/tmp/test_dir")
-        assert await self.sandbox.files.exists("/workspace/tmp/test_dir") == False
+        await self.sandbox.files.remove("/tmp/test_dir")
+        assert await self.sandbox.files.exists("/tmp/test_dir") == False
 
     # ======================== 命令执行测试 ========================
 
@@ -552,7 +550,7 @@ class AsyncSandboxValidator:
         # 清理
         for i in range(100):
             try:
-                await self.sandbox.files.remove(f"/workspace/tmp/perf_test_{i}.txt")
+                await self.sandbox.files.remove(f"/tmp/perf_test_{i}.txt")
             except:
                 pass
 
@@ -605,7 +603,7 @@ class AsyncSandboxValidator:
     async def test_context_manager(self):
         """测试上下文管理器"""
         # 使用上下文管理器创建临时沙箱
-        async with await AsyncSandbox.create(debug=True) as temp_sandbox:
+        async with await AsyncSandbox.create(debug=False) as temp_sandbox:
             assert temp_sandbox is not None
 
             # 在上下文中使用沙箱

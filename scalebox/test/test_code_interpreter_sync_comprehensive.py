@@ -365,7 +365,11 @@ print(f"结果: {result}")
         assert self.sandbox is not None
 
         # 创建Python上下文
-        python_context = self.sandbox.create_code_context(language="python", cwd="/tmp")
+        python_context = self.sandbox.create_code_context(
+            language="python", 
+            cwd="/tmp"
+        )
+        print(python_context)
         assert isinstance(python_context, Context)
         assert python_context.id is not None
         assert python_context.language == "python"

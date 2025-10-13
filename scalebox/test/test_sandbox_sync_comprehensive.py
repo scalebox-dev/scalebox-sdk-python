@@ -19,6 +19,7 @@ import threading
 import time
 from io import BytesIO, StringIO
 from typing import List, Optional
+from venv import create
 
 from scalebox.exceptions import SandboxException
 from scalebox.sandbox.commands.command_handle import CommandExitException, PtySize
@@ -73,10 +74,10 @@ class SandboxValidator:
 
     def test_sandbox_creation(self):
         """测试沙箱创建"""
-        self.sandbox = Sandbox(
+        self.sandbox = Sandbox.create(
             template="base",
-            debug=True,
-            timeout=300,
+            # debug=True,
+            timeout=3600,
             metadata={"test": "sync_validation"},
             envs={"TEST_ENV": "sync_test"},
         )
@@ -209,7 +210,7 @@ class SandboxValidator:
         """测试列出目录内容"""
         assert self.sandbox is not None
 
-        entries = self.sandbox.files.list("/workspace/tmp", depth=1)
+        entries = self.sandbox.files.list("/tmp", depth=1)
         print(entries)
         assert isinstance(entries, list)
         assert len(entries) > 0
@@ -222,28 +223,38 @@ class SandboxValidator:
             assert isinstance(entry, EntryInfo)
             assert entry.name is not None
             assert entry.path is not None
+        entries = self.sandbox.files.list("/", depth=1)
+        print(entries)
+        assert isinstance(entries, list)
+        assert len(entries) > 0
+
+        self.sandbox.files.make_dir("/data/test_dir")
+
+        entries = self.sandbox.files.list("/data", depth=1)
+        print(entries)
+        assert isinstance(entries, list)
+        assert len(entries) > 0
 
     def test_filesystem_exists(self):
         """测试文件存在性检查"""
         assert self.sandbox is not None
 
         # 检查存在的文件
-        exists = self.sandbox.files.exists("/workspace/tmp/test_sync.txt")
+        exists = self.sandbox.files.exists("/tmp/test_sync.txt")
         assert exists == True
 
         # 检查不存在的文件
-        not_exists = self.sandbox.files.exists("/workspace/tmp/nonexistent.txt")
+        not_exists = self.sandbox.files.exists("/tmp/nonexistent.txt")
         assert not_exists == False
 
     def test_filesystem_get_info(self):
         """测试获取文件信息"""
         assert self.sandbox is not None
-
-        info = self.sandbox.files.get_info("/workspace/tmp/test_sync.txt")
+        info = self.sandbox.files.get_info("/tmp/test_sync.txt")
         assert isinstance(info, EntryInfo)
         assert info.name == "test_sync.txt"
         assert info.type == FileType.FILE
-        assert info.path == "/workspace/tmp/test_sync.txt"
+        assert info.path == "/tmp/test_sync.txt"
         assert info.size > 0
 
     def test_filesystem_make_dir(self):
@@ -251,11 +262,11 @@ class SandboxValidator:
         assert self.sandbox is not None
 
         # 创建新目录
-        result = self.sandbox.files.make_dir("/workspace/tmp/test_dir/nested_dir")
+        result = self.sandbox.files.make_dir("/tmp/test_dir/nested_dir")
         assert result == True
 
         # 再次创建同一目录应该返回False
-        result = self.sandbox.files.make_dir("/workspace/tmp/test_dir")
+        result = self.sandbox.files.make_dir("/tmp/test_dir")
         assert result == False
 
     def test_filesystem_rename(self):
@@ -266,27 +277,25 @@ class SandboxValidator:
         self.sandbox.files.write("/tmp/old_name.txt", "content to rename")
 
         # 重命名
-        result = self.sandbox.files.rename(
-            "/workspace/tmp/old_name.txt", "/workspace/tmp/new_name.txt"
-        )
+        result = self.sandbox.files.rename("/tmp/old_name.txt", "/tmp/new_name.txt")
         assert isinstance(result, EntryInfo)
         assert result.name == "new_name.txt"
 
         # 确认旧文件不存在，新文件存在
-        assert self.sandbox.files.exists("/workspace/tmp/old_name.txt") == False
-        assert self.sandbox.files.exists("/workspace/tmp/new_name.txt") == True
+        assert self.sandbox.files.exists("/tmp/old_name.txt") == False
+        assert self.sandbox.files.exists("/tmp/new_name.txt") == True
 
     def test_filesystem_remove(self):
         """测试删除文件和目录"""
         assert self.sandbox is not None
 
         # 删除文件
-        self.sandbox.files.remove("/workspace/tmp/new_name.txt")
-        assert self.sandbox.files.exists("/workspace/tmp/new_name.txt") == False
-
+        self.sandbox.files.remove("/tmp/new_name.txt")
+        assert self.sandbox.files.exists("/tmp/new_name.txt") == False
+        
         # 删除目录
-        self.sandbox.files.remove("/workspace/tmp/test_dir")
-        assert self.sandbox.files.exists("/workspace/tmp/test_dir") == False
+        self.sandbox.files.remove("/tmp/test_dir")
+        assert self.sandbox.files.exists("/tmp/test_dir") == False
 
     # ======================== 命令执行测试 ========================
 
@@ -725,7 +734,7 @@ class SandboxValidator:
         """清理资源"""
         if self.sandbox:
             try:
-                self.sandbox.kill()
+                # self.sandbox.kill()
                 logger.info("Sandbox cleaned up successfully")
             except Exception as e:
                 logger.error(f"Error cleaning up sandbox: {e}")
