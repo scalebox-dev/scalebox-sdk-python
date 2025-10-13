@@ -1,4 +1,16 @@
 # Changelog
+## [0.1.13] - 2025-10-13
+
+### Added
+- Version 0.1.13 release
+
+### Changed
+- Automated version bump (patch)
+
+### Fixed
+- Minor improvements and bug fixes
+
+
 ## [0.1.12] - 2025-10-11
 
 ### Added
