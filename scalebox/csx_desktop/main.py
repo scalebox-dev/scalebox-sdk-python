@@ -307,16 +307,16 @@ class Sandbox(SandboxBase):
         proxy: Optional[ProxyTypes] = None,
     ) -> "Sandbox":
         """
-        同步创建或连接到一个桌面沙箱。
+        Synchronously create or connect to a desktop sandbox.
 
-        参数含义与基类相同。首次创建时会自动启动 Xvfb + xfce4。
+        Parameters have the same meaning as the base class. Xvfb + xfce4 will be automatically started on first creation.
         """
         display = display or ":0"
         if envs is None:
             envs = {}
         envs["DISPLAY"] = display
 
-        # 1. 让父类工厂去实际创建 / 复用
+        # 1. Let the parent class factory actually create / reuse
         base = SandboxBase.create(
             template=template or cls.default_template,
             timeout=timeout,
@@ -330,27 +330,27 @@ class Sandbox(SandboxBase):
             proxy=proxy,
         )
 
-        # 2. 把类型动态升级成 Sandbox
+        # 2. Dynamically upgrade type to Sandbox
         base.__class__ = cls
         base._display = display
         base._last_xfce4_pid = None
 
-        # 3. 首次创建才启动桌面
+        # 3. Only start desktop on first creation
         if not sandbox_id:
             base._start_desktop(resolution, dpi)
         else:
-            # 连接已有沙箱，仅初始化 VNC
+            # Connect to existing sandbox, only initialize VNC
             base.__vnc_server = _VNCServer(base)
 
         return base
 
-    # ====================== 子类私有方法 ======================
+    # ====================== Subclass Private Methods ======================
     def _start_desktop(
         self,
         resolution: Optional[Tuple[int, int]] = None,
         dpi: Optional[int] = None,
     ) -> None:
-        """启动 Xvfb 并等待成功，然后起 xfce4 + VNC。"""
+        """Start Xvfb and wait for success, then start xfce4 + VNC."""
         width, height = resolution or (1024, 768)
         self.commands.run(
             f"Xvfb {self._display} -ac -screen 0 {width}x{height}x24 "

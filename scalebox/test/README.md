@@ -1,79 +1,79 @@
-# ScaleBox Sandbox 验证测试套件
+# ScaleBox Sandbox Verification Test Suite
 
-这个测试套件包含了针对 `sandbox_async` 和 `sandbox_sync` 模块的全面验证示例，涵盖了从基本功能到高级使用场景的各个方面。
+This test suite contains comprehensive validation examples for the `sandbox_async` and `sandbox_sync` modules, covering everything from basic functionality to advanced use cases.
 
-## 📋 测试文件概览
+## 📋 Test Files Overview
 
-### 1. 基础功能验证
+### 1. Basic Functionality Verification
 
 #### `test_sandbox_async_comprehensive.py`
-**异步沙箱综合验证测试**
-- ✅ 沙箱生命周期管理（创建、连接、销毁）
-- ✅ 文件系统操作（读写、列表、删除、重命名等）
-- ✅ 命令执行（前台、后台、PTY）
-- ✅ 静态方法和类方法
-- ✅ 错误处理和异常情况
-- ✅ 性能测试和并发操作
-- ✅ 上下文管理器使用
+**Asynchronous Sandbox Comprehensive Verification Tests**
+- ✅ Sandbox lifecycle management (create, connect, destroy)
+- ✅ Filesystem operations (read/write, list, delete, rename, etc.)
+- ✅ Command execution (foreground, background, PTY)
+- ✅ Static methods and class methods
+- ✅ Error handling and exception cases
+- ✅ Performance testing and concurrent operations
+- ✅ Context manager usage
 
-**运行方式：**
+**Run with:**
 ```bash
 cd /home/ubuntu/git_home/scalebox/test
 python test_sandbox_async_comprehensive.py
 ```
 
 #### `test_sandbox_sync_comprehensive.py`
-**同步沙箱综合验证测试**
-- ✅ 与异步版本相同的功能覆盖
-- ✅ 同步特定的操作模式
-- ✅ 线程池并发处理
-- ✅ 目录监控功能
+**Synchronous Sandbox Comprehensive Verification Tests**
+- ✅ Same functionality coverage as async version
+- ✅ Synchronous-specific operation modes
+- ✅ Thread pool concurrent processing
+- ✅ Directory monitoring functionality
 
-**运行方式：**
+**Run with:**
 ```bash
 cd /home/ubuntu/git_home/scalebox/test
 python test_sandbox_sync_comprehensive.py
 ```
 
-### 2. 压力测试和边界条件
+### 2. Stress Testing and Edge Cases
 
 #### `test_sandbox_stress_and_edge_cases.py`
-**压力测试和边界条件验证**
-- 🔥 大数据文件处理（10MB+ 文件）
-- 🔥 高并发操作（同步和异步）
-- 🔥 内存压力测试（1000+ 文件操作）
-- 🔥 边界条件测试（空文件、特殊字符、深层目录）
-- 🔥 错误恢复能力测试
-- 🔥 资源管理测试（多沙箱实例）
+**Stress Testing and Edge Case Verification**
+- 🔥 Large file handling (10MB+ files)
+- 🔥 High concurrency operations (sync and async)
+- 🔥 Memory stress testing (1000+ file operations)
+- 🔥 Edge case testing (empty files, special characters, deep directories)
+- 🔥 Error recovery capability testing
+- 🔥 Resource management testing (multiple sandbox instances)
 
-**运行方式：**
+**Run with:**
 ```bash
 cd /home/ubuntu/git_home/scalebox/test
 python test_sandbox_stress_and_edge_cases.py
 ```
 
-### 3. 实际应用示例
+### 3. Real-World Application Examples
 
 #### `test_sandbox_usage_examples.py`
-**使用示例和最佳实践**
-- 💡 代码执行服务实现
-- 💡 文件处理服务实现
-- 💡 交互式会话管理
-- 💡 性能优化技巧
-- 💡 资源管理最佳实践
-- 💡 错误处理策略
-- 💡 并发和异步编程模式
+**Usage Examples and Best Practices**
+- 💡 Code execution service implementation
+- 💡 File processing service implementation
+- 💡 Interactive session management
+- 💡 Performance optimization techniques
+- 💡 Resource management best practices
+- 💡 Error handling strategies
+- 💡 Concurrency and asynchronous programming patterns
 
-**运行方式：**
+**Run with:**
 ```bash
 cd /home/ubuntu/git_home/scalebox/test
 python test_sandbox_usage_examples.py
 ```
 
-## 🏗️ 测试架构设计
+## 🏗️ Test Architecture Design
 
-### 测试结果记录系统
-每个测试套件都包含完整的测试结果记录系统：
+### Test Result Recording System
+Each test suite includes a complete test result recording system:
 ```python
 class TestValidator:
     def log_test_result(self, test_name: str, success: bool, message: str = "", duration: float = 0)
@@ -81,8 +81,8 @@ class TestValidator:
     def print_summary(self)
 ```
 
-### 资源管理系统
-智能的沙箱资源管理：
+### Resource Management System
+Intelligent sandbox resource management:
 ```python
 class SandboxManager:
     @contextmanager
@@ -93,116 +93,116 @@ class AsyncSandboxManager:
     async def get_sandbox(self, sandbox_id: Optional[str] = None)
 ```
 
-### 重试机制
-内置的重试装饰器：
+### Retry Mechanism
+Built-in retry decorators:
 ```python
 @retry_on_failure(max_retries=3, delay=1.0)
 def your_function():
-    # 自动重试失败的操作
+    # Auto-retry failed operations
     pass
 
 @async_retry_on_failure(max_retries=3, delay=1.0)
 async def your_async_function():
-    # 异步重试机制
+    # Asynchronous retry mechanism
     pass
 ```
 
-## 📊 测试覆盖范围
+## 📊 Test Coverage
 
-### 功能覆盖
-| 功能模块 | 同步测试 | 异步测试 | 压力测试 | 使用示例 |
-|---------|---------|---------|---------|---------|
-| 沙箱创建/销毁 | ✅ | ✅ | ✅ | ✅ |
-| 文件系统操作 | ✅ | ✅ | ✅ | ✅ |
-| 命令执行 | ✅ | ✅ | ✅ | ✅ |
-| PTY 操作 | ✅ | ✅ | ✅ | ✅ |
-| 静态方法 | ✅ | ✅ | ✅ | ✅ |
-| 错误处理 | ✅ | ✅ | ✅ | ✅ |
-| 性能优化 | ✅ | ✅ | ✅ | ✅ |
-| 并发处理 | ✅ | ✅ | ✅ | ✅ |
+### Functionality Coverage
+| Functional Module | Sync Tests | Async Tests | Stress Tests | Usage Examples |
+|-------------------|------------|-------------|--------------|----------------|
+| Sandbox Create/Destroy | ✅ | ✅ | ✅ | ✅ |
+| Filesystem Operations | ✅ | ✅ | ✅ | ✅ |
+| Command Execution | ✅ | ✅ | ✅ | ✅ |
+| PTY Operations | ✅ | ✅ | ✅ | ✅ |
+| Static Methods | ✅ | ✅ | ✅ | ✅ |
+| Error Handling | ✅ | ✅ | ✅ | ✅ |
+| Performance Optimization | ✅ | ✅ | ✅ | ✅ |
+| Concurrent Processing | ✅ | ✅ | ✅ | ✅ |
 
-### 测试场景
-- **基础功能**：单一操作的正确性验证
-- **批量操作**：大量数据的批处理能力
-- **并发处理**：多任务并行执行
-- **错误恢复**：异常情况下的系统稳定性
-- **资源管理**：内存和连接的有效管理
-- **性能基准**：各种操作的性能指标
+### Test Scenarios
+- **Basic Functionality**: Correctness verification of single operations
+- **Batch Operations**: Batch processing capability for large amounts of data
+- **Concurrent Processing**: Multi-task parallel execution
+- **Error Recovery**: System stability under exceptional circumstances
+- **Resource Management**: Effective management of memory and connections
+- **Performance Benchmarks**: Performance metrics for various operations
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 1. 环境准备
-确保你的环境中已经安装了必要的依赖：
+### 1. Environment Preparation
+Ensure necessary dependencies are installed in your environment:
 ```bash
-# 确保模块路径正确
+# Ensure module path is correct
 export PYTHONPATH=/home/ubuntu/git_home/scalebox:$PYTHONPATH
 
-# 安装依赖（如果需要）
+# Install dependencies (if needed)
 pip install -r requirements.txt
 ```
 
-### 2. 运行单个测试
+### 2. Run Individual Tests
 ```bash
-# 运行异步综合测试
+# Run async comprehensive tests
 python test_sandbox_async_comprehensive.py
 
-# 运行同步综合测试
+# Run sync comprehensive tests
 python test_sandbox_sync_comprehensive.py
 
-# 运行压力测试
+# Run stress tests
 python test_sandbox_stress_and_edge_cases.py
 
-# 运行使用示例
+# Run usage examples
 python test_sandbox_usage_examples.py
 ```
 
-### 3. 批量运行所有测试
+### 3. Run All Tests in Batch
 ```bash
-# 创建运行脚本
+# Create run script
 cat > run_all_tests.sh << 'EOF'
 #!/bin/bash
 
-echo "开始运行所有沙箱测试..."
+echo "Starting all sandbox tests..."
 
-echo "=== 异步综合测试 ==="
+echo "=== Async Comprehensive Tests ==="
 python test_sandbox_async_comprehensive.py
 
-echo "=== 同步综合测试 ==="
+echo "=== Sync Comprehensive Tests ==="
 python test_sandbox_sync_comprehensive.py
 
-echo "=== 压力测试和边界条件 ==="
+echo "=== Stress Tests and Edge Cases ==="
 python test_sandbox_stress_and_edge_cases.py
 
-echo "=== 使用示例和最佳实践 ==="
+echo "=== Usage Examples and Best Practices ==="
 python test_sandbox_usage_examples.py
 
-echo "所有测试完成!"
+echo "All tests completed!"
 EOF
 
 chmod +x run_all_tests.sh
 ./run_all_tests.sh
 ```
 
-## 📈 性能基准
+## 📈 Performance Benchmarks
 
-### 同步 vs 异步性能对比
+### Sync vs Async Performance Comparison
 
-| 操作类型 | 同步版本 | 异步版本 | 性能提升 |
-|---------|---------|---------|---------|
-| 单文件操作 | ~0.1s | ~0.1s | 持平 |
-| 批量文件操作(100个) | ~2.0s | ~0.5s | **4x 更快** |
-| 并发命令执行(10个) | ~1.5s | ~0.3s | **5x 更快** |
-| PTY 交互会话 | ~0.2s | ~0.2s | 持平 |
+| Operation Type | Sync Version | Async Version | Performance Improvement |
+|----------------|--------------|---------------|------------------------|
+| Single File Operation | ~0.1s | ~0.1s | Equal |
+| Batch File Operations (100) | ~2.0s | ~0.5s | **4x faster** |
+| Concurrent Command Execution (10) | ~1.5s | ~0.3s | **5x faster** |
+| PTY Interactive Session | ~0.2s | ~0.2s | Equal |
 
-### 资源使用情况
-- **内存使用**：异步版本在大批量操作时内存使用更高效
-- **CPU 利用率**：异步版本能更好地利用多核 CPU
-- **网络连接**：异步版本支持更多并发连接
+### Resource Usage
+- **Memory Usage**: Async version uses memory more efficiently during large batch operations
+- **CPU Utilization**: Async version better utilizes multi-core CPUs
+- **Network Connections**: Async version supports more concurrent connections
 
-## 🛠️ 自定义测试
+## 🛠️ Custom Testing
 
-### 添加新测试
-1. **继承测试基类**：
+### Adding New Tests
+1. **Inherit Test Base Class**:
 ```python
 class YourTestValidator:
     def __init__(self):
@@ -210,32 +210,32 @@ class YourTestValidator:
         self.failed_tests = []
     
     def log_test_result(self, test_name: str, success: bool, message: str = "", duration: float = 0):
-        # 实现测试结果记录
+        # Implement test result recording
         pass
 ```
 
-2. **编写测试方法**：
+2. **Write Test Methods**:
 ```python
 def test_your_feature(self):
-    """测试你的功能"""
-    # 测试逻辑
+    """Test your functionality"""
+    # Test logic
     pass
 
 async def test_your_async_feature(self):
-    """测试你的异步功能"""
-    # 异步测试逻辑
+    """Test your async functionality"""
+    # Async test logic
     pass
 ```
 
-3. **运行测试**：
+3. **Run Tests**:
 ```python
 def run_all_tests(self):
     self.run_test(self.test_your_feature, "Your Feature Test")
 ```
 
-### 配置测试参数
+### Configure Test Parameters
 ```python
-# 在测试文件顶部配置
+# Configure at top of test file
 TEST_CONFIG = {
     'debug_mode': True,
     'max_concurrent': 10,
@@ -245,85 +245,85 @@ TEST_CONFIG = {
 }
 ```
 
-## 🐛 故障排除
+## 🐛 Troubleshooting
 
-### 常见问题
+### Common Issues
 
-1. **沙箱创建失败**
-   - 检查网络连接
-   - 验证 API 密钥配置
-   - 确认服务器状态
+1. **Sandbox Creation Failure**
+   - Check network connection
+   - Verify API key configuration
+   - Confirm server status
 
-2. **文件操作失败**
-   - 检查文件路径权限
-   - 验证磁盘空间
-   - 确认文件格式
+2. **File Operation Failure**
+   - Check file path permissions
+   - Verify disk space
+   - Confirm file format
 
-3. **命令执行超时**
-   - 调整超时参数
-   - 检查命令语法
-   - 验证环境变量
+3. **Command Execution Timeout**
+   - Adjust timeout parameters
+   - Check command syntax
+   - Verify environment variables
 
-4. **内存不足错误**
-   - 减少并发数量
-   - 调整批处理大小
-   - 增加系统内存
+4. **Out of Memory Errors**
+   - Reduce concurrency count
+   - Adjust batch size
+   - Increase system memory
 
-### 调试技巧
+### Debugging Tips
 
-1. **启用调试日志**：
+1. **Enable Debug Logging**:
 ```python
 import logging
 logging.basicConfig(level=logging.DEBUG)
 ```
 
-2. **使用调试模式**：
+2. **Use Debug Mode**:
 ```python
 sandbox = Sandbox(debug=True)
-# 或
+# or
 sandbox = await AsyncSandbox.create(debug=True)
 ```
 
-3. **监控资源使用**：
+3. **Monitor Resource Usage**:
 ```python
 import psutil
-print(f"内存使用: {psutil.virtual_memory().percent}%")
-print(f"CPU 使用: {psutil.cpu_percent()}%")
+print(f"Memory usage: {psutil.virtual_memory().percent}%")
+print(f"CPU usage: {psutil.cpu_percent()}%")
 ```
 
-## 📝 贡献指南
+## 📝 Contribution Guidelines
 
-### 添加新测试
-1. Fork 项目
-2. 创建特性分支
-3. 添加测试用例
-4. 更新文档
-5. 提交 Pull Request
+### Adding New Tests
+1. Fork the project
+2. Create a feature branch
+3. Add test cases
+4. Update documentation
+5. Submit a Pull Request
 
-### 测试规范
-- 每个测试函数都应该有清晰的文档字符串
-- 使用断言验证结果
-- 包含适当的错误处理
-- 记录性能指标
-- 清理测试资源
+### Testing Standards
+- Each test function should have clear docstrings
+- Use assertions to verify results
+- Include appropriate error handling
+- Record performance metrics
+- Clean up test resources
 
-## 📚 参考资料
+## 📚 References
 
-### API 文档
+### API Documentation
 - [AsyncSandbox API](../sandbox_async/main.py)
 - [Sandbox API](../sandbox_sync/main.py)
-- [文件系统 API](../sandbox/filesystem/)
-- [命令执行 API](../sandbox/commands/)
+- [Filesystem API](../sandbox/filesystem/)
+- [Command Execution API](../sandbox/commands/)
 
-### 最佳实践
-- 始终使用上下文管理器管理沙箱资源
-- 批量操作优于单个操作
-- 异步版本适合 I/O 密集型任务
-- 同步版本适合 CPU 密集型任务
-- 实现适当的重试和错误恢复机制
+### Best Practices
+- Always use context managers to manage sandbox resources
+- Batch operations are better than individual operations
+- Async version is suitable for I/O-intensive tasks
+- Sync version is suitable for CPU-intensive tasks
+- Implement appropriate retry and error recovery mechanisms
 
 ---
 
 **Happy Testing! 🎉**
 
-如有问题或建议，请提交 Issue 或联系维护团队。
+For questions or suggestions, please submit an Issue or contact the maintenance team.

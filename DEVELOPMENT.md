@@ -1,53 +1,55 @@
 # Development Guide
 
-## 开发模式说明 (Development Workflow)
+> [中文文档](./DEVELOPMENT_CN.md)
 
-本项目采用**开源项目标准工作流**，使用 `main` 作为受保护分支，通过 Pull Request 进行代码合并和自动化版本管理。
+## Development Workflow
 
-### 🎯 工作流程概览
+This project follows the **open-source project standard workflow**, using `main` as the protected branch, with code merging and automated version management through Pull Requests.
+
+### 🎯 Workflow Overview
 
 ```
-功能开发分支 (feature/*)
+Feature Development Branch (feature/*)
       ↓
-  创建 Pull Request
+  Create Pull Request
       ↓
-  代码审查 + CI 测试
+  Code Review + CI Testing
       ↓
-  合并到 main 分支
+  Merge to main branch
       ↓
-  🤖 自动版本升级（根据提交信息）
+  🤖 Automatic Version Bump (based on commit message)
       ↓
-  🚀 自动发布到 PyPI
+  🚀 Automatic Publish to PyPI
 ```
 
-## 自动化版本管理 (Automated Version Management)
+## Automated Version Management
 
-### 🚀 推荐：约定式提交触发自动升级
+### 🚀 Recommended: Conventional Commits Trigger Automatic Bumps
 
-**最佳实践**：使用约定式提交（Conventional Commits），系统会自动检测并选择正确的版本类型。
+**Best Practice**: Use Conventional Commits, and the system will automatically detect and select the correct version type.
 
-#### 约定式提交规范
+#### Conventional Commits Specification
 
-| 提交前缀 | 版本升级 | 示例 | 说明 |
-|---------|---------|------|------|
-| `feat:` / `feature:` | **minor** | `feat: add user authentication` | 新功能 |
-| `fix:` / `bugfix:` / `hotfix:` | **patch** | `fix: resolve memory leak` | 错误修复 |
-| `breaking:` / `break:` | **major** | `breaking: change API signature` | 破坏性更改 |
-| `chore:` / `refactor:` / `style:` / `perf:` | **patch** | `chore: update dependencies` | 维护性更改 |
-| 其他 | **patch** | `docs: update README` | 默认补丁版本 |
+| Commit Prefix | Version Bump | Example | Description |
+|--------------|--------------|---------|-------------|
+| `feat:` / `feature:` | **minor** | `feat: add user authentication` | New features |
+| `fix:` / `bugfix:` / `hotfix:` | **patch** | `fix: resolve memory leak` | Bug fixes |
+| `breaking:` / `break:` | **major** | `breaking: change API signature` | Breaking changes |
+| `chore:` / `refactor:` / `style:` / `perf:` | **patch** | `chore: update dependencies` | Maintenance changes |
+| Others | **patch** | `docs: update README` | Default patch version |
 
-#### 完整开发流程示例
+#### Complete Development Flow Example
 
 ```bash
-# 1. 从 main 创建功能分支
+# 1. Create feature branch from main
 git checkout main
 git pull origin main
 git checkout -b feature/user-auth
 
-# 2. 进行开发
-# ... 编写代码 ...
+# 2. Develop
+# ... write code ...
 
-# 3. 使用约定式提交
+# 3. Use conventional commits
 git add .
 git commit -m "feat: add user authentication system
 
@@ -55,101 +57,101 @@ git commit -m "feat: add user authentication system
 - Add login/logout endpoints
 - Add user session management"
 
-# 4. 推送分支
+# 4. Push branch
 git push origin feature/user-auth
 
-# 5. 创建 Pull Request
-# 通过 GitHub 界面创建 PR 到 main 分支
+# 5. Create Pull Request
+# Create PR to main branch through GitHub interface
 
-# 6. 合并后自动触发
-# ✅ CI 自动检测为 "feat:" → minor 版本升级
-# ✅ 版本从 0.1.7 → 0.2.0
-# ✅ 自动创建标签 v0.2.0
-# ✅ 自动发布到 PyPI
+# 6. After merge, automatically triggers
+# ✅ CI automatically detects "feat:" → minor version bump
+# ✅ Version from 0.1.7 → 0.2.0
+# ✅ Automatically create tag v0.2.0
+# ✅ Automatically publish to PyPI
 ```
 
-### 🔧 备选：本地脚本（测试用）
+### 🔧 Alternative: Local Scripts (For Testing)
 
-**注意**：本地脚本仅用于开发测试，不推荐用于正式发布。
+**Note**: Local scripts are only for development testing, not recommended for official releases.
 
 ```bash
-# 预览版本升级（不实际修改）
+# Preview version bump (dry run)
 python scripts/bump_version.py patch --dry-run
 
-# 测试版本升级
+# Test version bump
 python scripts/bump_version.py patch --no-tag
 
-# 检查更改
+# Check changes
 git diff
 ```
 
-### 🔄 自动化发布流程
+### 🔄 Automated Release Process
 
-#### 触发条件
+#### Trigger Conditions
 
-**主要触发方式**：
-- ✅ **PR 合并到 main**：推荐，符合开源项目最佳实践
-- ⚠️ **直接推送到 main**：仅用于紧急修复
-- 🔧 **手动触发**: 通过 GitHub Actions 界面（备用）
+**Primary Trigger Methods**:
+- ✅ **PR Merge to main**: Recommended, follows open-source best practices
+- ⚠️ **Direct Push to main**: Only for emergency fixes
+- 🔧 **Manual Trigger**: Through GitHub Actions interface (backup)
 
-#### 自动化执行步骤
+#### Automated Execution Steps
 
-**阶段1：智能版本检测**
+**Phase 1: Intelligent Version Detection**
 ```yaml
-1. 分析合并的提交信息
-2. 根据约定式提交前缀决定版本类型：
+1. Analyze merged commit messages
+2. Decide version type based on conventional commit prefix:
    - feat: → minor (0.1.7 → 0.2.0)
    - fix: → patch (0.1.7 → 0.1.8)
    - breaking: → major (0.1.7 → 1.0.0)
-3. 执行版本升级脚本
+3. Execute version bump script
 ```
 
-**阶段2：版本文件更新**
+**Phase 2: Version File Updates**
 ```yaml
-自动更新以下文件：
-- scalebox/__init__.py          (__version__ 和 __version_info__)
-- scalebox/version.py            (__version__ 和 __version_info__)
-- pyproject.toml                 (version 字段)
-- CHANGELOG.md                   (版本历史)
+Automatically update the following files:
+- scalebox/__init__.py          (__version__ and __version_info__)
+- scalebox/version.py            (__version__ and __version_info__)
+- pyproject.toml                 (version field)
+- CHANGELOG.md                   (version history)
 ```
 
-**阶段3：提交和标签**
+**Phase 3: Commit and Tag**
 ```yaml
-1. 提交版本更改：chore: auto-bump version to X.Y.Z
-2. 推送到 main 分支
-3. 创建并推送标签：vX.Y.Z
+1. Commit version changes: chore: auto-bump version to X.Y.Z
+2. Push to main branch
+3. Create and push tag: vX.Y.Z
 ```
 
-**阶段4：代码质量检查**
+**Phase 4: Code Quality Checks**
 ```yaml
-并行运行：
-- 代码格式检查 (Black)
-- 导入排序检查 (isort)
-- 代码质量检查 (flake8)
-- 类型检查 (mypy)
-- 单元测试 (pytest)
+Run in parallel:
+- Code formatting check (Black)
+- Import sorting check (isort)
+- Code quality check (flake8)
+- Type checking (mypy)
+- Unit tests (pytest)
 ```
 
-**阶段5：构建和发布**
+**Phase 5: Build and Publish**
 ```yaml
-1. Checkout 最新 main 分支
-2. Pull 最新提交（包含版本升级）
-3. 构建 Python 包（使用最新版本号）
-4. 检查包质量 (twine check)
-5. 发布到 PyPI
+1. Checkout latest main branch
+2. Pull latest commits (including version bump)
+3. Build Python package (using latest version number)
+4. Check package quality (twine check)
+5. Publish to PyPI
 ```
 
-#### 版本同步机制
+#### Version Synchronization Mechanism
 
-**关键特性**：
-- ✅ `__version__` 和 `__version_info__` 自动同步
-- ✅ 所有版本文件一次性更新
-- ✅ publish 作业使用最新版本构建
-- ✅ GitHub 版本号 = PyPI 版本号
+**Key Features**:
+- ✅ `__version__` and `__version_info__` automatically synced
+- ✅ All version files updated in one go
+- ✅ Publish job uses latest version for build
+- ✅ GitHub version = PyPI version
 
-### 📁 版本文件管理
+### 📁 Version File Management
 
-项目中的版本信息存储在多个文件中，脚本会自动同步：
+Version information is stored in multiple files across the project, which the script automatically synchronizes:
 
 ```
 scalebox/
@@ -159,52 +161,52 @@ scalebox/
 └── ...
 
 pyproject.toml           # version = "0.1.7"
-CHANGELOG.md             # 自动更新版本日志
+CHANGELOG.md             # Automatically update version log
 ```
 
-**重要**：`__version_info__` 元组会自动与 `__version__` 字符串保持同步。
+**Important**: `__version_info__` tuple is automatically kept in sync with `__version__` string.
 
-### 🏷️ 版本规则
+### 🏷️ Version Rules
 
-遵循 [语义化版本控制](https://semver.org/lang/zh-CN/) 规范：
+Following [Semantic Versioning](https://semver.org/) specification:
 
-- **MAJOR (主版本号)**: 不兼容的API更改
-- **MINOR (次版本号)**: 向后兼容的功能添加  
-- **PATCH (修订号)**: 向后兼容的错误修复
+- **MAJOR (Major version)**: Incompatible API changes
+- **MINOR (Minor version)**: Backward-compatible feature additions  
+- **PATCH (Patch version)**: Backward-compatible bug fixes
 
-### 🔧 脚本选项
+### 🔧 Script Options
 
-`bump_version.py` 脚本支持以下选项：
+The `bump_version.py` script supports the following options:
 
 ```bash
-# 基本用法
+# Basic usage
 python scripts/bump_version.py {major|minor|patch}
 
-# 高级选项
-python scripts/bump_version.py patch --dry-run      # 预览更改
-python scripts/bump_version.py patch --no-tag        # 不创建Git标签
-python scripts/bump_version.py patch --no-changelog # 不更新CHANGELOG
+# Advanced options
+python scripts/bump_version.py patch --dry-run      # Preview changes
+python scripts/bump_version.py patch --no-tag        # Don't create Git tag
+python scripts/bump_version.py patch --no-changelog # Don't update CHANGELOG
 ```
 
-### 📋 发布检查清单
+### 📋 Release Checklist
 
-自动化流程会执行以下检查：
+The automated process performs the following checks:
 
-- [ ] 所有测试通过
-- [ ] 代码质量检查通过
-- [ ] 版本文件同步
-- [ ] 包构建成功
-- [ ] 包质量检查通过
-- [ ] 发布到PyPI成功
-- [ ] GitHub Release创建成功
+- [ ] All tests pass
+- [ ] Code quality checks pass
+- [ ] Version files synchronized
+- [ ] Package builds successfully
+- [ ] Package quality check passes
+- [ ] Published to PyPI successfully
+- [ ] GitHub Release created successfully
 
-### 🚨 故障排除
+### 🚨 Troubleshooting
 
-#### 常见问题
+#### Common Issues
 
-1. **版本不同步**:
+1. **Version Out of Sync**:
    ```bash
-   # 检查所有版本
+   # Check all versions
    echo "Version in __init__.py:"
    grep "__version__" scalebox/__init__.py
    
@@ -214,153 +216,154 @@ python scripts/bump_version.py patch --no-changelog # 不更新CHANGELOG
    echo "Version in pyproject.toml:"
    grep "^version" pyproject.toml
    
-   # 如果不同步，拉取最新代码
+   # If out of sync, pull latest code
    git pull origin main
    ```
 
-2. **GitHub 版本号 ≠ PyPI 版本号**:
+2. **GitHub Version ≠ PyPI Version**:
    ```bash
-   # 检查 GitHub Actions 日志
-   # 1. 确认 auto-version 作业是否成功
-   # 2. 确认 publish 作业是否拉取了最新提交
-   # 3. 查看构建的包版本号
+   # Check GitHub Actions logs
+   # 1. Confirm auto-version job succeeded
+   # 2. Confirm publish job pulled latest commits
+   # 3. Check built package version
    
-   # 本地验证构建
+   # Verify build locally
    git pull origin main
    python -m build
-   ls dist/  # 检查生成的包文件名
+   ls dist/  # Check generated package filename
    ```
 
-3. **Git标签冲突**:
+3. **Git Tag Conflict**:
    ```bash
-   # 检查现有标签
+   # Check existing tags
    git tag -l
    
-   # 删除本地冲突标签
+   # Delete local conflicting tag
    git tag -d v0.1.7
    
-   # 删除远程冲突标签（谨慎操作）
+   # Delete remote conflicting tag (use with caution)
    git push origin :refs/tags/v0.1.7
    ```
 
-4. **PyPI发布失败**:
-   - ✅ 检查 `PYPI_API_TOKEN` 是否正确设置
-   - ✅ 确认版本号唯一性（PyPI 不允许重复版本）
-   - ✅ 检查包构建是否成功
-   - ✅ 验证 publish 作业是否使用了最新版本
+4. **PyPI Publish Fails**:
+   - ✅ Check if `PYPI_API_TOKEN` is correctly set
+   - ✅ Confirm version uniqueness (PyPI doesn't allow duplicate versions)
+   - ✅ Check if package builds successfully
+   - ✅ Verify publish job used latest version
 
-5. **PR 合并后未触发版本升级**:
+5. **PR Merge Doesn't Trigger Version Bump**:
    ```bash
-   # 检查提交信息是否符合约定式提交规范
+   # Check if commit message follows conventional commit specification
    git log --oneline -1
    
-   # 如果提交信息不符合规范，会默认使用 patch 版本
-   # 建议使用标准前缀：feat:, fix:, breaking: 等
+   # If commit message doesn't follow spec, defaults to patch version
+   # Recommended to use standard prefixes: feat:, fix:, breaking:, etc.
    ```
 
-#### 调试模式
+#### Debug Mode
 
 ```bash
-# 本地测试版本升级
+# Test version bump locally
 python scripts/bump_version.py patch --dry-run
 
-# 检查Git状态
+# Check Git status
 git status
 git log --oneline -5
 git tag -l
 
-# 检查CI状态
-# 访问 GitHub Actions 页面查看详细日志
-# 重点检查：
-# - auto-version 作业输出
-# - build 作业的包文件名
-# - publish 作业的 git pull 输出
+# Check CI status
+# Visit GitHub Actions page to view detailed logs
+# Focus on:
+# - auto-version job output
+# - build job package filename
+# - publish job git pull output
 ```
 
-### 🔐 权限要求
+### 🔐 Permission Requirements
 
-自动化流程需要以下权限：
+The automation process requires the following permissions:
 
-1. **GitHub Token**: 用于提交和推送更改
-2. **PyPI Token**: 用于发布到PyPI
-3. **仓库权限**: 写入权限用于创建标签和发布
+1. **GitHub Token**: For committing and pushing changes
+2. **PyPI Token**: For publishing to PyPI
+3. **Repository Permissions**: Write permission for creating tags and releases
 
-### 📊 监控和通知
+### 📊 Monitoring and Notifications
 
-- **GitHub Actions**: 查看工作流执行状态
-- **PyPI**: 确认包发布成功
-- **GitHub Releases**: 查看发布历史
+- **GitHub Actions**: View workflow execution status
+- **PyPI**: Confirm package published successfully
+- **GitHub Releases**: View release history
 
-### 🎯 最佳实践
+### 🎯 Best Practices
 
-#### 1. 开发阶段
+#### 1. Development Phase
 
 ```bash
-# ✅ 使用功能分支
+# ✅ Use feature branch
 git checkout -b feature/new-feature
 
-# ✅ 使用约定式提交
+# ✅ Use conventional commits
 git commit -m "feat: add amazing feature"
 
-# ✅ 推送并创建 PR
+# ✅ Push and create PR
 git push origin feature/new-feature
-# 在 GitHub 创建 Pull Request
+# Create Pull Request through GitHub interface
 ```
 
-#### 2. 代码审查阶段
+#### 2. Code Review Phase
 
-- ✅ 检查提交信息是否符合约定式提交规范
-- ✅ 确认版本升级类型是否合理
-- ✅ 运行本地测试确保代码质量
-- ✅ 审查代码更改
+- ✅ Check if commit message follows conventional commit specification
+- ✅ Confirm version bump type is reasonable
+- ✅ Run local tests to ensure code quality
+- ✅ Review code changes
 
-#### 3. 合并阶段
+#### 3. Merge Phase
 
-- ✅ 使用 Squash and Merge 保持提交历史清晰
-- ✅ 确保合并提交信息包含正确的约定式前缀
-- ✅ 合并后自动触发 CI/CD 流程
+- ✅ Use Squash and Merge to keep commit history clean
+- ✅ Ensure merge commit message includes correct conventional prefix
+- ✅ After merge, automatically triggers CI/CD process
 
-#### 4. 发布验证
+#### 4. Release Verification
 
 ```bash
-# 拉取最新代码
+# Pull latest code
 git pull origin main
 
-# 验证版本号
+# Verify version number
 python -c "from scalebox.version import get_version, get_version_info; print(f'Version: {get_version()}, Info: {get_version_info()}')"
 
-# 检查 PyPI
+# Check PyPI
 pip install scalebox-sdk --upgrade
 python -c "import scalebox; print(scalebox.__version__)"
 
-# 检查 GitHub Release
-# 访问 https://github.com/scalebox-dev/scalebox-sdk-python/releases
+# Check GitHub Release
+# Visit https://github.com/scalebox-dev/scalebox-sdk-python/releases
 ```
 
-#### 5. 紧急修复流程
+#### 5. Emergency Fix Process
 
 ```bash
-# 如需紧急修复，可以直接在 main 分支操作
+# For emergency fixes, can operate directly on main branch
 git checkout main
 git pull origin main
 
-# 修复问题
-# ... 编写代码 ...
+# Fix issue
+# ... write code ...
 
-# 使用 hotfix 前缀
+# Use hotfix prefix
 git commit -m "hotfix: critical security patch"
 git push origin main
 
-# 自动触发 patch 版本升级和发布
+# Automatically triggers patch version bump and publish
 ```
 
-### 📚 相关文档
+### 📚 Related Documentation
 
-- [语义化版本控制](https://semver.org/lang/zh-CN/)
-- [GitHub Actions 文档](https://docs.github.com/actions)
-- [PyPI 发布指南](https://packaging.python.org/tutorials/packaging-projects/)
-- [Python 包管理](https://packaging.python.org/)
+- [Semantic Versioning](https://semver.org/)
+- [Conventional Commits](https://www.conventionalcommits.org/)
+- [GitHub Actions Documentation](https://docs.github.com/actions)
+- [PyPI Publishing Guide](https://packaging.python.org/tutorials/packaging-projects/)
+- [Python Packaging](https://packaging.python.org/)
 
 ---
 
-**注意**: 自动化版本管理大大简化了发布流程，但仍建议在重要版本发布前进行充分测试。
+**Note**: Automated version management greatly simplifies the release process, but thorough testing is still recommended before important version releases.

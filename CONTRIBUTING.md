@@ -192,67 +192,67 @@ We use semantic versioning (MAJOR.MINOR.PATCH):
 
 ### Automated Version Management
 
-我们使用自动化版本管理脚本，支持语义化版本控制：
+We use automated version management scripts with support for semantic versioning:
 
 ```bash
-# 补丁版本 (0.1.0 -> 0.1.1) - 错误修复
+# Patch version (0.1.0 -> 0.1.1) - Bug fixes
 python scripts/bump_version.py patch
 
-# 次要版本 (0.1.0 -> 0.2.0) - 新功能
+# Minor version (0.1.0 -> 0.2.0) - New features
 python scripts/bump_version.py minor
 
-# 主要版本 (0.1.0 -> 1.0.0) - 破坏性更改
+# Major version (0.1.0 -> 1.0.0) - Breaking changes
 python scripts/bump_version.py major
 
-# 预览更改（不实际修改）
+# Preview changes (dry run)
 python scripts/bump_version.py patch --dry-run
 
-# 不创建Git标签
+# Don't create Git tag
 python scripts/bump_version.py patch --no-tag
 
-# 不更新CHANGELOG
+# Don't update CHANGELOG
 python scripts/bump_version.py patch --no-changelog
 ```
 
-### 版本文件自动同步
+### Automatic Version File Synchronization
 
-脚本会自动更新以下文件中的版本号：
-- `scalebox/__init__.py` - 主包版本
-- `scalebox/version.py` - 版本信息模块
-- `pyproject.toml` - 项目配置
-- `CHANGELOG.md` - 更新日志（可选）
+The script automatically updates version numbers in the following files:
+- `scalebox/__init__.py` - Main package version
+- `scalebox/version.py` - Version information module
+- `pyproject.toml` - Project configuration
+- `CHANGELOG.md` - Changelog (optional)
 
-### GitHub Actions 自动发布
+### GitHub Actions Automated Publishing
 
-版本升级后，GitHub Actions会自动处理发布流程：
+After version bump, GitHub Actions automatically handles the publishing process:
 
-1. **触发条件**：
-   - 推送到 `main` 分支
-   - 创建 `v*` 标签（如 `v0.1.2`）
+1. **Trigger Conditions**:
+   - Push to `main` branch
+   - Create `v*` tag (e.g., `v0.1.2`)
 
-2. **自动流程**：
-   - 运行测试套件
-   - 构建Python包
-   - 发布到PyPI
-   - 创建GitHub Release
+2. **Automated Process**:
+   - Run test suite
+   - Build Python package
+   - Publish to PyPI
+   - Create GitHub Release
 
-3. **发布步骤**：
+3. **Publishing Steps**:
    ```bash
-   # 1. 升级版本
+   # 1. Bump version
    python scripts/bump_version.py patch
    
-   # 2. 检查更改
+   # 2. Check changes
    git diff
    
-   # 3. 提交更改
+   # 3. Commit changes
    git add .
    git commit -m "Bump version to 0.1.2"
    
-   # 4. 推送并创建标签
+   # 4. Push and create tag
    git push origin main
    git push origin --tags
    
-   # 5. GitHub Actions 会自动发布到 PyPI
+   # 5. GitHub Actions will automatically publish to PyPI
    ```
 
 ### Release Checklist

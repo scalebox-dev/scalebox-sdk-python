@@ -11,68 +11,66 @@
 [![Import Sorting: isort](https://img.shields.io/badge/imports-isort-blue.svg)](https://pycqa.github.io/isort/)
 [![Multi-Language Support](https://img.shields.io/badge/languages-Python%20%7C%20R%20%7C%20Node.js%20%7C%20TypeScript%20%7C%20Java%20%7C%20Bash-orange.svg)](https://github.com/scalebox-dev/scalebox-sdk-python)
 
-> [中文文档](./README_CN.md)
+一个用于在可控沙箱中执行多语言代码的 Python SDK，支持同步与异步模式，以及多语言 Kernel（Python、R、Node.js、Deno/TypeScript、Java/IJAVA、Bash）。已提供全面的真实环境测试用例与脚本。
 
-A Python SDK for executing multi-language code in a controlled sandbox environment, supporting both synchronous and asynchronous modes, along with multi-language kernels (Python, R, Node.js, Deno/TypeScript, Java/IJAVA, Bash). Comprehensive real-world test cases and scripts are provided.
+## 功能特性
+- 多语言内核：Python、R、Node.js、Deno/TypeScript、Java/IJAVA、Bash
+- 同步 `Sandbox` 与异步 `AsyncSandbox` 执行
+- 持久上下文：跨多次执行保留变量/状态
+- 回调订阅：stdout、stderr、结果与错误
+- 丰富结果格式：text、html、markdown、svg、png、jpeg、pdf、latex、json、javascript、chart、data 等
+- 真实环境测试：覆盖同步/异步与多语言示例
 
-## Features
-- **Multi-language kernels**: Python, R, Node.js, Deno/TypeScript, Java/IJAVA, Bash
-- **Execution modes**: Synchronous `Sandbox` and asynchronous `AsyncSandbox`
-- **Persistent context**: Retain variables/state across multiple executions
-- **Callback subscriptions**: stdout, stderr, results, and errors
-- **Rich result formats**: text, html, markdown, svg, png, jpeg, pdf, latex, json, javascript, chart, data, and more
-- **Real-world testing**: Comprehensive test coverage for sync/async and multi-language examples
-
-## Requirements
+## 环境要求
 - Python 3.12+
-- Accessible Scalebox environment or local service
+- 可访问的 Scalebox 环境或本地服务
 
-## Installation
+## 安装
 
 ```bash
-# Clone the repository
+# 克隆项目
 git clone https://github.com/scalebox-dev/scalebox-sdk-python.git
 cd scalebox-sdk-python
 
-# Recommended: use a virtual environment
+# 建议使用虚拟环境
 python3 -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# 安装依赖
 pip install -r scalebox/requirements.txt
 ```
 
-If you're using the package directly from source (not via pip), add the `scalebox` directory to your Python path or copy it to your venv's site-packages:
+如果你以源码方式直接使用包（非 pip 安装），请将 `scalebox` 目录加入 Python 路径或复制到 venv 的 site-packages：
 ```bash
 cp -r scalebox venv/lib/python3.12/site-packages/
 ```
 
-## Configuration
-Credentials can be read from environment variables or a `.env` file:
+## 配置
+支持从环境变量或 `.env` 文件读取凭据：
 
 - `SBX_API_KEY`
 
-Example:
+示例：
 ```env
 # .env
 SBX_API_KEY=***
 ```
-Or:
+或：
 ```bash
 export SBX_API_KEY=***
 ```
 
-Optional: Use `python-dotenv` to automatically load `.env`:
+可选：使用 `python-dotenv` 自动加载 `.env`：
 ```bash
 pip install python-dotenv
 ```
 
-## Quick Start (Synchronous)
+## 快速开始（同步）
 ```python
 from dotenv import load_dotenv; load_dotenv()
 from scalebox.code_interpreter import Sandbox
 
-sandbox = Sandbox.create()  # Default lifetime: 5 minutes
+sandbox = Sandbox.create()  # 默认生存期 5 分钟
 execution = sandbox.run_code("print('hello world')", language="python")
 print(execution.logs.stdout)
 
@@ -80,7 +78,7 @@ files = sandbox.files.list("/")
 print(files)
 ```
 
-## Quick Start (Asynchronous)
+## 快速开始（异步）
 ```python
 import asyncio
 from dotenv import load_dotenv; load_dotenv()
@@ -94,15 +92,15 @@ async def main():
 asyncio.run(main())
 ```
 
-## Multi-Language Examples
-- Python: `language="python"`
-- R: `language="r"`
-- Node.js: `language="nodejs"`
-- Deno/TypeScript: `language="typescript"`
-- Java (IJAVA/pure Java): `language="ijava"` or `language="java"`
-- Bash: `language="bash"`
+## 多语言示例
+- Python：`language="python"`
+- R：`language="r"`
+- Node.js：`language="nodejs"`
+- Deno/TypeScript：`language="typescript"`
+- Java（IJAVA/纯Java）：`language="ijava"` 或 `language="java"`
+- Bash：`language="bash"`
 
-### Node.js Example:
+示例（Node.js）：
 ```python
 from scalebox.code_interpreter import Sandbox
 sbx = Sandbox.create()
@@ -114,7 +112,7 @@ result = sbx.run_code(code, language="nodejs")
 print(result.logs.stdout)
 ```
 
-### R Example:
+示例（R）：
 ```python
 from scalebox.code_interpreter import Sandbox
 sbx = Sandbox.create()
@@ -127,7 +125,7 @@ res = sbx.run_code(code, language="r")
 print(res.logs.stdout)
 ```
 
-### Deno/TypeScript Example:
+示例（Deno/TypeScript）：
 ```python
 from scalebox.code_interpreter import Sandbox
 sbx = Sandbox.create()
@@ -140,7 +138,7 @@ res = sbx.run_code(ts, language="typescript")
 print(res.logs.stdout)
 ```
 
-### Java/IJAVA Example:
+示例（Java/IJAVA）：
 ```python
 from scalebox.code_interpreter import Sandbox
 sbx = Sandbox.create()
@@ -152,7 +150,7 @@ res = sbx.run_code(code, language="java")
 print(res.logs.stdout)
 ```
 
-### Bash Example:
+示例（Bash）：
 ```python
 from scalebox.code_interpreter import Sandbox
 sbx = Sandbox.create()
@@ -160,8 +158,8 @@ res = sbx.run_code("echo 'Hello from Bash'", language="bash")
 print(res.logs.stdout)
 ```
 
-## Context Management
-Context allows you to reuse variables/state across multiple executions:
+## 上下文管理（Context）
+上下文允许跨多次执行复用变量/状态：
 ```python
 from scalebox.code_interpreter import Sandbox
 sbx = Sandbox.create()
@@ -169,11 +167,10 @@ ctx = sbx.create_code_context(language="python", cwd="/tmp")
 
 sbx.run_code("counter = 0", context=ctx)
 sbx.run_code("counter += 1; print(counter)", context=ctx)
-# Must clean up when done
+# 使用完必须清理
 sbx.destroy_context(ctx)
 ```
-
-Async API:
+异步 API：
 ```python
 from scalebox.code_interpreter import AsyncSandbox
 
@@ -185,7 +182,7 @@ async def demo():
     await sbx.destroy_context(ctx)
 ```
 
-## Callbacks (Optional)
+## 回调（可选）
 ```python
 from scalebox.code_interpreter import Sandbox
 from scalebox.code_interpreter import OutputMessage, Result, ExecutionError
@@ -214,109 +211,109 @@ sbx.run_code(
 )
 ```
 
-## Result Formats
-`Result` may contain the following data fields:
+## 结果格式（Result）
+`Result` 可能包含如下数据字段：
 - `text`, `html`, `markdown`, `svg`, `png`, `jpeg`, `pdf`, `latex`
 - `json_data`, `javascript`, `data`, `chart`
 - `execution_count`, `is_main_result`, `extra`
 
-Use `list(result.formats())` to view available formats.
+可以通过 `list(result.formats())` 查看可用格式。
 
-## Running Tests
-The `test/` directory contains comprehensive real-world use cases (not unittest-style, direct script-style), covering:
-- Synchronous and asynchronous comprehensive test cases
-- Multi-language kernels (Python, R, Node.js, Deno/TypeScript, Java/IJAVA, Bash)
-- Context management, callbacks, and result formats
+## 运行测试
+项目 `test/` 目录包含全面的真实环境用例（非 unittest，直接脚本风格），覆盖：
+- 同步与异步综合用例
+- 多语言内核（Python、R、Node.js、Deno/TypeScript、Java/IJAVA、Bash）
+- 上下文管理、回调与结果格式
 
-Run syntax checks:
+运行语法检查：
 ```bash
 cd test
 python3 -m py_compile test_code_interpreter_sync_comprehensive.py
 python3 -m py_compile test_code_interpreter_async_comprehensive.py
 ```
 
-It's recommended to prepare dependencies in a virtual environment and install language runtimes (such as R, Node, Deno, JDK/IJAVA, etc.) as needed, ensuring each kernel can be executed by the backend.
+建议在虚拟环境中准备依赖并按需安装语言运行时（如 R、Node、Deno、JDK/IJAVA 等），确保各内核能够被后端执行。
 
-## Version Management
+## 版本管理（Version Management）
 
-This project uses automated version management with support for Semantic Versioning.
+本项目使用自动化版本管理，支持语义化版本控制（Semantic Versioning）。
 
-### 🚀 Automatic Version Bumping
+### 🚀 自动版本升级
 
-Use the built-in script to bump versions:
+使用内置脚本进行版本升级：
 
 ```bash
-# Bump patch version (0.1.1 -> 0.1.2)
+# 升级补丁版本 (0.1.1 -> 0.1.2)
 python scripts/bump_version.py patch
 
-# Bump minor version (0.1.1 -> 0.2.0)
+# 升级次要版本 (0.1.1 -> 0.2.0)
 python scripts/bump_version.py minor
 
-# Bump major version (0.1.1 -> 1.0.0)
+# 升级主要版本 (0.1.1 -> 1.0.0)
 python scripts/bump_version.py major
 ```
 
-### 📦 Automated Release Process
+### 📦 自动发布流程
 
-#### 🚀 Method 1: GitHub Actions One-Click Bump (Recommended)
+#### 🚀 方法1：GitHub Actions 一键升级（推荐）
 
-1. **Navigate to GitHub Actions page**
-2. **Select "CI/CD Pipeline" workflow**
-3. **Click "Run workflow" button**
-4. **Select version type**:
-   - `patch`: Patch version (0.1.1 → 0.1.2)
-   - `minor`: Minor version (0.1.1 → 0.2.0)  
-   - `major`: Major version (0.1.1 → 1.0.0)
-5. **Select auto-commit option**
-6. **Click run** - The system will automatically complete all steps!
+1. **进入 GitHub Actions 页面**
+2. **选择 "CI/CD Pipeline" workflow**
+3. **点击 "Run workflow" 按钮**
+4. **选择版本类型**：
+   - `patch`: 补丁版本 (0.1.1 → 0.1.2)
+   - `minor`: 次要版本 (0.1.1 → 0.2.0)  
+   - `major`: 主要版本 (0.1.1 → 1.0.0)
+5. **选择自动提交选项**
+6. **点击运行** - 系统会自动完成所有步骤！
 
-#### 🔧 Method 2: Local Script Bump
+#### 🔧 方法2：本地脚本升级
 
-1. **Version Bump**: Use `bump_version.py` script
-2. **GitHub Actions**: Automatically build and publish to PyPI
-3. **Trigger Conditions**:
-   - Push to `main` branch
-   - Create `v*` tag (e.g., `v0.1.2`)
+1. **版本升级**：使用 `bump_version.py` 脚本
+2. **GitHub Actions**：自动构建和发布到PyPI
+3. **触发条件**：
+   - 推送到 `main` 分支
+   - 创建 `v*` 标签（如 `v0.1.2`）
 
-### 🔧 Version File Synchronization
+### 🔧 版本文件同步
 
-The script automatically updates versions in the following files:
+脚本会自动更新以下文件中的版本：
 - `scalebox/__init__.py`
 - `scalebox/version.py`
 - `pyproject.toml`
-- `CHANGELOG.md` (optional)
+- `CHANGELOG.md`（可选）
 
-### 📋 Release Steps
+### 📋 发布步骤
 
 ```bash
-# 1. Bump version
+# 1. 升级版本
 python scripts/bump_version.py patch
 
-# 2. Check changes
+# 2. 检查更改
 git diff
 
-# 3. Commit changes
+# 3. 提交更改
 git add .
 git commit -m "Bump version to 0.1.2"
 
-# 4. Push and create tag
+# 4. 推送并创建标签
 git push origin main
 git push origin --tags
 
-# 5. GitHub Actions will automatically publish to PyPI
+# 5. GitHub Actions 会自动发布到 PyPI
 ```
 
-### 🏷️ Version Rules
+### 🏷️ 版本规则
 
-- **MAJOR**: Incompatible API changes
-- **MINOR**: Backward-compatible feature additions
-- **PATCH**: Backward-compatible bug fixes
+- **MAJOR**：不兼容的API更改
+- **MINOR**：向后兼容的功能添加
+- **PATCH**：向后兼容的错误修复
 
-## Troubleshooting
-- **Import/dependency errors**: Ensure venv is activated and all required dependencies from `scalebox/requirements.txt` are installed
-- **`ModuleNotFoundError`**: Add the project root path to `sys.path` in test scripts, or run from the project root directory
-- **External kernels unavailable**: Ensure the environment has the corresponding language runtime installed (R/Node/Deno/JDK) and the backend has enabled that kernel
-- **Timeout/network issues**: Check network connectivity and backend service accessibility, increase `timeout`/`request_timeout` if necessary
+## 常见问题（Troubleshooting）
+- Import/依赖错误：请确认已激活 venv 并正确安装 `scalebox/requirements.txt` 所需依赖
+- `ModuleNotFoundError`：在测试脚本中添加项目根路径到 `sys.path`，或从项目根目录运行
+- 外部内核不可用：确保环境已安装对应语言运行时（R/Node/Deno/JDK）与后端已启用该内核
+- 超时/网络：检查网络与后端服务可达性，必要时增大 `timeout`/`request_timeout`
 
-## License
-This project is licensed under the terms of the LICENSE file in the repository.
+## 许可证
+本项目遵循项目仓库所附许可证（LICENSE）条款。

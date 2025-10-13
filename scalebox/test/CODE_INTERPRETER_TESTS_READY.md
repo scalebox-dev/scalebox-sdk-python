@@ -1,78 +1,78 @@
-# ✅ Code Interpreter 测试套件完成
+# ✅ Code Interpreter Test Suite Complete
 
-按照 `test_sandbox_sync_comprehensive.py` 和 `test_sandbox_async_comprehensive.py` 的风格，已成功创建完整的 Code Interpreter 测试套件。
+Following the style of `test_sandbox_sync_comprehensive.py` and `test_sandbox_async_comprehensive.py`, a complete Code Interpreter test suite has been successfully created.
 
-## 📁 已创建的文件
+## 📁 Created Files
 
-### 🧪 综合测试文件
+### 🧪 Comprehensive Test Files
 1. **`test_code_interpreter_sync_comprehensive.py`** (24.6KB)
-   - 同步版本的全面测试套件
-   - 使用 `CodeInterpreterValidator` 类
-   - 包含 17+ 个详细测试用例
+   - Comprehensive test suite for synchronous version
+   - Uses `CodeInterpreterValidator` class
+   - Contains 17+ detailed test cases
 
 2. **`test_code_interpreter_async_comprehensive.py`** (26.2KB)
-   - 异步版本的全面测试套件
-   - 使用 `AsyncCodeInterpreterValidator` 类
-   - 包含 11+ 个异步测试用例
+   - Comprehensive test suite for asynchronous version
+   - Uses `AsyncCodeInterpreterValidator` class
+   - Contains 11+ async test cases
 
-### 🎯 简单测试示例
+### 🎯 Simple Test Examples
 3. **`testcodeinterpreter_sync.py`** (3.4KB)
-   - 简单直接的同步测试示例
-   - 类似于 `testsandbox_sync.py` 的风格
-   - 适合快速验证基础功能
+   - Simple, straightforward synchronous test examples
+   - Similar to `testsandbox_sync.py` style
+   - Suitable for quick basic functionality verification
 
 4. **`testcodeinterpreter_async.py`** (7.2KB)
-   - 简单直接的异步测试示例
-   - 类似于 `testsandbox_async.py` 的风格
-   - 展示异步代码执行和并发处理
+   - Simple, straightforward asynchronous test examples
+   - Similar to `testsandbox_async.py` style
+   - Demonstrates async code execution and concurrent processing
 
-### 🚀 运行脚本
+### 🚀 Run Scripts
 5. **`run_code_interpreter_tests.sh`** (2KB)
-   - 交互式测试运行脚本
-   - 支持选择不同类型的测试
-   - 一键运行所有测试
+   - Interactive test execution script
+   - Supports selection of different test types
+   - One-click to run all tests
 
-## 📊 测试覆盖范围
+## 📊 Test Coverage
 
-### 同步测试覆盖
-- ✅ **基础代码执行** - Python代码解释和执行
-- ✅ **数学计算** - numpy, math库使用
-- ✅ **数据处理** - pandas数据分析
-- ✅ **数据可视化** - matplotlib图表生成
-- ✅ **回调函数处理** - stdout, stderr, result, error回调
-- ✅ **上下文管理** - 创建、持久化、多上下文
-- ✅ **错误处理** - 语法错误、运行时错误
-- ✅ **数据类型测试** - 各种Python数据类型
-- ✅ **文件操作模拟** - 文件读写操作
-- ✅ **性能测试** - 计算性能、并发模拟
-- ✅ **结果格式测试** - 文本、HTML、Markdown、SVG、图像、LaTeX、JSON、JavaScript、图表数据、混合格式
-- ✅ **R语言支持** - R语言基础执行、数据分析、可视化、统计分析、上下文管理
-- ✅ **网络请求模拟** - API调用模拟
+### Synchronous Test Coverage
+- ✅ **Basic Code Execution** - Python code interpretation and execution
+- ✅ **Mathematical Computation** - numpy, math library usage
+- ✅ **Data Processing** - pandas data analysis
+- ✅ **Data Visualization** - matplotlib chart generation
+- ✅ **Callback Handling** - stdout, stderr, result, error callbacks
+- ✅ **Context Management** - creation, persistence, multiple contexts
+- ✅ **Error Handling** - syntax errors, runtime errors
+- ✅ **Data Type Testing** - various Python data types
+- ✅ **File Operations** - file read/write operations
+- ✅ **Performance Testing** - computational performance, concurrency simulation
+- ✅ **Result Format Testing** - text, HTML, Markdown, SVG, images, LaTeX, JSON, JavaScript, chart data, mixed formats
+- ✅ **R Language Support** - R language basic execution, data analysis, visualization, statistical analysis, context management
+- ✅ **Network Request Simulation** - API call simulation
 
-### 异步测试覆盖
-- ✅ **异步代码执行** - async/await语法支持
-- ✅ **并发代码执行** - 多任务并发处理
-- ✅ **异步数据科学** - 异步数据处理工作流
-- ✅ **异步回调处理** - 异步回调函数
-- ✅ **异步上下文管理** - 异步上下文状态管理
-- ✅ **异步性能测试** - 并发任务、批处理性能
-- ✅ **异步错误处理** - 异步错误捕获
-- ✅ **异步结果格式测试** - 异步文本生成、混合格式、实时数据流处理
-- ✅ **异步R语言支持** - 异步R语言基础执行、数据分析、可视化、统计分析、上下文管理
-- ✅ **WebSocket模拟** - 异步WebSocket连接模拟
+### Asynchronous Test Coverage
+- ✅ **Async Code Execution** - async/await syntax support
+- ✅ **Concurrent Code Execution** - multi-task concurrent processing
+- ✅ **Async Data Science** - asynchronous data processing workflows
+- ✅ **Async Callback Handling** - asynchronous callback functions
+- ✅ **Async Context Management** - asynchronous context state management
+- ✅ **Async Performance Testing** - concurrent tasks, batch processing performance
+- ✅ **Async Error Handling** - asynchronous error catching
+- ✅ **Async Result Format Testing** - async text generation, mixed formats, real-time data stream processing
+- ✅ **Async R Language Support** - async R language basic execution, data analysis, visualization, statistical analysis, context management
+- ✅ **WebSocket Simulation** - asynchronous WebSocket connection simulation
 
-## 🎨 测试风格特点
+## 🎨 Test Style Features
 
-### 遵循sandbox测试风格
-- 使用 `Validator` 类结构
-- `test_results` 列表记录测试结果
-- `run_test()` 方法执行单个测试
-- `log_test_result()` 记录测试状态
-- `cleanup()` 方法清理资源
-- `print_summary()` 生成测试报告
-- 测试方法以 `test_` 开头
+### Following Sandbox Test Style
+- Uses `Validator` class structure
+- `test_results` list records test results
+- `run_test()` method executes individual tests
+- `log_test_result()` records test status
+- `cleanup()` method cleans up resources
+- `print_summary()` generates test reports
+- Test methods start with `test_`
 
-### 测试结构示例
+### Test Structure Example
 ```python
 class CodeInterpreterValidator:
     def __init__(self):
@@ -81,44 +81,44 @@ class CodeInterpreterValidator:
         self.failed_tests = []
         
     def run_test(self, test_func, test_name: str):
-        # 执行测试并记录结果
+        # Execute test and record results
         
     def test_basic_python_execution(self):
-        # 具体的测试逻辑
+        # Specific test logic
         
     def cleanup(self):
-        # 清理沙箱资源
+        # Clean up sandbox resources
         
     def print_summary(self):
-        # 打印测试摘要
+        # Print test summary
 ```
 
-## 🚀 运行方法
+## 🚀 Running Methods
 
-### 1. 使用运行脚本（推荐）
+### 1. Use Run Script (Recommended)
 ```bash
 cd scalebox/test
 ./run_code_interpreter_tests.sh
 ```
 
-### 2. 直接运行测试文件
+### 2. Run Test Files Directly
 ```bash
-# 简单同步测试
+# Simple synchronous tests
 python3 testcodeinterpreter_sync.py
 
-# 简单异步测试
+# Simple asynchronous tests
 python3 testcodeinterpreter_async.py
 
-# 综合同步测试
+# Comprehensive synchronous tests
 python3 test_code_interpreter_sync_comprehensive.py
 
-# 综合异步测试  
+# Comprehensive asynchronous tests  
 python3 test_code_interpreter_async_comprehensive.py
 ```
 
-### 3. 分别测试特定功能
+### 3. Test Specific Features Separately
 ```bash
-# 只测试基础功能
+# Test only basic functionality
 python3 -c "
 from test_code_interpreter_sync_comprehensive import CodeInterpreterValidator
 validator = CodeInterpreterValidator()
@@ -127,197 +127,197 @@ validator.cleanup()
 "
 ```
 
-## 📋 测试报告示例
+## 📋 Test Report Example
 
-运行后会生成如下格式的报告：
+After running, a report in the following format will be generated:
 ```
 ============================================================
-CodeInterpreter综合验证测试报告
+CodeInterpreter Comprehensive Verification Test Report
 ============================================================
-总测试数: 17
-通过数: 16
-失败数: 1
-总耗时: 45.234秒
-成功率: 94.1%
+Total Tests: 17
+Passed: 16
+Failed: 1
+Total Time: 45.234s
+Success Rate: 94.1%
 
-失败的测试:
+Failed Tests:
   ❌ Visualization Code
 
 ============================================================
 ```
 
-## 🎨 结果格式支持（新增功能）
+## 🎨 Result Format Support (New Feature)
 
-### 完整的 Result 类格式测试
-基于您提供的 `Result` 类定义，新增了对所有结果格式的全面测试：
+### Complete Result Class Format Testing
+Based on the provided `Result` class definition, comprehensive tests for all result formats have been added:
 
-#### 📝 文本格式 (text)
-- 纯文本结果输出
-- 多行文本处理
-- 中文内容支持
-- 格式化文本展示
+#### 📝 Text Format (text)
+- Plain text result output
+- Multi-line text processing
+- Chinese content support
+- Formatted text display
 
-#### 🌐 网页格式 (html)  
-- 完整的HTML文档生成
-- CSS样式支持
-- 表格和列表渲染
-- 响应式设计
+#### 🌐 Web Format (html)  
+- Complete HTML document generation
+- CSS style support
+- Table and list rendering
+- Responsive design
 
-#### 📋 Markdown格式 (markdown)
-- 标准Markdown语法
-- 表格、列表、代码块
-- 链接和图片引用
-- 数学公式展示
+#### 📋 Markdown Format (markdown)
+- Standard Markdown syntax
+- Tables, lists, code blocks
+- Links and image references
+- Mathematical formula display
 
-#### 🖼️ 矢量图形 (svg)
-- 动态SVG图形
-- 进度条动画
-- 交互式图表
-- 矢量图形优化
+#### 🖼️ Vector Graphics (svg)
+- Dynamic SVG graphics
+- Progress bar animations
+- Interactive charts
+- Vector graphic optimization
 
-#### 📊 图像格式 (png/jpeg)
-- matplotlib图表转base64
-- 多子图复杂图表
-- 高质量图像输出
-- 压缩优化
+#### 📊 Image Formats (png/jpeg)
+- matplotlib charts to base64
+- Multi-subplot complex charts
+- High-quality image output
+- Compression optimization
 
-#### 📄 LaTeX格式 (latex)
-- 完整的LaTeX文档
-- 数学公式渲染
-- 表格和图形
-- 学术论文格式
+#### 📄 LaTeX Format (latex)
+- Complete LaTeX documents
+- Mathematical formula rendering
+- Tables and figures
+- Academic paper formatting
 
-#### 📈 JSON数据 (json_data)
-- 结构化数据输出
-- 嵌套对象处理
-- 数组和复杂类型
-- 性能指标数据
+#### 📈 JSON Data (json_data)
+- Structured data output
+- Nested object handling
+- Arrays and complex types
+- Performance metric data
 
-#### ⚡ JavaScript代码 (javascript)
-- 交互式界面组件
-- 实时数据更新
-- 事件处理机制
-- 图表库集成
+#### ⚡ JavaScript Code (javascript)
+- Interactive UI components
+- Real-time data updates
+- Event handling mechanisms
+- Chart library integration
 
-#### 📊 图表数据 (chart)
-- Chart.js兼容格式
-- 多种图表类型
-- 交互式配置
-- 数据导出功能
+#### 📊 Chart Data (chart)
+- Chart.js compatible format
+- Multiple chart types
+- Interactive configuration
+- Data export functionality
 
-#### 🎨 混合格式 (mixed)
-- 同时生成多种格式
-- 格式间数据关联
-- 统一样式设计
-- 完整报告生成
+#### 🎨 Mixed Formats (mixed)
+- Simultaneously generate multiple formats
+- Data correlation between formats
+- Unified style design
+- Complete report generation
 
-### 异步结果格式增强
-- **异步文本生成**: 非阻塞文本处理
-- **并发格式处理**: 同时生成多种格式
-- **实时数据流**: 动态数据收集和处理
-- **性能优化**: 异步I/O和资源管理
+### Asynchronous Result Format Enhancement
+- **Async Text Generation**: Non-blocking text processing
+- **Concurrent Format Processing**: Generate multiple formats simultaneously
+- **Real-time Data Streams**: Dynamic data collection and processing
+- **Performance Optimization**: Async I/O and resource management
 
-## 🔬 R语言支持（新增功能）
+## 🔬 R Language Support (New Feature)
 
-### 完整的 R 语言 Kernel 测试
-基于 code-interpreter 的 R 语言支持，新增了全面的 R 语言测试用例：
+### Complete R Language Kernel Testing
+Based on code-interpreter's R language support, comprehensive R language test cases have been added:
 
-#### 📊 **R语言基础执行** (`test_r_language_basic_execution`)
-- R语言基础语法和变量操作
-- 向量运算和数据框创建
-- 基础数学函数和统计函数
-- 数据结构和类型处理
+#### 📊 **R Language Basic Execution** (`test_r_language_basic_execution`)
+- R language basic syntax and variable operations
+- Vector operations and data frame creation
+- Basic math and statistical functions
+- Data structures and type handling
 
-#### 📈 **R语言数据分析** (`test_r_language_data_analysis`)
-- dplyr 包的数据操作
-- 数据过滤、分组和聚合
-- 数据框操作和转换
-- 复杂数据查询和统计
+#### 📈 **R Language Data Analysis** (`test_r_language_data_analysis`)
+- dplyr package data operations
+- Data filtering, grouping, and aggregation
+- Data frame operations and transformations
+- Complex data queries and statistics
 
-#### 📊 **R语言数据可视化** (`test_r_language_visualization`)
-- ggplot2 包的高级图表
-- 散点图、箱线图、直方图
-- 多图表组合和主题设置
-- 数据可视化最佳实践
+#### 📊 **R Language Data Visualization** (`test_r_language_visualization`)
+- ggplot2 package advanced charts
+- Scatter plots, box plots, histograms
+- Multi-chart combinations and theme settings
+- Data visualization best practices
 
-#### 📉 **R语言统计分析** (`test_r_language_statistics`)
-- 描述性统计分析
-- t检验和假设检验
-- 相关性分析和回归分析
-- 正态性检验和统计推断
+#### 📉 **R Language Statistical Analysis** (`test_r_language_statistics`)
+- Descriptive statistical analysis
+- t-tests and hypothesis testing
+- Correlation analysis and regression analysis
+- Normality tests and statistical inference
 
-#### 🔄 **R语言上下文管理** (`test_r_language_context_management`)
-- R语言专用上下文创建
-- 全局变量和函数定义
-- 上下文状态持久化
-- 资源清理和管理
+#### 🔄 **R Language Context Management** (`test_r_language_context_management`)
+- R language dedicated context creation
+- Global variables and function definitions
+- Context state persistence
+- Resource cleanup and management
 
-### 异步 R 语言支持
-- **异步R语言基础执行**: 非阻塞R代码执行
-- **异步R语言数据分析**: 并发数据处理
-- **异步R语言可视化**: 异步图表生成
-- **异步R语言统计**: 并发统计分析
-- **异步R语言上下文**: 异步上下文管理
+### Asynchronous R Language Support
+- **Async R Language Basic Execution**: Non-blocking R code execution
+- **Async R Language Data Analysis**: Concurrent data processing
+- **Async R Language Visualization**: Asynchronous chart generation
+- **Async R Language Statistics**: Concurrent statistical analysis
+- **Async R Language Context**: Asynchronous context management
 
-### R 语言测试特色
-- **真实环境**: 使用真实的 R kernel 执行
-- **完整覆盖**: 涵盖 R 语言的核心功能
-- **库支持**: 测试 dplyr、ggplot2、stats 等常用包
-- **上下文隔离**: 每个测试使用独立的 R 上下文
-- **资源管理**: 自动清理 R 语言上下文资源
+### R Language Test Features
+- **Real Environment**: Uses real R kernel execution
+- **Complete Coverage**: Covers R language core functionality
+- **Library Support**: Tests dplyr, ggplot2, stats and other common packages
+- **Context Isolation**: Each test uses independent R context
+- **Resource Management**: Automatic cleanup of R language context resources
 
-## 💡 特色功能
+## 💡 Featured Functionality
 
-### 1. 丰富的代码示例
-- 数学计算（三角函数、统计分析）
-- 数据处理（pandas数据分析）
-- 数据可视化（matplotlib图表）
-- 异步编程（async/await, 并发）
-- 批处理（并发数据处理）
-- 网络模拟（API调用、WebSocket）
+### 1. Rich Code Examples
+- Mathematical calculations (trigonometric functions, statistical analysis)
+- Data processing (pandas data analysis)
+- Data visualization (matplotlib charts)
+- Asynchronous programming (async/await, concurrency)
+- Batch processing (concurrent data processing)
+- Network simulation (API calls, WebSocket)
 
-### 2. 完整的错误处理
-- 语法错误捕获
-- 运行时错误处理
-- 异步错误处理
-- 回调函数错误处理
+### 2. Complete Error Handling
+- Syntax error catching
+- Runtime error handling
+- Asynchronous error handling
+- Callback function error handling
 
-### 3. 性能测试
-- 计算性能基准测试
-- 并发执行性能测试
-- 异步批处理性能测试
-- 吞吐量和效率分析
+### 3. Performance Testing
+- Computational performance benchmarking
+- Concurrent execution performance testing
+- Asynchronous batch processing performance testing
+- Throughput and efficiency analysis
 
-### 4. 上下文管理
-- 多个独立上下文
-- 上下文状态持久化
-- 异步上下文状态管理
-- 上下文间的隔离验证
+### 4. Context Management
+- Multiple independent contexts
+- Context state persistence
+- Asynchronous context state management
+- Isolation verification between contexts
 
-## 🎯 使用场景
+## 🎯 Use Cases
 
-1. **开发验证** - 验证Code Interpreter核心功能
-2. **功能测试** - 测试各种代码执行场景
-3. **性能评估** - 评估系统性能和并发能力
-4. **学习参考** - 作为Code Interpreter使用示例
-5. **回归测试** - 确保更新后功能正常
+1. **Development Verification** - Verify Code Interpreter core functionality
+2. **Functional Testing** - Test various code execution scenarios
+3. **Performance Evaluation** - Assess system performance and concurrency capability
+4. **Learning Reference** - Serve as Code Interpreter usage examples
+5. **Regression Testing** - Ensure functionality remains normal after updates
 
-## 📝 注意事项
+## 📝 Notes
 
-1. **依赖要求**: 需要安装numpy、pandas、matplotlib等库
-2. **环境配置**: 确保沙箱环境正确配置
-3. **执行时间**: 综合测试可能需要数分钟
-4. **资源清理**: 测试完成后会自动清理沙箱资源
-5. **错误处理**: 部分测试故意产生错误以验证错误处理机制
+1. **Dependency Requirements**: Need to install numpy, pandas, matplotlib, etc.
+2. **Environment Configuration**: Ensure sandbox environment is properly configured
+3. **Execution Time**: Comprehensive tests may take several minutes
+4. **Resource Cleanup**: Automatically cleans up sandbox resources after tests complete
+5. **Error Handling**: Some tests intentionally generate errors to verify error handling mechanisms
 
 ---
 
-**创建时间**: 2024年9月17日  
-**文件总数**: 6个  
-**代码总量**: 5000+行  
-**测试用例**: 49个  
-**结果格式支持**: 10+种格式  
-**语言支持**: Python + R语言  
-**状态**: ✅ 完成并可使用
+**Creation Date**: September 17, 2024  
+**Total Files**: 6  
+**Total Code**: 5000+ lines  
+**Test Cases**: 49  
+**Result Format Support**: 10+ formats  
+**Language Support**: Python + R language  
+**Status**: ✅ Complete and ready to use
 
-所有测试文件已按照您要求的 `test_sandbox` 风格创建完成，可以立即使用！🎉
+All test files have been created following your required `test_sandbox` style and are ready to use! 🎉
