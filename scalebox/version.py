@@ -2,8 +2,8 @@
 Version information for ScaleBox Python SDK
 """
 
-__version__ = "0.1.17"
-__version_info__ = (0, 1, 17)
+__version__ = "0.1.18"
+__version_info__ = (0, 1, 18)
 
 
 def get_version() -> str:
