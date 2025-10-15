@@ -18,19 +18,19 @@ class ConnectionConfig:
 
     @staticmethod
     def _domain():
-        return os.getenv("CSX_DOMAIN") or "api.scalebox.dev/v1"
+        return os.getenv("SBX_DOMAIN") or "api.scalebox.dev/v1"
 
     @staticmethod
     def _debug():
-        return os.getenv("CSX_DEBUG", "false").lower() == "true"
+        return os.getenv("SBX_DEBUG", "false").lower() == "true"
 
     @staticmethod
     def _api_key():
-        return os.getenv("CSX_API_KEY")
+        return os.getenv("SBX_API_KEY")
 
     @staticmethod
     def _access_token():
-        return os.getenv("CSX_ACCESS_TOKEN")
+        return os.getenv("SBX_ACCESS_TOKEN")
 
     def __init__(
         self,
