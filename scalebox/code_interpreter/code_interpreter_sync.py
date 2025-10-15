@@ -272,7 +272,7 @@ class Sandbox(BaseSandbox):
                 create_context_request,
                 timeout_seconds=request_timeout
                 or self._connection_config.request_timeout,
-                extra_headers=headers,
+                extra_headers=self.connection_config.headers,
             )
 
             return Context.from_json(
