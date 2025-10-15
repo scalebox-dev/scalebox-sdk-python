@@ -176,7 +176,8 @@ class Sandbox(BaseSandbox):
             raise InvalidArgumentException(
                 "You can provide context or language, but not both at the same time."
             )
-
+        if language is None and context is None:
+            language = "python"
         timeout = None if timeout == 0 else (timeout or DEFAULT_TIMEOUT)
         request_timeout = request_timeout or self._connection_config.request_timeout
         context_id = context.id if context else None
