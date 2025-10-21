@@ -35,9 +35,11 @@ def _parse_response(
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
-        for response_200_item_data in _response_200:
+        data=_response_200["data"]
+        if data["sandboxes"] is None:
+            return None
+        for response_200_item_data in data["sandboxes"]:
             response_200_item = ListedSandbox.from_dict(response_200_item_data)
-
             response_200.append(response_200_item)
 
         return response_200
@@ -95,7 +97,6 @@ def sync_detailed(
     response = client.get_httpx_client().request(
         **kwargs,
     )
-
     return _build_response(client=client, response=response)
 
 

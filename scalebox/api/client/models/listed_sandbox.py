@@ -85,25 +85,27 @@ class ListedSandbox:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        client_id = d.pop("clientID")
+        client_id = d.pop("clientID","")
 
-        cpu_count = d.pop("cpuCount")
+        cpu_count = d.pop("cpu_count")
 
-        end_at = isoparse(d.pop("endAt"))
+        # end_at = isoparse(d.pop("end_at",""))
 
-        memory_mb = d.pop("memoryMB")
 
-        sandbox_id = d.pop("sandboxID")
+        memory_mb = d.pop("memory_mb")
 
-        started_at = isoparse(d.pop("startedAt"))
+        sandbox_id = d.pop("sandbox_id")
 
-        state = SandboxState(d.pop("state"))
+        started_at = isoparse(d.pop("started_at"))
 
-        template_id = d.pop("templateID")
+        state = SandboxState(d.pop("status"))
 
-        alias = d.pop("alias", UNSET)
+        template_id = d.pop("template_id")
+
+        alias = d.pop("name", UNSET)
 
         metadata = d.pop("metadata", UNSET)
+        end_at = (started_at + datetime.timedelta(seconds=float(timeout))) if (timeout := d.pop("timeout", "0")) is not UNSET and timeout is not None else None
 
         listed_sandbox = cls(
             client_id=client_id,
