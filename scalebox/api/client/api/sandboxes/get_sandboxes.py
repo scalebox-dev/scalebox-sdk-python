@@ -17,6 +17,7 @@ def _get_kwargs(
     params: dict[str, Any] = {}
 
     params["metadata"] = metadata
+    params["status"] = "running"
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
