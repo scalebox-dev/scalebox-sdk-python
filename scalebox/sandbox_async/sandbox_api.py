@@ -40,7 +40,7 @@ class SandboxApi(SandboxApiBase):
         """
         List all running sandboxes.
 
-        :param api_key: API key to use for authentication, defaults to `E2B_API_KEY` environment variable
+        :param api_key: API key to use for authentication, defaults to `SBX_API_KEY` environment variable
         :param query: Filter the list of sandboxes, e.g. by metadata `SandboxQuery(metadata={"key": "value"})`, if there are multiple filters they are combined with AND.
         :param domain: Domain to use for the request, only relevant for self-hosted environments
         :param debug: Enable debug mode, all requested are then sent to localhost
@@ -115,9 +115,9 @@ class SandboxApi(SandboxApiBase):
         """
         Get the sandbox info.
         :param sandbox_id: Sandbox ID
-        :param api_key: API key to use for authentication, defaults to `E2B_API_KEY` environment variable
-        :param domain: Domain to use for the request, defaults to `E2B_DOMAIN` environment variable
-        :param debug: Debug mode, defaults to `E2B_DEBUG` environment variable
+        :param api_key: API key to use for authentication, defaults to `SBX_API_KEY` environment variable
+        :param domain: Domain to use for the request, defaults to `SBX_DOMAIN` environment variable
+        :param debug: Debug mode, defaults to `SBX_DEBUG` environment variable
         :param request_timeout: Timeout for the request in **seconds**
         :param headers: Additional headers to send with the request
         :param proxy: Proxy to use for the request
@@ -293,7 +293,7 @@ class SandboxApi(SandboxApiBase):
             #     await SandboxApi._cls_kill(res.parsed.sandbox_id)
             #     raise TemplateException(
             #         "You need to update the template to use the new SDK. "
-            #         "You can do this by running `e2b template build` in the directory with the template."
+            #         "You can do this by running `scalebox template build` in the directory with the template."
             #     )
 
             return SandboxCreateResponse(

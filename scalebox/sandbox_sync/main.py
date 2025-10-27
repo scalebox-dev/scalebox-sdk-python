@@ -45,7 +45,7 @@ class SandboxOpts(TypedDict):
 
 class Sandbox(SandboxSetup, SandboxApi):
     """
-    E2B cloud sandbox is a secure and isolated cloud environment.
+    SBX cloud sandbox is a secure and isolated cloud environment.
 
     The sandbox allows you to:
     - Access Linux OS
@@ -60,7 +60,7 @@ class Sandbox(SandboxSetup, SandboxApi):
 
     Example:
     ```python
-    from e2b import Sandbox
+    from SBX import Sandbox
 
     sandbox = Sandbox()
     ```
@@ -144,7 +144,7 @@ class Sandbox(SandboxSetup, SandboxApi):
         :param timeout: Timeout for the sandbox in **seconds**, default to 300 seconds. Maximum time a sandbox can be kept alive is 24 hours (86_400 seconds) for Pro users and 1 hour (3_600 seconds) for Hobby users
         :param metadata: Custom metadata for the sandbox
         :param envs: Custom environment variables for the sandbox
-        :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
+        :param api_key: SBX API Key to use for authentication, defaults to `SBX_API_KEY` environment variable
         :param request_timeout: Timeout for the request in **seconds**
         :param proxy: Proxy to use for the request and for the **requests made to the returned sandbox**
         :param allow_internet_access: Allow sandbox to access the internet, defaults to `True`
@@ -482,7 +482,7 @@ class Sandbox(SandboxSetup, SandboxApi):
         With sandbox ID you can connect to the same sandbox from different places or environments (serverless functions, etc).
 
         :param sandbox_id: Sandbox ID
-        :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
+        :param api_key: Scalebox API Key to use for authentication, defaults to `SBX_API_KEY` environment variable
         :param proxy: Proxy to use for the request and for the **requests made to the returned sandbox**
 
         :return: sandbox instance for the existing sandbox
@@ -557,7 +557,7 @@ class Sandbox(SandboxSetup, SandboxApi):
         Kill the sandbox specified by sandbox ID.
 
         :param sandbox_id: Sandbox ID
-        :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
+        :param api_key: SBX API Key to use for authentication, defaults to `SBX_API_KEY` environment variable
         :param request_timeout: Timeout for the request in **seconds**
         :param proxy: Proxy to use for the request
 
@@ -623,7 +623,7 @@ class Sandbox(SandboxSetup, SandboxApi):
 
         :param sandbox_id: Sandbox ID
         :param timeout: Timeout for the sandbox in **seconds**
-        :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
+        :param api_key: SBX API Key to use for authentication, defaults to `SBX_API_KEY` environment variable
         :param request_timeout: Timeout for the request in **seconds**
         :param proxy: Proxy to use for the request
         """
@@ -674,9 +674,9 @@ class Sandbox(SandboxSetup, SandboxApi):
         """
         Get sandbox information like sandbox ID, template, metadata, started at/end at date.
         :param sandbox_id: Sandbox ID
-        :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
-        :param domain: E2B domain to use for authentication, defaults to `E2B_DOMAIN` environment variable
-        :param debug: Whether to use debug mode, defaults to `E2B_DEBUG` environment variable
+        :param api_key: SBX API Key to use for authentication, defaults to `SBX_API_KEY` environment variable
+        :param domain: SBX domain to use for authentication, defaults to `SBX_DOMAIN` environment variable
+        :param debug: Whether to use debug mode, defaults to `SBX_DEBUG` environment variable
         :param request_timeout: Timeout for the request in **seconds**
         :param headers: Custom headers to use for the request
         :param proxy: Proxy to use for the request
@@ -741,7 +741,7 @@ class Sandbox(SandboxSetup, SandboxApi):
         :param sandbox_id: Sandbox ID
         :param start: Start time for the metrics, defaults to the start of the sandbox
         :param end: End time for the metrics, defaults to current time
-        :param api_key: E2B API Key to use for authentication, defaults to `E2B_API_KEY` environment variable
+        :param api_key: SBX API Key to use for authentication, defaults to `SBX_API_KEY` environment variable
         :param request_timeout: Timeout for the request in **seconds**
 
         :return: List of sandbox metrics containing CPU, memory and disk usage information
