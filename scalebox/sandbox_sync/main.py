@@ -355,7 +355,7 @@ class Sandbox(SandboxSetup, SandboxApi):
             sandbox_id = "debug_sandbox_id"
             sandbox_domain = None
             envd_version = None
-            envd_access_token = None
+            envd_access_token = "123456789"
         elif sandbox_id is not None:
             response = SandboxApi._cls_get_info(
                 sandbox_id,
@@ -394,10 +394,10 @@ class Sandbox(SandboxSetup, SandboxApi):
             envd_version = response.envd_version
             envd_access_token = response.envd_access_token
 
-            if envd_access_token is not None and not isinstance(
-                    envd_access_token, Unset
-            ):
-                connection_headers["X-Access-Token"] = envd_access_token
+        if envd_access_token is not None and not isinstance(
+                envd_access_token, Unset
+        ):
+            connection_headers["X-Access-Token"] = envd_access_token
 
         connection_config = ConnectionConfig(
             api_key=api_key,
@@ -510,7 +510,6 @@ class Sandbox(SandboxSetup, SandboxApi):
             response._envd_access_token, Unset
         ):
             connection_headers["X-Access-Token"] = response._envd_access_token
-
         connection_config = ConnectionConfig(
             api_key=api_key,
             domain=domain,
