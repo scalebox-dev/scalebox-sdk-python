@@ -31,7 +31,7 @@ class NewSandbox:
     timeout: Union[Unset, int] = 15
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
     is_async: Union[Unset, bool] = False
-    storage_gb: Union[Unset, int] = 10
+    storage_gb: Union[Unset, int] = UNSET
 
     def to_dict(self) -> dict[str, Any]:
         template_id = self.template_id
