@@ -407,7 +407,7 @@ class Sandbox(SandboxSetup, SandboxApi):
             headers=connection_headers,
             proxy=proxy,
         )
-        print("connection_config" + str(connection_config.__dict__))
+        # print("connection_config" + str(connection_config.__dict__))
         sanbox= cls(
             sandbox_id=sandbox_id,
             sandbox_domain=sandbox_domain,
@@ -416,7 +416,7 @@ class Sandbox(SandboxSetup, SandboxApi):
             connection_config=connection_config,
         )
 
-        timeout = 5.0
+        timeout = 10.0
         interval = 0.3
         elapsed = 0.0
         while elapsed <= timeout:
@@ -454,7 +454,7 @@ class Sandbox(SandboxSetup, SandboxApi):
                 ENVD_API_HEALTH_ROUTE,
                 timeout=self.connection_config.get_request_timeout(request_timeout),
             )
-            print(r)
+            # print(r)
             if r.status_code == 502:
                 return False
 

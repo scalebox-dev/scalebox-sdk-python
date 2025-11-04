@@ -35,7 +35,7 @@ def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[Union[Error, Sandbox]]:
     if response.status_code == 201:
-        print(response.json())
+        # print(response.json())
         response_201 = Sandbox.from_dict(response.json())
 
         return response_201
@@ -89,7 +89,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         body=body,
     )
-    print(kwargs)
+    # print(kwargs)
     response = client.get_httpx_client().request(
         **kwargs,
     )

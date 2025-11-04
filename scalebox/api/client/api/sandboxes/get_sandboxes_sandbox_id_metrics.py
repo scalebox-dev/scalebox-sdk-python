@@ -39,9 +39,9 @@ def _parse_response(
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
-        print(_response_200)
+        # print(_response_200)
         for response_200_item_data in _response_200["data"]["metrics"]:
-            print(response_200_item_data)
+            # print(response_200_item_data)
             response_200_item = SandboxMetric.from_dict(response_200_item_data)
 
             response_200.append(response_200_item)

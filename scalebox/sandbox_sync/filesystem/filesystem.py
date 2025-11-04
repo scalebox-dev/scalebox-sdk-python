@@ -148,7 +148,7 @@ class Filesystem:
         self,
         path: str,
         data: Union[str, bytes, IO],
-        user: Username = "user",
+        user: Username = "root",
         request_timeout: Optional[float] = None,
     ) -> WriteInfo:
         """
@@ -172,7 +172,7 @@ class Filesystem:
     def write(
         self,
         files: List[WriteEntry],
-        user: Optional[Username] = "user",
+        user: Optional[Username] = "root",
         request_timeout: Optional[float] = None,
     ) -> List[WriteInfo]:
         """
@@ -190,7 +190,7 @@ class Filesystem:
     def write(
         self,
         path_or_files: Union[str, List[WriteEntry]],
-        data_or_user: Union[str, bytes, IO, Username] = "user",
+        data_or_user: Union[str, bytes, IO, Username] = "root",
         user_or_request_timeout: Optional[Union[float, Username]] = None,
         request_timeout_or_none: Optional[float] = None,
     ) -> Union[WriteInfo, List[WriteInfo]]:

@@ -298,8 +298,8 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             envd_access_token=envd_access_token,
             connection_config=connection_config,
         )
-        timeout = 5.0
-        interval = 0.1
+        timeout = 10.0
+        interval = 0.3
         elapsed = 0.0
 
         while elapsed <= timeout:
