@@ -9,7 +9,7 @@ A multi-language code execution sandbox with support for:
 - Real-time callbacks and monitoring
 """
 
-__version__ = "0.1.25"
+__version__ = "0.1.15"
 __author__ = "ScaleBox Team"
 __email__ = "dev@scalebox.dev"
 
@@ -74,7 +74,7 @@ __all__ = [
     "AuthenticationException",
     "TemplateException",
     "RateLimitException",
-    "APIError",
+    # "APIError",
     # Configuration
     "ConnectionConfig",
 ]

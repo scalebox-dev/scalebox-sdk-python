@@ -38,9 +38,9 @@ class Error:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        code = d.pop("code")
+        code = d.pop("code",0)
 
-        message = d.pop("message")
+        message = d.pop("error")
 
         error = cls(
             code=code,

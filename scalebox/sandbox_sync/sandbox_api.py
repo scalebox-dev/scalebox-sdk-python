@@ -1,9 +1,15 @@
 import datetime
 import urllib.parse
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 from packaging.version import Version
+from typing_extensions import Unpack
 
+if TYPE_CHECKING:
+    from . import Sandbox
+
+from ..api.client.api.sandboxes import post_sandboxes_sandbox_id_connect, post_sandboxes_sandbox_id_pause
+from ..api.client.models.connect_sandbox import ConnectSandbox
 from ..api import ApiClient, SandboxCreateResponse, handle_api_exception
 from ..api.client.api.sandboxes import (
     delete_sandboxes_sandbox_id,
@@ -14,8 +20,8 @@ from ..api.client.api.sandboxes import (
     post_sandboxes_sandbox_id_timeout,
 )
 from ..api.client.models import Error, NewSandbox, PostSandboxesSandboxIDTimeoutBody
-from ..connection_config import ConnectionConfig, ProxyTypes
-from ..exceptions import SandboxException, TemplateException
+from ..connection_config import ConnectionConfig, ProxyTypes, ApiParams
+from ..exceptions import SandboxException, TemplateException, NotFoundException
 from ..sandbox.sandbox_api import (
     ListedSandbox,
     SandboxApiBase,
@@ -354,3 +360,101 @@ class SandboxApi(SandboxApiBase):
                 )
                 for metric in res.parsed
             ]
+
+    @classmethod
+    def _cls_connect(
+            cls,
+            sandbox_id: str,
+            timeout: Optional[int] = None,
+            **opts: Unpack[ApiParams],
+    ) -> "Sandbox":
+        timeout = timeout or SandboxApiBase.default_sandbox_timeout
+
+        config = ConnectionConfig(**opts)
+
+        with ApiClient(
+                config,
+                limits=SandboxApiBase._limits,
+        ) as api_client:
+            res = post_sandboxes_sandbox_id_connect.sync_detailed(
+                sandbox_id,
+                client=api_client,
+                body=ConnectSandbox(timeout=timeout),
+            )
+
+            if res.status_code == 404:
+                raise NotFoundException(f"Paused sandbox {sandbox_id} not found")
+
+            if res.status_code >= 300:
+                raise handle_api_exception(res)
+
+            # if isinstance(res.parsed, Error):
+            #     raise SandboxException(f"{res.parsed.message}: Request failed")
+
+            # Extract information from API response and create a full Sandbox instance
+            # Use delayed import to avoid circular dependency
+            from . import Sandbox
+            
+            response = res.parsed
+            if response is None:
+                raise SandboxException("Connect response is None")
+
+            connection_headers = {"Authorization": "Bearer root"}
+            
+            # Extract fields from API response
+            sandbox_domain = response.domain if hasattr(response, 'domain') and response.domain is not None else None
+            envd_version = response.envd_version if hasattr(response, 'envd_version') else None
+            envd_access_token = None
+            if hasattr(response, 'envd_access_token'):
+                from ..api.client.types import Unset
+                if response.envd_access_token is not None and not isinstance(response.envd_access_token, Unset):
+                    envd_access_token = response.envd_access_token
+                    connection_headers["X-Access-Token"] = envd_access_token
+
+            connection_config = ConnectionConfig(
+                api_key=config.api_key,
+                domain=config.domain,
+                debug=config.debug,
+                request_timeout=config.request_timeout,
+                headers=connection_headers,
+                proxy=config.proxy,
+            )
+
+            # Create and return a full Sandbox instance
+            sandbox = Sandbox(
+                sandbox_id=sandbox_id,
+                sandbox_domain=sandbox_domain,
+                envd_version=envd_version,
+                envd_access_token=envd_access_token,
+                connection_config=connection_config,
+            )
+
+            return sandbox
+
+    @classmethod
+    def _cls_pause(
+            cls,
+            sandbox_id: str,
+            **opts: Unpack[ApiParams],
+    ) -> str:
+        config = ConnectionConfig(**opts)
+
+        with ApiClient(
+                config,
+                limits=SandboxApiBase._limits,
+        ) as api_client:
+            res = post_sandboxes_sandbox_id_pause.sync_detailed(
+                sandbox_id,
+                client=api_client,
+            )
+
+            if res.status_code == 404:
+                raise NotFoundException(f"Sandbox {sandbox_id} not found")
+
+            if res.status_code == 409:
+                return sandbox_id
+
+            if res.status_code >= 300:
+                raise handle_api_exception(res)
+
+        return sandbox_id

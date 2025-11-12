@@ -10,6 +10,4 @@ def output_handler(output):
 sandboxes=Sandbox.list()
 print(sandboxes)
 box=Sandbox.connect(sandbox_id="sbx-0b3ccqezz67asn3ax")
-print(box)
-result=box.commands.run("ls")
-print(result)
+print(box.files.list("/"))

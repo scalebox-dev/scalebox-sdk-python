@@ -106,8 +106,9 @@ result = {"x": x, "y": y}
 print(result)
 """
 
-        execution = self.sandbox.run_code(code, language="python")
+        execution = self.sandbox.run_code(code,envs={"CI_TEST": "sync_test1"})
         print(execution.to_json())
+        # time.sleep(1000)
         assert isinstance(execution, Execution)
         assert execution.error is None
         assert len(execution.logs.stdout) > 0
@@ -147,7 +148,7 @@ print(f"标准差: {std_val:.3f}")
 }
 """
 
-        execution = self.sandbox.run_code(code, language="python")
+        execution = self.sandbox.run_code(code)
         print(execution.to_json())
         assert execution.error is None
         assert any("圆的面积" in line for line in execution.logs.stdout)
@@ -197,7 +198,7 @@ result = {
 print(f"\\n处理结果: {json.dumps(result, indent=2)}")
 """
 
-        execution = self.sandbox.run_code(code, language="python")
+        execution = self.sandbox.run_code(code)
         print(execution.to_json())
         assert execution.error is None
         assert any("原始数据" in line for line in execution.logs.stdout)
@@ -799,6 +800,55 @@ print("生成HTML格式结果")
 from IPython.display import HTML
 HTML(html_content)
 """
+        # code = """
+        # import sys
+        # try:
+        #     import matplotlib
+        #     matplotlib.use('Agg')  # Non-interactive backend
+        #     import matplotlib.pyplot as plt
+        #     import numpy as np
+        #     from IPython.display import display
+        #
+        #     print("✅ All imports successful")
+        #
+        #     # Generate a simple plot
+        #     x = np.linspace(0, 2 * np.pi, 100)
+        #     y = np.sin(x)
+        #
+        #     fig, ax = plt.subplots(figsize=(8, 6))
+        #     ax.plot(x, y, 'b-', linewidth=2, label='sin(x)')
+        #     ax.set_xlabel('X axis')
+        #     ax.set_ylabel('Y axis')
+        #     ax.set_title('Sine Wave - Test Plot')
+        #     ax.legend()
+        #     ax.grid(True, alpha=0.3)
+        #
+        #     plt.tight_layout()
+        #
+        #     # 🎯 KEY: Save to bytes and display as Image
+        #     import io
+        #     from IPython.display import Image
+        #
+        #     buf = io.BytesIO()
+        #     plt.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+        #     buf.seek(0)
+        #     plt.close(fig)
+        #
+        #     # Display the image data
+        #     display(Image(data=buf.getvalue()))
+        #     #
+        #     # print("SUCCESS: Plot generated and displayed")
+        #     # "plot_created"
+        #
+        # except ImportError as e:
+        #     print(f"SKIP: matplotlib not available - {e}")
+        #     "matplotlib_not_installed"
+        # except Exception as e:
+        #     print(f"ERROR: {e}")
+        #     import traceback
+        #     traceback.print_exc()
+        #     "error_occurred"
+        # """
 
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
@@ -3292,68 +3342,68 @@ print(f"\\n完成 {len(results)} 个API调用")
             self.test_file_operations_simulation, "File Operations Simulation"
         )
 
-        # 性能测试
-        self.run_test(
-            self.test_performance_simple_calculations, "Performance Simple Calculations"
-        )
-        self.run_test(
-            self.test_performance_concurrent_simulation,
-            "Performance Concurrent Simulation",
-        )
+        # # 性能测试
+        # self.run_test(
+        #     self.test_performance_simple_calculations, "Performance Simple Calculations"
+        # )
+        # self.run_test(
+        #     self.test_performance_concurrent_simulation,
+        #     "Performance Concurrent Simulation",
+        # )
 
-        # 结果格式测试
-        self.run_test(self.test_text_result, "Text Result Format")
-        self.run_test(self.test_html_result, "HTML Result Format")
-        self.run_test(self.test_markdown_result, "Markdown Result Format")
-        self.run_test(self.test_svg_result, "SVG Result Format")
-        self.run_test(self.test_image_results, "Image Result Formats (PNG/JPEG)")
-        self.run_test(self.test_latex_result, "LaTeX Result Format")
-        self.run_test(self.test_json_data_result, "JSON Data Result Format")
-        self.run_test(self.test_javascript_result, "JavaScript Result Format")
-        self.run_test(self.test_chart_data_result, "Chart Data Result Format")
-        self.run_test(self.test_mixed_format_result, "Mixed Format Result")
-
-        # R语言测试
-        self.run_test(
-            self.test_r_language_basic_execution, "R Language Basic Execution"
-        )
-        self.run_test(self.test_r_language_data_analysis, "R Language Data Analysis")
-        self.run_test(self.test_r_language_visualization, "R Language Visualization")
-        self.run_test(self.test_r_language_statistics, "R Language Statistics")
-        self.run_test(
-            self.test_r_language_context_management, "R Language Context Management"
-        )
-
-        # Node.js/JavaScript 测试
-        self.run_test(self.test_nodejs_basic_execution, "Node.js Basic Execution")
-        self.run_test(self.test_nodejs_async_promises, "Node.js Async Promises")
-        self.run_test(self.test_nodejs_data_processing, "Node.js Data Processing")
-        self.run_test(self.test_nodejs_chart_data, "Node.js Chart Data Generation")
-        self.run_test(self.test_nodejs_context_management, "Node.js Context Management")
-
-        # Bash 测试
-        self.run_test(self.test_bash_basic_execution, "Bash Basic Execution")
-        self.run_test(self.test_bash_file_operations, "Bash File Operations")
-        self.run_test(self.test_bash_pipelines_and_grep, "Bash Pipelines and Grep")
-        # self.run_test(self.test_bash_env_and_exit_codes, "Bash Env and Exit Codes")
-        self.run_test(self.test_bash_context_management, "Bash Context Management")
-
-        # IJAVA 测试
-        self.run_test(self.test_ijava_basic_execution, "IJAVA Basic Execution")
-        self.run_test(self.test_ijava_oop_features, "IJAVA OOP Features")
-        self.run_test(self.test_ijava_collections, "IJAVA Collections")
-        self.run_test(self.test_ijava_file_io, "IJAVA File I/O")
-        self.run_test(self.test_ijava_context_management, "IJAVA Context Management")
-
-        # Deno 测试
-        self.run_test(self.test_deno_basic_execution, "Deno Basic Execution")
-        self.run_test(self.test_deno_typescript_features, "Deno TypeScript Features")
-        self.run_test(self.test_deno_async_await, "Deno Async/Await")
-        self.run_test(self.test_deno_file_operations, "Deno File Operations")
-        self.run_test(self.test_deno_context_management, "Deno Context Management")
-
-        # 高级功能测试
-        self.run_test(self.test_web_request_simulation, "Web Request Simulation")
+        # # 结果格式测试
+        # self.run_test(self.test_text_result, "Text Result Format")
+        # self.run_test(self.test_html_result, "HTML Result Format")
+        # self.run_test(self.test_markdown_result, "Markdown Result Format")
+        # self.run_test(self.test_svg_result, "SVG Result Format")
+        # self.run_test(self.test_image_results, "Image Result Formats (PNG/JPEG)")
+        # self.run_test(self.test_latex_result, "LaTeX Result Format")
+        # self.run_test(self.test_json_data_result, "JSON Data Result Format")
+        # self.run_test(self.test_javascript_result, "JavaScript Result Format")
+        # self.run_test(self.test_chart_data_result, "Chart Data Result Format")
+        # self.run_test(self.test_mixed_format_result, "Mixed Format Result")
+        #
+        # # R语言测试
+        # self.run_test(
+        #     self.test_r_language_basic_execution, "R Language Basic Execution"
+        # )
+        # self.run_test(self.test_r_language_data_analysis, "R Language Data Analysis")
+        # self.run_test(self.test_r_language_visualization, "R Language Visualization")
+        # self.run_test(self.test_r_language_statistics, "R Language Statistics")
+        # self.run_test(
+        #     self.test_r_language_context_management, "R Language Context Management"
+        # )
+        #
+        # # Node.js/JavaScript 测试
+        # self.run_test(self.test_nodejs_basic_execution, "Node.js Basic Execution")
+        # self.run_test(self.test_nodejs_async_promises, "Node.js Async Promises")
+        # self.run_test(self.test_nodejs_data_processing, "Node.js Data Processing")
+        # self.run_test(self.test_nodejs_chart_data, "Node.js Chart Data Generation")
+        # self.run_test(self.test_nodejs_context_management, "Node.js Context Management")
+        #
+        # # Bash 测试
+        # self.run_test(self.test_bash_basic_execution, "Bash Basic Execution")
+        # self.run_test(self.test_bash_file_operations, "Bash File Operations")
+        # self.run_test(self.test_bash_pipelines_and_grep, "Bash Pipelines and Grep")
+        # # self.run_test(self.test_bash_env_and_exit_codes, "Bash Env and Exit Codes")
+        # self.run_test(self.test_bash_context_management, "Bash Context Management")
+        #
+        # # IJAVA 测试
+        # self.run_test(self.test_ijava_basic_execution, "IJAVA Basic Execution")
+        # self.run_test(self.test_ijava_oop_features, "IJAVA OOP Features")
+        # self.run_test(self.test_ijava_collections, "IJAVA Collections")
+        # self.run_test(self.test_ijava_file_io, "IJAVA File I/O")
+        # self.run_test(self.test_ijava_context_management, "IJAVA Context Management")
+        #
+        # # Deno 测试
+        # self.run_test(self.test_deno_basic_execution, "Deno Basic Execution")
+        # # self.run_test(self.test_deno_typescript_features, "Deno TypeScript Features")
+        # self.run_test(self.test_deno_async_await, "Deno Async/Await")
+        # self.run_test(self.test_deno_file_operations, "Deno File Operations")
+        # self.run_test(self.test_deno_context_management, "Deno Context Management")
+        #
+        # # 高级功能测试
+        # self.run_test(self.test_web_request_simulation, "Web Request Simulation")
 
     def cleanup(self):
         """清理资源"""

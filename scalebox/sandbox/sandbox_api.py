@@ -89,3 +89,4 @@ class SandboxApiBase(ABC):
         max_connections=20,
         keepalive_expiry=20,
     )
+    default_sandbox_timeout = 300

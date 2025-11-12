@@ -6,10 +6,10 @@ from typing import Dict, List, Optional, TypedDict, overload
 import aiohttp
 import httpx
 from aiohttp import TCPConnector
-from typing_extensions import Unpack
+from typing_extensions import Unpack, Self
 
 from ..api.client.types import Unset
-from ..connection_config import ConnectionConfig, ProxyTypes
+from ..connection_config import ConnectionConfig, ProxyTypes, ApiParams
 from ..exceptions import SandboxException, request_timeout_error
 from ..generated.api import ENVD_API_HEALTH_ROUTE, ahandle_envd_api_exception
 from ..sandbox.main import SandboxSetup
@@ -312,68 +312,157 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             time.sleep(interval)
             elapsed += interval
         else:
-            print("connect "+sandbox_domain+ENVD_API_HEALTH_ROUTE +" timeout 5s")
+            print("connect "+sandbox_domain+ENVD_API_HEALTH_ROUTE +" timeout 10s")
         return sanbox
 
-    @classmethod
+    @overload
     async def connect(
-        cls,
-        sandbox_id: str,
-        api_key: Optional[str] = None,
-        domain: Optional[str] = None,
-        debug: Optional[bool] = None,
-        proxy: Optional[ProxyTypes] = None,
-    ):
+            self,
+            timeout: Optional[int] = None,
+            **opts: Unpack[ApiParams],
+    ) -> Self:
         """
-        Connect to an existing sandbox.
+        Connect to a sandbox. If the sandbox is paused, it will be automatically resumed.
+        Sandbox must be either running or be paused.
+
         With sandbox ID you can connect to the same sandbox from different places or environments (serverless functions, etc).
 
-        :param sandbox_id: Sandbox ID
-        :param api_key: SBX API Key to use for authentication, defaults to `SBX_API_KEY` environment variable
-        :param proxy: Proxy to use for the request and for the **requests made to the returned sandbox**
-
-        :return: sandbox instance for the existing sandbox
+        :param timeout: Timeout for the sandbox in **seconds**
+            For running sandboxes, the timeout will update only if the new timeout is longer than the existing one.
+        :return: A running sandbox instance
 
         @example
         ```python
         sandbox = await AsyncSandbox.create()
-        sandbox_id = sandbox.sandbox_id
+        await sandbox.beta_pause()
 
         # Another code block
-        same_sandbox = await AsyncSandbox.connect(sandbox_id)
+        same_sandbox = await sandbox.connect()
+        ```
         """
+        ...
 
-        connection_headers = {"Authorization": "Bearer root"}
+    @overload
+    @classmethod
+    async def connect(
+            cls,
+            sandbox_id: str,
+            timeout: Optional[int] = None,
+            **opts: Unpack[ApiParams],
+    ) -> Self:
+        """
+        Connect to a sandbox. If the sandbox is paused, it will be automatically resumed.
+        Sandbox must be either running or be paused.
 
-        response = await SandboxApi._cls_get_info(
-            sandbox_id,
-            api_key=api_key,
-            domain=domain,
-            debug=debug,
-            proxy=proxy,
+        With sandbox ID you can connect to the same sandbox from different places or environments (serverless functions, etc).
+
+        :param sandbox_id: Sandbox ID
+        :param timeout: Timeout for the sandbox in **seconds**
+            For running sandboxes, the timeout will update only if the new timeout is longer than the existing one.
+        :return: A running sandbox instance
+
+        @example
+        ```python
+        sandbox = await AsyncSandbox.create()
+        await AsyncSandbox.beta_pause(sandbox.sandbox_id)
+
+        # Another code block
+        same_sandbox = await AsyncSandbox.connect(sandbox.sandbox_id))
+        ```
+        """
+        ...
+
+    @class_method_variant("_cls_connect")
+    async def connect(
+            self,
+            timeout: Optional[int] = None,
+            **opts: Unpack[ApiParams],
+    ) -> Self:
+        """
+        Connect to a sandbox. If the sandbox is paused, it will be automatically resumed.
+        Sandbox must be either running or be paused.
+
+        With sandbox ID you can connect to the same sandbox from different places or environments (serverless functions, etc).
+
+        :param timeout: Timeout for the sandbox in **seconds**
+            For running sandboxes, the timeout will update only if the new timeout is longer than the existing one.
+        :return: A running sandbox instance
+
+        @example
+        ```python
+        sandbox = await AsyncSandbox.create()
+        await sandbox.beta_pause()
+
+        # Another code block
+        same_sandbox = await sandbox.connect()
+        ```
+        """
+        await SandboxApi._cls_connect(
+            sandbox_id=self.sandbox_id,
+            timeout=timeout,
+            **opts,
         )
 
-        if response._envd_access_token is not None and not isinstance(
-            response._envd_access_token, Unset
-        ):
-            connection_headers["X-Access-Token"] = response._envd_access_token
-        print("connection_headers:"+str(connection_headers))
-
-        connection_config = ConnectionConfig(
-            api_key=api_key,
-            domain=domain,
-            debug=debug,
-            headers=connection_headers,
-            proxy=proxy,
-        )
-
-        return cls(
-            sandbox_id=sandbox_id,
-            sandbox_domain=response.sandbox_domain,
-            connection_config=connection_config,
-            envd_version=response.envd_version,
-            envd_access_token=response._envd_access_token,
-        )
+        return self
+    # @classmethod
+    # async def connect(
+    #     cls,
+    #     sandbox_id: str,
+    #     api_key: Optional[str] = None,
+    #     domain: Optional[str] = None,
+    #     debug: Optional[bool] = None,
+    #     proxy: Optional[ProxyTypes] = None,
+    # ):
+    #     """
+    #     Connect to an existing sandbox.
+    #     With sandbox ID you can connect to the same sandbox from different places or environments (serverless functions, etc).
+    #
+    #     :param sandbox_id: Sandbox ID
+    #     :param api_key: SBX API Key to use for authentication, defaults to `SBX_API_KEY` environment variable
+    #     :param proxy: Proxy to use for the request and for the **requests made to the returned sandbox**
+    #
+    #     :return: sandbox instance for the existing sandbox
+    #
+    #     @example
+    #     ```python
+    #     sandbox = await AsyncSandbox.create()
+    #     sandbox_id = sandbox.sandbox_id
+    #
+    #     # Another code block
+    #     same_sandbox = await AsyncSandbox.connect(sandbox_id)
+    #     """
+    #
+    #     connection_headers = {"Authorization": "Bearer root"}
+    #
+    #     response = await SandboxApi._cls_get_info(
+    #         sandbox_id,
+    #         api_key=api_key,
+    #         domain=domain,
+    #         debug=debug,
+    #         proxy=proxy,
+    #     )
+    #
+    #     if response._envd_access_token is not None and not isinstance(
+    #         response._envd_access_token, Unset
+    #     ):
+    #         connection_headers["X-Access-Token"] = response._envd_access_token
+    #     print("connection_headers:"+str(connection_headers))
+    #
+    #     connection_config = ConnectionConfig(
+    #         api_key=api_key,
+    #         domain=domain,
+    #         debug=debug,
+    #         headers=connection_headers,
+    #         proxy=proxy,
+    #     )
+    #
+    #     return cls(
+    #         sandbox_id=sandbox_id,
+    #         sandbox_domain=response.sandbox_domain,
+    #         connection_config=connection_config,
+    #         envd_version=response.envd_version,
+    #         envd_access_token=response._envd_access_token,
+    #     )
 
     async def __aenter__(self):
         if self._session.closed:
@@ -644,4 +733,53 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             start=start,
             end=end,
             **config_dict,
+        )
+
+    @overload
+    async def beta_pause(
+            self,
+            **opts: Unpack[ApiParams],
+    ) -> None:
+        """
+        [BETA] This feature is in beta and may change in the future.
+
+        Pause the sandbox.
+
+        :return: Sandbox ID that can be used to resume the sandbox
+        """
+        ...
+
+    @overload
+    @staticmethod
+    async def beta_pause(
+            sandbox_id: str,
+            **opts: Unpack[ApiParams],
+    ) -> None:
+        """
+        [BETA] This feature is in beta and may change in the future.
+
+        Pause the sandbox specified by sandbox ID.
+
+        :param sandbox_id: Sandbox ID
+
+        :return: Sandbox ID that can be used to resume the sandbox
+        """
+        ...
+
+    @class_method_variant("_cls_pause")
+    async def beta_pause(
+            self,
+            **opts: Unpack[ApiParams],
+    ) -> None:
+        """
+        [BETA] This feature is in beta and may change in the future.
+
+        Pause the sandbox.
+
+        :return: Sandbox ID that can be used to resume the sandbox
+        """
+
+        await SandboxApi._cls_pause(
+            sandbox_id=self.sandbox_id,
+            **opts,
         )

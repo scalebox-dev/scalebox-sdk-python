@@ -1,5 +1,5 @@
 import os
-from typing import Dict, Literal, Optional
+from typing import Dict, Literal, Optional, TypedDict
 
 from httpx._types import ProxyTypes
 
@@ -10,6 +10,33 @@ REQUEST_TIMEOUT: float = 30.0  # 30 seconds
 KEEPALIVE_PING_INTERVAL_SEC = 50  # 50 seconds
 KEEPALIVE_PING_HEADER = "Keepalive-Ping-Interval"
 
+class ApiParams(TypedDict, total=False):
+    """
+    Parameters for a request.
+
+    In the case of a sandbox, it applies to all **requests made to the returned sandbox**.
+    """
+
+    request_timeout: Optional[float]
+    """Timeout for the request in **seconds**, defaults to 60 seconds."""
+
+    headers: Optional[Dict[str, str]]
+    """Additional headers to send with the request."""
+
+    api_key: Optional[str]
+    """SBX API Key to use for authentication, defaults to `SBX_API_KEY` environment variable."""
+
+    domain: Optional[str]
+    """SBX domain to use for authentication, defaults to `SBX_DOMAIN` environment variable."""
+
+    api_url: Optional[str]
+    """URL to use for the API, defaults to `https://api.<domain>`. For internal use only."""
+
+    debug: Optional[bool]
+    """Whether to use debug mode, defaults to `SBX_DEBUG` environment variable."""
+
+    proxy: Optional[ProxyTypes]
+    """Proxy to use for the request. In case of a sandbox it applies to all **requests made to the returned sandbox**."""
 
 class ConnectionConfig:
     """
