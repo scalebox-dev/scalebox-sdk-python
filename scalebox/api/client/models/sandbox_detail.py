@@ -44,6 +44,9 @@ class SandboxDetail:
     envd_access_token: Union[Unset, str] = UNSET
     envd_version: Union[Unset, str] = UNSET
     metadata: Union[Unset, Any] = UNSET
+    object_storage: Union[Unset, Any] = UNSET
+    uptime: Union[Unset, int] = UNSET
+    timeout: Union[Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,7 +66,13 @@ class SandboxDetail:
 
         template_id = self.template_id
 
+        object_storage = self.object_storage
+
         alias = self.alias
+
+        uptime = self.uptime
+
+        timeout = self.timeout
 
         domain: Union[None, Unset, str]
         if isinstance(self.domain, Unset):
@@ -101,6 +110,12 @@ class SandboxDetail:
             field_dict["envdVersion"] = envd_version
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
+        if object_storage is not UNSET:
+            field_dict["objectStorage"] = object_storage
+        if uptime is not UNSET:
+            field_dict["upTime"] = uptime
+        if timeout is not UNSET:
+            field_dict["timeout"] = timeout
 
         return field_dict
 
@@ -126,6 +141,12 @@ class SandboxDetail:
         template_id = data.pop("template_id")
 
         alias = d.pop("alias", UNSET)
+
+        object_storage = data.pop("object_storage",UNSET)
+
+        uptime = data.pop("uptime",UNSET)
+
+        timeout = data.pop("timeout",UNSET)
 
         def _parse_domain(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -156,6 +177,9 @@ class SandboxDetail:
             envd_access_token=envd_access_token,
             envd_version=envd_version,
             metadata=metadata,
+            object_storage=object_storage,
+            uptime=uptime,
+            timeout=timeout,
         )
 
         sandbox_detail.additional_properties = d

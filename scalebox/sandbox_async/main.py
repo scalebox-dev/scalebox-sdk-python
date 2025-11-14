@@ -41,6 +41,7 @@ class AsyncSandboxOpts(TypedDict):
     envd_version: Optional[str]
     envd_access_token: Optional[str]
     connection_config: ConnectionConfig
+    object_storage: Optional[Dict[str, str]]
 
 
 class AsyncSandbox(SandboxSetup, SandboxApi):
@@ -102,6 +103,14 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         return self._sandbox_domain
 
     @property
+    def object_storage(self) -> Optional[Dict[str, str]]:
+        """
+        Object storage configuration returned during sandbox creation (if any).
+        Only synchronous sandboxes currently expose this field.
+        """
+        return self._object_storage
+
+    @property
     def envd_api_url(self) -> str:
         return self._envd_api_url
 
@@ -126,7 +135,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         super().__init__()
 
         self._connection_config = opts["connection_config"]
-
+        self._object_storage = opts["object_storage"]
         self._sandbox_id = opts["sandbox_id"]
         self._sandbox_domain = opts["sandbox_domain"] or self.connection_config.domain
         debug=self._connection_config.debug
@@ -222,9 +231,11 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         timeout: Optional[int] = None,
         metadata: Optional[Dict[str, str]] = None,
         envs: Optional[Dict[str, str]] = None,
+        object_storage: Optional[Dict[str, str]] = None,
         api_key: Optional[str] = None,
         domain: Optional[str] = None,
         debug: Optional[bool] = None,
+        sandbox_id: Optional[str] = None,
         request_timeout: Optional[float] = None,
         proxy: Optional[ProxyTypes] = None,
         secure: Optional[bool] = None,
@@ -256,6 +267,25 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             sandbox_domain = None
             envd_version = None
             envd_access_token = None
+        elif sandbox_id is not None:
+            response = await SandboxApi._cls_get_info(
+                sandbox_id,
+                api_key=api_key,
+                domain=domain,
+                debug=debug,
+                request_timeout=request_timeout,
+                proxy=proxy,
+            )
+
+            sandbox_domain = response.sandbox_domain
+            envd_version = response.envd_version
+            envd_access_token = response._envd_access_token
+            object_storage = response.object_storage
+
+            if response._envd_access_token is not None and not isinstance(
+                    response._envd_access_token, Unset
+            ):
+                connection_headers["X-Access-Token"] = response._envd_access_token
         else:
             response = await SandboxApi._create_sandbox(
                 template=template or cls.default_template,
@@ -269,12 +299,14 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
                 secure=secure,
                 proxy=proxy,
                 allow_internet_access=allow_internet_access,
+                object_storage=object_storage,
             )
 
             sandbox_id = response.sandbox_id
             sandbox_domain = response.sandbox_domain
             envd_version = response.envd_version
             envd_access_token = response.envd_access_token
+            object_storage = response.object_storage
 
         if envd_access_token is not None and not isinstance(
             envd_access_token, Unset
@@ -297,6 +329,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             envd_version=envd_version,
             envd_access_token=envd_access_token,
             connection_config=connection_config,
+            object_storage=object_storage,
         )
         timeout = 10.0
         interval = 0.3

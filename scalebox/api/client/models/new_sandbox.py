@@ -32,6 +32,7 @@ class NewSandbox:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
     is_async: Union[Unset, bool] = False
     storage_gb: Union[Unset, int] = UNSET
+    object_storage: Union[Unset, Any] = UNSET
 
     def to_dict(self) -> dict[str, Any]:
         template_id = self.template_id
@@ -49,6 +50,7 @@ class NewSandbox:
         timeout = self.timeout
         is_async = self.is_async
         storage_gb = self.storage_gb
+        object_storage = self.object_storage
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -73,6 +75,8 @@ class NewSandbox:
             field_dict["is_async"] = is_async
         if storage_gb is not UNSET:
             field_dict["storage_gb"] = storage_gb
+        if object_storage is not UNSET:
+            field_dict["object_storage"] = object_storage
 
         return field_dict
 
@@ -103,6 +107,7 @@ class NewSandbox:
             timeout=timeout,
             is_async=d.pop("is_async", UNSET),
             storage_gb=d.pop("storage_gb", UNSET),
+            object_storage=d.pop("object_storage", UNSET),
         )
 
         new_sandbox.additional_properties = d

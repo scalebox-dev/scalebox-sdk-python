@@ -24,12 +24,18 @@ class SandboxInfo:
     """Saved sandbox metadata."""
     started_at: datetime
     """Sandbox start time."""
+    uptime: int
+    """Sandbox up time."""
     end_at: datetime
     """Sandbox expiration date."""
+    timeout: int
+    """Sandbox timeout."""
     envd_version: Optional[str]
     """Envd version."""
     _envd_access_token: Optional[str]
     """Envd access token."""
+    object_storage: Optional[Dict[str, str]]
+    """Object storage."""
 
 
 @dataclass
@@ -52,7 +58,14 @@ class ListedSandbox:
     """Saved sandbox metadata."""
     started_at: datetime
     """Sandbox start time."""
+    uptime: int
+    """Sandbox up time."""
     end_at: datetime
+    """Sandbox expiration date."""
+    timeout: int
+    """Sandbox timeout."""
+    object_storage: Optional[Dict[str, str]]
+    """Object storage."""
 
 
 @dataclass

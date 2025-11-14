@@ -7,7 +7,7 @@ from scalebox.sandbox_sync.main import Sandbox
 def output_handler(output):
     """处理 输出的回调函数"""
     print(f"PTY 输出: {output}")
-sandbox = Sandbox.create(api_key=f"sk-Wk4IgtUYOqnttxGaxZmELEV4p2FXh15Evt0FIcSa")
+sandbox = Sandbox.create(api_key=f"sk-Wk4Ig")
 # print(sandbox.files.list("/root",2))
 # proc = sandbox.commands._start(
 #         cmd="python3 -c \"import math; print('π =', math.pi); exit(42)\"",

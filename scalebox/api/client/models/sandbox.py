@@ -29,6 +29,7 @@ class Sandbox:
     alias: Union[Unset, str] = UNSET
     domain: Union[None, Unset, str] = UNSET
     envd_access_token: Union[Unset, str] = UNSET
+    object_storage: Union[Unset, Any] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,6 +40,7 @@ class Sandbox:
         sandbox_id = self.sandbox_id
 
         template_id = self.template_id
+        object_storage = self.object_storage
 
         alias = self.alias
 
@@ -66,6 +68,8 @@ class Sandbox:
             field_dict["domain"] = domain
         if envd_access_token is not UNSET:
             field_dict["envdAccessToken"] = envd_access_token
+        if object_storage is not UNSET:
+            field_dict["objectStorage"] = object_storage
 
         return field_dict
 
@@ -81,6 +85,8 @@ class Sandbox:
         sandbox_id = data.pop("sandbox_id")
 
         template_id = data.pop("template_id")
+
+        object_storage = data.pop("object_storage",{})
 
         alias = data.pop("alias", UNSET)
 
@@ -103,6 +109,7 @@ class Sandbox:
             alias=alias,
             domain=domain,
             envd_access_token=envd_access_token,
+            object_storage=object_storage,
         )
 
         sandbox.additional_properties = d

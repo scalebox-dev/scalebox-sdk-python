@@ -102,6 +102,9 @@ class SandboxApi(SandboxApiBase):
                 memory_mb=sandbox.memory_mb,
                 started_at=sandbox.started_at,
                 end_at=sandbox.end_at,
+                object_storage=sandbox.object_storage,
+                uptime=sandbox.uptime,
+                timeout=sandbox.timeout,
             )
             for sandbox in res.parsed
         ]
@@ -165,6 +168,9 @@ class SandboxApi(SandboxApiBase):
                 end_at=res.parsed.end_at,
                 envd_version=res.parsed.envd_version,
                 _envd_access_token=res.parsed.envd_access_token,
+                object_storage=res.parsed.object_storage,
+                uptime=res.parsed.uptime,
+                timeout=res.parsed.timeout,
             )
 
     @classmethod
@@ -261,6 +267,7 @@ class SandboxApi(SandboxApiBase):
         headers: Optional[Dict[str, str]] = None,
         proxy: Optional[ProxyTypes] = None,
         allow_internet_access: Optional[bool] = True,
+        object_storage: Optional[Dict[str, str]] = None,
     ) -> SandboxCreateResponse:
         config = ConnectionConfig(
             api_key=api_key,
@@ -284,6 +291,7 @@ class SandboxApi(SandboxApiBase):
                     secure=secure or False,
                     allow_internet_access=allow_internet_access,
                     is_async=False,
+                    object_storage=object_storage,
                 ),
                 client=api_client,
             )
@@ -306,6 +314,7 @@ class SandboxApi(SandboxApiBase):
                 sandbox_domain=res.parsed.domain,
                 envd_version=res.parsed.envd_version,
                 envd_access_token=res.parsed.envd_access_token,
+                object_storage=res.parsed.object_storage,
             )
 
     @classmethod

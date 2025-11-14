@@ -38,6 +38,9 @@ class ListedSandbox:
     template_id: str
     alias: Union[Unset, str] = UNSET
     metadata: Union[Unset, Any] = UNSET
+    object_storage: Union[Unset, Any] = UNSET
+    uptime: Union[Unset, int] = UNSET
+    timeout: Union[Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,6 +63,9 @@ class ListedSandbox:
         alias = self.alias
 
         metadata = self.metadata
+        object_storage = self.object_storage
+        uptime = self.uptime
+        timeout = self.timeout
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -79,6 +85,12 @@ class ListedSandbox:
             field_dict["alias"] = alias
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
+        if object_storage is not UNSET:
+            field_dict["objectStorage"] = object_storage
+        if uptime is not UNSET:
+            field_dict["upTime"] = uptime
+        if timeout is not UNSET:
+            field_dict["timeout"] = timeout
 
         return field_dict
 
@@ -103,9 +115,12 @@ class ListedSandbox:
         template_id = d.pop("template_id")
 
         alias = d.pop("name", UNSET)
+        object_storage = d.pop("object_storage", UNSET)
 
         metadata = d.pop("metadata", UNSET)
-        end_at = (started_at + datetime.timedelta(seconds=float(timeout))) if (timeout := d.pop("timeout", "0")) is not UNSET and timeout is not None else None
+        uptime = d.pop("uptime", UNSET)
+        timeout = d.pop("timeout", UNSET)
+        end_at = (started_at + datetime.timedelta(seconds=float(timeout1))) if (timeout1 := d.pop("timeout", "0")) is not UNSET and timeout1 is not None else None
 
         listed_sandbox = cls(
             client_id=client_id,
@@ -118,6 +133,9 @@ class ListedSandbox:
             template_id=template_id,
             alias=alias,
             metadata=metadata,
+            object_storage=object_storage,
+            uptime=uptime,
+            timeout=timeout,
         )
 
         listed_sandbox.additional_properties = d

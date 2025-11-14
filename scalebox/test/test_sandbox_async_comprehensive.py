@@ -78,7 +78,7 @@ class AsyncSandboxValidator:
             template="base",
             debug=False,
             timeout=300,
-            api_key="sk-Wk4IgtUYOqnttxGaxZmELEV4p2FXh15Evt0FIcSa",
+            api_key="sk-Wk4Ig",
             metadata={"test": "async_validation"},
             envs={"TEST_ENV": "async_test"},
         )

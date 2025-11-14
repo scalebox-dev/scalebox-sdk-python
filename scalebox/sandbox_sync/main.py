@@ -103,6 +103,14 @@ class Sandbox(SandboxSetup, SandboxApi):
         return self._sandbox_domain
 
     @property
+    def object_storage(self) -> Optional[Dict[str, str]]:
+        """
+        Object storage configuration returned during sandbox creation (if any).
+        Only synchronous sandboxes currently expose this field.
+        """
+        return self._object_storage
+
+    @property
     def envd_api_url(self) -> str:
         return self._envd_api_url
 
@@ -154,105 +162,18 @@ class Sandbox(SandboxSetup, SandboxApi):
         """
         super().__init__()
         self._connection_config = opts["connection_config"]
-
+        self._object_storage = opts["object_storage"]
         self._sandbox_id = opts["sandbox_id"]
         self._sandbox_domain = opts["sandbox_domain"] or self.connection_config.domain
         debug = self._connection_config.debug
         self.__envd_access_token=opts["envd_access_token"]
-        # connection_headers = {"Authorization": "Bearer root", }
-
-        # if debug:
-        #     self._sandbox_id = "debug_sandbox_id"
-        #     self._sandbox_domain = None
-        #     self._envd_version = None
-        #     self._envd_access_token = None
-        # elif sandbox_id is not None:
-        #     response = SandboxApi._cls_get_info(
-        #         sandbox_id,
-        #         api_key=api_key,
-        #         domain=domain,
-        #         debug=debug,
-        #         request_timeout=request_timeout,
-        #         proxy=proxy,
-        #     )
-        #
-        #     self._sandbox_id = sandbox_id
-        #     self._sandbox_domain = response.sandbox_domain
-        #     self._envd_version = response.envd_version
-        #     self._envd_access_token = response._envd_access_token
-        #
-        #     if response._envd_access_token is not None and not isinstance(
-        #         response._envd_access_token, Unset
-        #     ):
-        #         connection_headers["X-Access-Token"] = response._envd_access_token
-        # else:
-        #     template = template or self.default_template
-        #     timeout = timeout or self.default_sandbox_timeout
-        #     response = SandboxApi._create_sandbox(
-        #         template=template,
-        #         api_key=api_key,
-        #         timeout=timeout,
-        #         metadata=metadata,
-        #         env_vars=envs,
-        #         domain=domain,
-        #         debug=debug,
-        #         request_timeout=request_timeout,
-        #         secure=secure or False,
-        #         proxy=proxy,
-        #         allow_internet_access=allow_internet_access,
-        #     )
-        #
-        #     self._sandbox_id = response.sandbox_id
-        #     self._sandbox_domain = response.sandbox_domain
-        #     self._envd_version = response.envd_version
-        #
-        #     if response.envd_access_token is not None and not isinstance(
-        #         response.envd_access_token, Unset
-        #     ):
-        #         self._envd_access_token = response.envd_access_token
-        #         connection_headers["X-Access-Token"] = response.envd_access_token
-        #     else:
-        #         self._envd_access_token = None
-        # self._transport = TransportWithLogger(limits=self._limits, proxy=proxy)
-        # self._connection_config = ConnectionConfig(
-        #     api_key=api_key,
-        #     domain=domain,
-        #     debug=debug,
-        #     request_timeout=request_timeout,
-        #     headers=connection_headers,
-        #     proxy=proxy,
-        # )
 
         self._sandbox_domain = self._sandbox_domain or self._connection_config.domain
-        # self._envd_api_url = f"{'http' if self.connection_config.debug else 'https'}://{self.get_host(self.envd_port)}"
         if debug:
             self._envd_api_url = f"http://{self.get_host(8888)}"
-        # elif self._sandbox_id is not None:
-        #     response = SandboxApi._cls_get_info(
-        #         self._sandbox_id,
-        #         api_key=self._api_key(),
-        #         domain=self._sandbox_domain,
-        #         debug=debug,
-        #         request_timeout=self.request_timeout,
-        #         proxy=self.proxy,
-        #     )
-        #
-        #     self._sandbox_id = self._sandbox_id
-        #     self._sandbox_domain = response.sandbox_domain
-        #     self._envd_version = response.envd_version
-        #     self._envd_access_token = response._envd_access_token
-        #
-        #     if response._envd_access_token is not None and not isinstance(
-        #         response._envd_access_token, Unset
-        #     ):
-        #         self._connection_config["X-Access-Token"] = response._envd_access_token
-        #     self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
         else:
             self._envd_api_url = f"https://{self.get_host(self.envd_port)}"
         self._transport = TransportWithLogger(limits=self._limits, proxy=self._connection_config.proxy)
-        # self._envd_api_url = f"http://localhost:8088"
-        # self._envd_api_url = f"http://{self.get_host(self.envd_port)}"
-        # self._envd_api_url = f"http://localhost:31000"
         self._envd_api = httpx.Client(
             base_url=self._envd_api_url,
             transport=self._transport,
@@ -319,6 +240,7 @@ class Sandbox(SandboxSetup, SandboxApi):
             timeout: Optional[int] = None,
             metadata: Optional[Dict[str, str]] = None,
             envs: Optional[Dict[str, str]] = None,
+            object_storage:Optional[Dict[str, str]] = None,
             api_key: Optional[str] = None,
             domain: Optional[str] = None,
             debug: Optional[bool] = None,
@@ -371,6 +293,7 @@ class Sandbox(SandboxSetup, SandboxApi):
             sandbox_domain = response.sandbox_domain
             envd_version = response.envd_version
             envd_access_token = response._envd_access_token
+            object_storage = response.object_storage
 
             if response._envd_access_token is not None and not isinstance(
                     response._envd_access_token, Unset
@@ -389,12 +312,14 @@ class Sandbox(SandboxSetup, SandboxApi):
                 secure=secure,
                 proxy=proxy,
                 allow_internet_access=allow_internet_access,
+                object_storage=object_storage,
             )
 
             sandbox_id = response.sandbox_id
             sandbox_domain = response.sandbox_domain
             envd_version = response.envd_version
             envd_access_token = response.envd_access_token
+            object_storage = response.object_storage
 
         if envd_access_token is not None and not isinstance(
                 envd_access_token, Unset
@@ -416,6 +341,7 @@ class Sandbox(SandboxSetup, SandboxApi):
             envd_version=envd_version,
             envd_access_token=envd_access_token,
             connection_config=connection_config,
+            object_storage=object_storage
         )
 
         timeout = 10.0

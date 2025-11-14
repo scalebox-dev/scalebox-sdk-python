@@ -1,7 +1,7 @@
 import json
 import logging
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Dict
 
 from httpx import Limits
 
@@ -20,6 +20,7 @@ class SandboxCreateResponse:
     sandbox_domain: Optional[str]
     envd_version: str
     envd_access_token: str
+    object_storage: Optional[Dict[str, str]]
 
 
 def handle_api_exception(e: Response):
