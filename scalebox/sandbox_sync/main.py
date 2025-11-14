@@ -158,6 +158,7 @@ class Sandbox(SandboxSetup, SandboxApi):
         self._sandbox_id = opts["sandbox_id"]
         self._sandbox_domain = opts["sandbox_domain"] or self.connection_config.domain
         debug = self._connection_config.debug
+        self.__envd_access_token=opts["envd_access_token"]
         # connection_headers = {"Authorization": "Bearer root", }
 
         # if debug:

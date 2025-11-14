@@ -33,7 +33,7 @@ def get_signature(
         if expiration is None
         else f"{path}:{operation}:{user}:{envd_access_token}:{expiration}"
     )
-
+    print(raw)
     digest = hashlib.sha256(raw.encode("utf-8")).digest()
     encoded = base64.b64encode(digest).rstrip(b"=").decode("ascii")
 

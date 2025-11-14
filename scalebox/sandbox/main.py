@@ -5,8 +5,8 @@ from typing import Optional
 from httpx import Limits
 
 from ..connection_config import ConnectionConfig
-from ..generated.api import ENVD_API_FILES_ROUTE
-from .signature import get_signature
+from ..generated.api import ENVD_API_DOWNLOAD_FILES_ROUTE,ENVD_API_UPLOAD_FILES_ROUTE
+from .signature import get_signature, Operation
 
 
 class SandboxSetup(ABC):
@@ -44,12 +44,18 @@ class SandboxSetup(ABC):
     def _file_url(
         self,
         path: Optional[str] = None,
-        user: str = "user",
+        operation: Operation = "read",
+        user: str = "root",
         signature: Optional[str] = None,
         signature_expiration: Optional[int] = None,
     ) -> str:
-        url = urllib.parse.urljoin(self.envd_api_url, ENVD_API_FILES_ROUTE)
-        query = {"path": path} if path else {}
+        query = {}
+        url = urllib.parse.urljoin(self.envd_api_url, ENVD_API_DOWNLOAD_FILES_ROUTE)
+        if operation == "write":
+            url = urllib.parse.urljoin(self.envd_api_url, ENVD_API_UPLOAD_FILES_ROUTE)
+            query = {**query,"path": path}
+        else:
+            url = f"{url}/{path.lstrip('/')}"
         query = {**query, "username": user}
 
         if signature:
@@ -71,7 +77,7 @@ class SandboxSetup(ABC):
     def download_url(
         self,
         path: str,
-        user: str = "user",
+        user: str = "root",
         use_signature_expiration: Optional[int] = None,
     ) -> str:
         """
@@ -90,7 +96,7 @@ class SandboxSetup(ABC):
                 path, "read", user, self._envd_access_token, use_signature_expiration
             )
             return self._file_url(
-                path, user, signature["signature"], signature["expiration"]
+                path,"read", user, signature["signature"], signature["expiration"]
             )
         else:
             return self._file_url(path)
@@ -98,7 +104,7 @@ class SandboxSetup(ABC):
     def upload_url(
         self,
         path: Optional[str] = None,
-        user: str = "user",
+        user: str = "root",
         use_signature_expiration: Optional[int] = None,
     ) -> str:
         """
@@ -119,7 +125,7 @@ class SandboxSetup(ABC):
                 path, "write", user, self._envd_access_token, use_signature_expiration
             )
             return self._file_url(
-                path, user, signature["signature"], signature["expiration"]
+                path,"write", user, signature["signature"], signature["expiration"]
             )
         else:
             return self._file_url(path)
