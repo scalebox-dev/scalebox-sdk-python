@@ -9,7 +9,7 @@ A multi-language code execution sandbox with support for:
 - Real-time callbacks and monitoring
 """
 
-__version__ = "0.1.17"
+__version__ = "0.1.18"
 __author__ = "ScaleBox Team"
 __email__ = "dev@scalebox.dev"
 
