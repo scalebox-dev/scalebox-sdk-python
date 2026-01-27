@@ -110,6 +110,9 @@ class Sandbox(SandboxSetup, SandboxApi):
         """
         return self._object_storage
 
+    def network_proxy(self) -> Optional[Dict[str, any]]:
+        return self._network_proxy
+
     @property
     def envd_api_url(self) -> str:
         return self._envd_api_url
@@ -164,6 +167,7 @@ class Sandbox(SandboxSetup, SandboxApi):
         self._connection_config = opts["connection_config"]
         self._object_storage = opts["object_storage"]
         self._sandbox_id = opts["sandbox_id"]
+        self._network_proxy = opts["network_proxy"]
         self._sandbox_domain = opts["sandbox_domain"] or self.connection_config.domain
         debug = self._connection_config.debug
         self.__envd_access_token=opts["envd_access_token"]
@@ -249,6 +253,7 @@ class Sandbox(SandboxSetup, SandboxApi):
             proxy: Optional[ProxyTypes] = None,
             secure: Optional[bool] = None,
             allow_internet_access: Optional[bool] = True,
+            net_proxy_country: Optional[str] = None
     ):
         """
         Create a new sandbox.
@@ -274,6 +279,7 @@ class Sandbox(SandboxSetup, SandboxApi):
                 "Cannot set metadata or timeout when connecting to an existing sandbox. "
                 "Use Sandbox.connect method instead.",
             )
+        network_proxy = {}
         connection_headers = {"Authorization": "Bearer root", }
         if debug:
             sandbox_id = "debug_sandbox_id"
@@ -294,6 +300,7 @@ class Sandbox(SandboxSetup, SandboxApi):
             envd_version = response.envd_version
             envd_access_token = response._envd_access_token
             object_storage = response.object_storage
+            network_proxy = response.network_proxy
 
             if response._envd_access_token is not None and not isinstance(
                     response._envd_access_token, Unset
@@ -313,6 +320,7 @@ class Sandbox(SandboxSetup, SandboxApi):
                 proxy=proxy,
                 allow_internet_access=allow_internet_access,
                 object_storage=object_storage,
+                net_proxy_country=net_proxy_country
             )
 
             sandbox_id = response.sandbox_id
@@ -320,6 +328,7 @@ class Sandbox(SandboxSetup, SandboxApi):
             envd_version = response.envd_version
             envd_access_token = response.envd_access_token
             object_storage = response.object_storage
+            network_proxy = response.network_proxy
 
         if envd_access_token is not None and not isinstance(
                 envd_access_token, Unset
@@ -341,7 +350,8 @@ class Sandbox(SandboxSetup, SandboxApi):
             envd_version=envd_version,
             envd_access_token=envd_access_token,
             connection_config=connection_config,
-            object_storage=object_storage
+            object_storage=object_storage,
+            network_proxy=network_proxy
         )
 
         timeout = 10.0

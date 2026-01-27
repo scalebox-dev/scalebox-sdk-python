@@ -30,6 +30,7 @@ class Sandbox:
     domain: Union[None, Unset, str] = UNSET
     envd_access_token: Union[Unset, str] = UNSET
     object_storage: Union[Unset, Any] = UNSET
+    network_proxy: Union[Unset, Any] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,6 +42,7 @@ class Sandbox:
 
         template_id = self.template_id
         object_storage = self.object_storage
+        network_proxy = self.network_proxy
 
         alias = self.alias
 
@@ -70,6 +72,8 @@ class Sandbox:
             field_dict["envdAccessToken"] = envd_access_token
         if object_storage is not UNSET:
             field_dict["objectStorage"] = object_storage
+        if network_proxy is not UNSET:
+            field_dict["networkProxy"] = network_proxy
 
         return field_dict
 
@@ -87,6 +91,7 @@ class Sandbox:
         template_id = data.pop("template_id")
 
         object_storage = data.pop("object_storage",{})
+        network_proxy = data.pop("network_proxy",{})
 
         alias = data.pop("alias", UNSET)
 
@@ -110,6 +115,7 @@ class Sandbox:
             domain=domain,
             envd_access_token=envd_access_token,
             object_storage=object_storage,
+            network_proxy=network_proxy,
         )
 
         sandbox.additional_properties = d

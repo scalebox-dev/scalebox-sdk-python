@@ -21,6 +21,7 @@ class SandboxCreateResponse:
     envd_version: str
     envd_access_token: str
     object_storage: Optional[Dict[str, str]]
+    network_proxy: Optional[Dict[str, any]]
 
 
 def handle_api_exception(e: Response):

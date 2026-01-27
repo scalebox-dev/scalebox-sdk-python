@@ -268,6 +268,7 @@ class SandboxApi(SandboxApiBase):
         proxy: Optional[ProxyTypes] = None,
         allow_internet_access: Optional[bool] = True,
         object_storage: Optional[Dict[str, str]] = None,
+        net_proxy_country:Optional[str] = None,
     ) -> SandboxCreateResponse:
         config = ConnectionConfig(
             api_key=api_key,
@@ -292,6 +293,7 @@ class SandboxApi(SandboxApiBase):
                     allow_internet_access=allow_internet_access,
                     is_async=False,
                     object_storage=object_storage,
+                    net_proxy_country=net_proxy_country,
                 ),
                 client=api_client,
             )
@@ -315,6 +317,7 @@ class SandboxApi(SandboxApiBase):
                 envd_version=res.parsed.envd_version,
                 envd_access_token=res.parsed.envd_access_token,
                 object_storage=res.parsed.object_storage,
+                network_proxy=res.parsed.network_proxy,
             )
 
     @classmethod

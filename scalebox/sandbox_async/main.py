@@ -42,6 +42,7 @@ class AsyncSandboxOpts(TypedDict):
     envd_access_token: Optional[str]
     connection_config: ConnectionConfig
     object_storage: Optional[Dict[str, str]]
+    network_proxy: Optional[Dict[str, any]]
 
 
 class AsyncSandbox(SandboxSetup, SandboxApi):
@@ -110,6 +111,9 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         """
         return self._object_storage
 
+    def network_proxy(self) -> Optional[Dict[str, object]]:
+        return self._network_proxy
+
     @property
     def envd_api_url(self) -> str:
         return self._envd_api_url
@@ -136,6 +140,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
 
         self._connection_config = opts["connection_config"]
         self._object_storage = opts["object_storage"]
+        self._network_proxy = opts["network_proxy"]
         self._sandbox_id = opts["sandbox_id"]
         self._sandbox_domain = opts["sandbox_domain"] or self.connection_config.domain
         debug=self._connection_config.debug
@@ -240,6 +245,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         proxy: Optional[ProxyTypes] = None,
         secure: Optional[bool] = None,
         allow_internet_access: Optional[bool] = True,
+        net_proxy_country: Optional[str] = None,
     ):
         """
         Create a new sandbox.
@@ -262,6 +268,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         """
 
         connection_headers = {"Authorization": "Bearer root", }
+        network_proxy = {}
         if debug:
             sandbox_id = "debug_sandbox_id"
             sandbox_domain = None
@@ -281,6 +288,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             envd_version = response.envd_version
             envd_access_token = response._envd_access_token
             object_storage = response.object_storage
+            network_proxy = response.network_proxy
 
             if response._envd_access_token is not None and not isinstance(
                     response._envd_access_token, Unset
@@ -300,6 +308,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
                 proxy=proxy,
                 allow_internet_access=allow_internet_access,
                 object_storage=object_storage,
+                net_proxy_country=net_proxy_country,
             )
 
             sandbox_id = response.sandbox_id
@@ -307,6 +316,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             envd_version = response.envd_version
             envd_access_token = response.envd_access_token
             object_storage = response.object_storage
+            network_proxy = response.network_proxy
 
         if envd_access_token is not None and not isinstance(
             envd_access_token, Unset
@@ -330,6 +340,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
             envd_access_token=envd_access_token,
             connection_config=connection_config,
             object_storage=object_storage,
+            network_proxy=network_proxy
         )
         timeout = 10.0
         interval = 0.3
