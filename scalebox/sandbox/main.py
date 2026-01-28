@@ -140,6 +140,7 @@ class SandboxSetup(ABC):
         :return: Host address to connect to
         """
         if self.connection_config.debug:
-            return f"localhost:{port}"
+            debug_host = self.connection_config.debug_host
+            return f"{debug_host}:{port}"
         return f"{self.sandbox_domain}"
         # return f"{port}-{self.sandbox_id}.{self.sandbox_domain}"

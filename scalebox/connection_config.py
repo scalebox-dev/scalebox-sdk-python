@@ -59,6 +59,10 @@ class ConnectionConfig:
     def _access_token():
         return os.getenv("SBX_ACCESS_TOKEN")
 
+    @staticmethod
+    def _debug_host():
+        return os.getenv("SBX_DEBUG_HOST") or "localhost"
+
     def __init__(
         self,
         domain: Optional[str] = None,
@@ -68,11 +72,13 @@ class ConnectionConfig:
         request_timeout: Optional[float] = None,
         headers: Optional[Dict[str, str]] = None,
         proxy: Optional[ProxyTypes] = None,
+        debug_host: Optional[str] = None,
     ):
         self.domain = domain or ConnectionConfig._domain()
         self.debug = debug or ConnectionConfig._debug()
         self.api_key = api_key or ConnectionConfig._api_key()
         self.access_token = access_token or ConnectionConfig._access_token()
+        self.debug_host = debug_host or ConnectionConfig._debug_host()
         self.headers = headers or {}
         # self.headers["User-Agent"] = f"csx-python-sdk/{package_version}"
 
