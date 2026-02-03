@@ -38,7 +38,9 @@ from scalebox.sandbox_sync.main import Sandbox
 from scalebox.sandbox.sandbox_api import SandboxQuery
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # CONFIG_ENV = "SCALEBOX_OBJECT_STORAGE_CONFIG"
 # TEMPLATE_ENV = "SCALEBOX_OBJECT_STORAGE_TEMPLATE"
@@ -104,12 +106,14 @@ def create_sandbox_with_object_storage():
             template="base",
             timeout=3600,
             metadata={"example": "object_storage"},
-            object_storage={"uri": "s3://bgd-test/test/",
-                            "mount_point": "/mnt/oss",
-                            # "access_key": "",
-                            # "secret_key": "",
-                            "region": "us-east-2",
-                            "endpoint": "https://s3.us-east-2.amazonaws.com",},
+            object_storage={
+                "uri": "s3://bgd-test/test/",
+                "mount_point": "/mnt/oss",
+                # "access_key": "",
+                # "secret_key": "",
+                "region": "us-east-2",
+                "endpoint": "https://s3.us-east-2.amazonaws.com",
+            },
         )
         print(sandbox.sandbox_id)
         print(sandbox.sandbox_domain)
@@ -120,7 +124,9 @@ def create_sandbox_with_object_storage():
         print(info)
         print(f"get_info.object_storage: {info.object_storage}")
 
-        listed = Sandbox.list(query=SandboxQuery(metadata={"example": "object_storage"}))
+        listed = Sandbox.list(
+            query=SandboxQuery(metadata={"example": "object_storage"})
+        )
         print(f"List 根据 metadata 命中的沙箱数量: {len(listed)}")
         for listed_box in listed:
             detailed = Sandbox.get_info(sandbox_id=listed_box.sandbox_id)
@@ -143,4 +149,3 @@ def create_sandbox_with_object_storage():
 
 if __name__ == "__main__":
     create_sandbox_with_object_storage()
-

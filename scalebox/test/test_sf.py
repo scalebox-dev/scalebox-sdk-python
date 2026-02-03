@@ -15,7 +15,7 @@ _chat = ChatOpenAI(
     model="Qwen/Qwen2.5-72B-Instruct",
     api_key="sk-nbxsvrydquzfkfrrnnuutnfchpghzeuxilgawvsjqzjhumkh",
     base_url="https://api.siliconflow.cn/v1",
-    temperature=0.1
+    temperature=0.1,
 )
 
 
@@ -23,8 +23,10 @@ llm = ChatOpenAI(
     model="deepseek-ai/DeepSeek-R1",
     api_key="sk-nbxsvrydquzfkfrrnnuutnfchpghzeuxilgawvsjqzjhumkh",
     base_url="https://api.siliconflow.cn/v1",
-    temperature=0.7
+    temperature=0.7,
 )
+
+
 # 2. 包一层模型，补 .provider + 转发所有必要方法
 class SiliconFlowModel:
     provider = "siliconflow"
@@ -50,7 +52,9 @@ class SiliconFlowModel:
     def bind(self, *args, **kwargs):
         return self.chat.bind(*args, **kwargs)
 
+
 # llm = SiliconFlowModel(_chat)
+
 
 # 3. 创建 Agent
 async def main():
@@ -77,13 +81,12 @@ async def main():
         browser = await pw.chromium.launch(
             proxy={
                 "server": "http://net-proxy:80",
-                "username":"sbx-jz9kgqolumvmfc7ds",
-                "password": "npt-Vd4CpGtjBOQEI8wdBv3wSOd8P4Bup1NgfsM"
+                "username": "sbx-jz9kgqolumvmfc7ds",
+                "password": "npt-Vd4CpGtjBOQEI8wdBv3wSOd8P4Bup1NgfsM",
             },
             headless=False,
             args=[
                 # '--no-sandbox',
-
                 # '--disable-dev-shm-usage',
                 # '--disable-gpu',
                 # '--disable-extensions',
@@ -92,7 +95,7 @@ async def main():
                 # '--disable-features=TranslateUI',
                 "--disable-blink-features=AutomationControlled",  # 禁用自动化控制标志
                 "--start-maximized",  # 最大化窗口
-            ]
+            ],
         )
         # task = """
         #     1. 打开淘宝官网 (taobao.com)
@@ -118,12 +121,13 @@ async def main():
             llm=llm,
             # browser_profile=browser_profile,
             browser=browser,
-            use_vision=False
+            use_vision=False,
         )
         result = await agent.run()
         print("---------- 最终结果 ----------")
         print(result)
         await browser.close()
+
 
 # if __name__ == "__main__":
 #     asyncio.run(main())

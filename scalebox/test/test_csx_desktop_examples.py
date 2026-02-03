@@ -18,7 +18,9 @@ class CsxDesktopValidator:
         self.success_count = 0
         self.fail_count = 0
 
-    def log_test_result(self, name: str, success: bool, error: Optional[Exception] = None) -> None:
+    def log_test_result(
+        self, name: str, success: bool, error: Optional[Exception] = None
+    ) -> None:
         if success:
             self.success_count += 1
             print(f"✅ {name}")
@@ -126,5 +128,3 @@ if __name__ == "__main__":
     finally:
         validator.cleanup()
         validator.print_summary()
-
-

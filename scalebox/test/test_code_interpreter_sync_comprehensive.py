@@ -106,7 +106,7 @@ result = {"x": x, "y": y}
 print(result)
 """
 
-        execution = self.sandbox.run_code(code,envs={"CI_TEST": "sync_test1"})
+        execution = self.sandbox.run_code(code, envs={"CI_TEST": "sync_test1"})
         print(execution.to_json())
         # time.sleep(1000)
         assert isinstance(execution, Execution)
@@ -366,10 +366,7 @@ print(f"结果: {result}")
         assert self.sandbox is not None
 
         # 创建Python上下文
-        python_context = self.sandbox.create_code_context(
-            language="python", 
-            cwd="/tmp"
-        )
+        python_context = self.sandbox.create_code_context(language="python", cwd="/tmp")
         print(python_context)
         assert isinstance(python_context, Context)
         assert python_context.id is not None

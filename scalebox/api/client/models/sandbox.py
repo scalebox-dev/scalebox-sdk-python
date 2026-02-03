@@ -90,8 +90,8 @@ class Sandbox:
 
         template_id = data.pop("template_id")
 
-        object_storage = data.pop("object_storage",{})
-        network_proxy = data.pop("network_proxy",{})
+        object_storage = data.pop("object_storage", {})
+        network_proxy = data.pop("network_proxy", {})
 
         alias = data.pop("alias", UNSET)
 

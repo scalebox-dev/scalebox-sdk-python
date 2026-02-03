@@ -44,7 +44,9 @@ from scalebox.sandbox_async.main import AsyncSandbox
 from scalebox.sandbox.sandbox_api import SandboxQuery
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # CONFIG_ENV = "SCALEBOX_OBJECT_STORAGE_CONFIG"
 # TEMPLATE_ENV = "SCALEBOX_OBJECT_STORAGE_TEMPLATE"
@@ -140,7 +142,9 @@ async def create_sandbox_with_object_storage_async():
             )
 
         # 在沙箱中运行简单命令，确认可正常访问
-        result = await sandbox.commands.run("echo 'async object storage sandbox is ready'")
+        result = await sandbox.commands.run(
+            "echo 'async object storage sandbox is ready'"
+        )
         print(f"命令输出: {result.stdout.strip()}")
     except SandboxException as exc:
         logger.error("创建或使用异步沙箱失败：%s", exc)
@@ -153,4 +157,3 @@ async def create_sandbox_with_object_storage_async():
 
 if __name__ == "__main__":
     asyncio.run(create_sandbox_with_object_storage_async())
-

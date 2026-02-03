@@ -312,7 +312,9 @@ class Sandbox(BaseSandbox):
             # headers = {
             #     "Authorization": "Bearer root",
             # }
-            client.destroy_context(destroy_context_request,extra_headers=self.connection_config.headers)
+            client.destroy_context(
+                destroy_context_request, extra_headers=self.connection_config.headers
+            )
 
         except Exception as e:
             logger.warning(f"Failed to destroy context {context.id}: {e}")

@@ -78,7 +78,9 @@ class ConnectPauseAsyncTest:
             # 4. 创建目录和文件
             print("Step 4: Creating directory and nested files...")
             await self.sandbox.files.make_dir("/tmp/test_dir")
-            await self.sandbox.files.write("/tmp/test_dir/nested_file.txt", "Nested file content")
+            await self.sandbox.files.write(
+                "/tmp/test_dir/nested_file.txt", "Nested file content"
+            )
             assert await self.sandbox.files.exists("/tmp/test_dir")
             assert await self.sandbox.files.exists("/tmp/test_dir/nested_file.txt")
             print("Created directory and nested file")
@@ -106,13 +108,17 @@ class ConnectPauseAsyncTest:
             # 校验应该存在的文件
             exists = await connected_sandbox.files.exists("/tmp/test_file1.txt")
             assert exists, "test_file1.txt should exist"
-            file1_content = await connected_sandbox.files.read("/tmp/test_file1.txt", format="text")
+            file1_content = await connected_sandbox.files.read(
+                "/tmp/test_file1.txt", format="text"
+            )
             assert "Content of test file 1" in file1_content
             print("✅ Verified test_file1.txt exists and content is correct")
 
             exists = await connected_sandbox.files.exists("/tmp/test_file3.bin")
             assert exists, "test_file3.bin should exist"
-            file3_content = await connected_sandbox.files.read("/tmp/test_file3.bin", format="bytes")
+            file3_content = await connected_sandbox.files.read(
+                "/tmp/test_file3.bin", format="bytes"
+            )
             assert bytes(file3_content) == b"Binary content for test file 3"
             print("✅ Verified test_file3.bin exists and content is correct")
 
@@ -124,15 +130,21 @@ class ConnectPauseAsyncTest:
             # 校验目录和嵌套文件
             exists = await connected_sandbox.files.exists("/tmp/test_dir")
             assert exists, "test_dir should exist"
-            exists = await connected_sandbox.files.exists("/tmp/test_dir/nested_file.txt")
+            exists = await connected_sandbox.files.exists(
+                "/tmp/test_dir/nested_file.txt"
+            )
             assert exists, "nested_file.txt should exist"
-            nested_content = await connected_sandbox.files.read("/tmp/test_dir/nested_file.txt", format="text")
+            nested_content = await connected_sandbox.files.read(
+                "/tmp/test_dir/nested_file.txt", format="text"
+            )
             assert "Nested file content" in nested_content
             print("✅ Verified directory and nested file exist and content is correct")
 
             # 8. 在connect后的沙箱中执行一些操作验证功能正常
             print("Step 8: Verifying sandbox functionality after connect...")
-            result = await connected_sandbox.commands.run("echo 'Test command after connect'")
+            result = await connected_sandbox.commands.run(
+                "echo 'Test command after connect'"
+            )
             assert result.exit_code == 0
             assert "Test command after connect" in result.stdout
             print("✅ Verified sandbox commands work after connect")
@@ -140,20 +152,27 @@ class ConnectPauseAsyncTest:
             # 9. 创建新文件验证写入功能正常
             print("Step 9: Testing file write after connect...")
             new_file_path = "/tmp/new_file_after_connect.txt"
-            await connected_sandbox.files.write(new_file_path, "New file created after connect")
+            await connected_sandbox.files.write(
+                new_file_path, "New file created after connect"
+            )
             exists = await connected_sandbox.files.exists(new_file_path)
             assert exists
-            new_content = await connected_sandbox.files.read(new_file_path, format="text")
+            new_content = await connected_sandbox.files.read(
+                new_file_path, format="text"
+            )
             assert "New file created after connect" in new_content
             print("✅ Verified file write works after connect")
 
-            self.log_test_result("Connect and Pause with Files", True, "All verifications passed")
+            self.log_test_result(
+                "Connect and Pause with Files", True, "All verifications passed"
+            )
             return True
 
         except Exception as e:
             self.log_test_result("Connect and Pause with Files", False, str(e))
             print(f"Test failed with error: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -217,13 +236,18 @@ class ConnectPauseAsyncTest:
             # 清理
             await sandbox.kill()
 
-            self.log_test_result("Multiple Connect and Pause Operations", True, "All verifications passed")
+            self.log_test_result(
+                "Multiple Connect and Pause Operations",
+                True,
+                "All verifications passed",
+            )
             return True
 
         except Exception as e:
             self.log_test_result("Multiple Connect and Pause Operations", False, str(e))
             print(f"Test failed with error: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -274,4 +298,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

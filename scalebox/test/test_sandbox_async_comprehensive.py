@@ -274,7 +274,9 @@ class AsyncSandboxValidator:
         await self.sandbox.files.write("/tmp/old_name.txt", "content to rename")
 
         # 重命名
-        result = await self.sandbox.files.rename("/tmp/old_name.txt", "/tmp/new_name.txt")
+        result = await self.sandbox.files.rename(
+            "/tmp/old_name.txt", "/tmp/new_name.txt"
+        )
         print(result)
         assert isinstance(result, EntryInfo)
         assert result.name == "new_name.txt"
@@ -290,7 +292,7 @@ class AsyncSandboxValidator:
         # 删除文件
         await self.sandbox.files.remove("/tmp/new_name.txt")
         assert await self.sandbox.files.exists("/tmp/new_name.txt") == False
-        
+
         # 删除目录
         await self.sandbox.files.remove("/tmp/test_dir")
         assert await self.sandbox.files.exists("/tmp/test_dir") == False

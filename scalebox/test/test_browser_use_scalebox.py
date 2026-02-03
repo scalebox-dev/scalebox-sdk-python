@@ -1,17 +1,18 @@
 import asyncio
 import os
+
 # from browser_use import Agent, BrowserProfile
 from scalebox.sandbox_async.main import AsyncSandbox
 
 # 设置环境变量，避免浏览器启动问题
-os.environ['BROWSER_USE_DISABLE_TELEMETRY'] = '1'
+os.environ["BROWSER_USE_DISABLE_TELEMETRY"] = "1"
 
 
 async def main():
-    sandbox = await (AsyncSandbox.create(
+    sandbox = await AsyncSandbox.create(
         timeout=3600,
         template="browser-use-headless",
-    ))
+    )
     proc = await sandbox.commands.run("echo hello from async")
     print("exit_code =", proc.exit_code)
     print("stdout   =", proc.stdout)

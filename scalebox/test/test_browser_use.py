@@ -11,15 +11,17 @@ TASK = (
     "把第一条结果的标题复制出来。"
 )
 
+
 async def main():
     agent = Agent(
         task=TASK,
         browser_profile=BrowserProfile(headless=False),
-        model="gpt-4"          # 欺骗 browser-use
+        model="gpt-4",  # 欺骗 browser-use
     )
     result = await agent.run()
     print("---------- 最终结果 ----------")
     print(result)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

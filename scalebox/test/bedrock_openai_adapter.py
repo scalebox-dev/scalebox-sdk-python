@@ -6,21 +6,24 @@ POST /v1/chat/completions  ->  Bedrock invoke-model
 import json, boto3, os
 from fastapi import FastAPI, Response, status
 from pydantic import BaseModel
-from typing import List, Dict   # <- 修正语法
+from typing import List, Dict  # <- 修正语法
 
 app = FastAPI()
 BEDROCK = boto3.client("bedrock-runtime", region_name="us-east-1")
 MODEL_ID = "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 
+
 class Message(BaseModel):
     role: str
     content: str
+
 
 class ChatRequest(BaseModel):
     model: str
     messages: List[Message]
     max_tokens: int = 4096
     temperature: float = 0.1
+
 
 @app.post("/v1/chat/completions")
 def chat_completions(req: ChatRequest):
@@ -57,11 +60,14 @@ def chat_completions(req: ChatRequest):
     }
     return Response(content=json.dumps(openai_reply), media_type="application/json")
 
+
 # 健康检查
 @app.get("/v1/models")
 def models():
     return {"data": [{"id": "gpt-4", "object": "model"}]}
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

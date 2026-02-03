@@ -20,36 +20,48 @@ import json
 from typing import List, Optional, Dict, Any
 from io import StringIO
 
-from scalebox.code_interpreter import Sandbox, Context, Execution, ExecutionError, Result, OutputMessage, Logs
+from scalebox.code_interpreter import (
+    Sandbox,
+    Context,
+    Execution,
+    ExecutionError,
+    Result,
+    OutputMessage,
+    Logs,
+)
 
 # 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
 class CodeInterpreterValidator:
     """Comprehensive CodeInterpreter validation test suite."""
-    
+
     def __init__(self):
         self.sandbox: Optional[Sandbox] = None
         self.test_results = []
         self.failed_tests = []
         self.contexts: Dict[str, Context] = {}
-        
-    def log_test_result(self, test_name: str, success: bool, message: str = "", duration: float = 0):
+
+    def log_test_result(
+        self, test_name: str, success: bool, message: str = "", duration: float = 0
+    ):
         """记录测试结果"""
         status = "✅ PASS" if success else "❌ FAIL"
         result = {
-            'test': test_name,
-            'success': success,
-            'message': message,
-            'duration': duration
+            "test": test_name,
+            "success": success,
+            "message": message,
+            "duration": duration,
         }
         self.test_results.append(result)
-        
+
         if not success:
             self.failed_tests.append(test_name)
-            
+
         logger.info(f"{status} {test_name} ({duration:.3f}s) {message}")
 
     def run_test(self, test_func, test_name: str):
@@ -64,7 +76,7 @@ class CodeInterpreterValidator:
             self.log_test_result(test_name, False, str(e), duration=duration)
 
     # ======================== 基础代码解释器操作测试 ========================
-    
+
     def test_code_interpreter_creation(self):
         """测试代码解释器创建"""
         self.sandbox = Sandbox.create(
@@ -72,17 +84,19 @@ class CodeInterpreterValidator:
             timeout=3600,
             # debug=True,
             metadata={"test": "code_interpreter_validation"},
-            envs={"CI_TEST": "sync_test"}
+            envs={"CI_TEST": "sync_test"},
         )
         # time.sleep(2)
         assert self.sandbox is not None
         assert self.sandbox.sandbox_id is not None
-        logger.info(f"Created CodeInterpreter sandbox with ID: {self.sandbox.sandbox_id}")
+        logger.info(
+            f"Created CodeInterpreter sandbox with ID: {self.sandbox.sandbox_id}"
+        )
 
     def test_basic_python_execution(self):
         """测试基础Python代码执行"""
         assert self.sandbox is not None
-        
+
         code = """
 import random
 import math
@@ -120,7 +134,7 @@ plt.savefig('random_data_plot.png')
 
 print('Line chart with random data has been created and saved as random_data_plot.png')
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert isinstance(execution, Execution)
@@ -132,7 +146,7 @@ print('Line chart with random data has been created and saved as random_data_plo
     def test_math_calculations(self):
         """测试数学计算"""
         assert self.sandbox is not None
-        
+
         code = """
 import math
 import numpy as np
@@ -161,7 +175,7 @@ print(f"标准差: {std_val:.3f}")
     "array_stats": {"mean": mean_val, "std": std_val}
 }
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -171,7 +185,7 @@ print(f"标准差: {std_val:.3f}")
     def test_data_processing(self):
         """测试数据处理"""
         assert self.sandbox is not None
-        
+
         code = """
 import pandas as pd
 import json
@@ -211,7 +225,7 @@ result = {
 }
 print(f"\\n处理结果: {json.dumps(result, indent=2)}")
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -221,7 +235,7 @@ print(f"\\n处理结果: {json.dumps(result, indent=2)}")
     def test_visualization_code(self):
         """测试数据可视化代码"""
         assert self.sandbox is not None
-        
+
         code = """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -271,39 +285,39 @@ print("图表包含正弦、余弦函数和随机散点图")
 # 返回结果信息
 {"image_size": len(image_base64), "charts": ["sin/cos functions", "random scatter"]}
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
         assert any("图表已生成" in line for line in execution.logs.stdout)
 
     # ======================== 回调函数测试 ========================
-    
+
     def test_callback_handling(self):
         """测试回调函数处理"""
         assert self.sandbox is not None
-        
+
         stdout_messages = []
         stderr_messages = []
         results = []
         errors = []
-        
+
         def stdout_callback(msg: OutputMessage):
             stdout_messages.append(msg.content)
             logger.info(f"STDOUT: {msg.content}")
-        
+
         def stderr_callback(msg: OutputMessage):
             stderr_messages.append(msg.content)
             logger.info(f"STDERR: {msg.content}")
-        
+
         def result_callback(result: Result):
             results.append(result)
             logger.info(f"RESULT: {result}")
-        
+
         def error_callback(error: ExecutionError):
             errors.append(error)
             logger.info(f"ERROR: {error.name} - {error.value}")
-        
+
         code = """
 import sys
 
@@ -316,42 +330,46 @@ print(f"最终结果: {result_data}")
 
 result_data  # 返回结果
 """
-        
+
         execution = self.sandbox.run_code(
             code,
             language="python",
             on_stdout=stdout_callback,
             on_stderr=stderr_callback,
             on_result=result_callback,
-            on_error=error_callback
+            on_error=error_callback,
         )
         print(execution.to_json())
         assert execution.error is None
         # 注意：回调可能在执行完成后才触发
-        logger.info(f"Callback test completed. stdout: {len(stdout_messages)}, stderr: {len(stderr_messages)}")
+        logger.info(
+            f"Callback test completed. stdout: {len(stdout_messages)}, stderr: {len(stderr_messages)}"
+        )
 
     def test_error_handling(self):
         """测试错误处理"""
         assert self.sandbox is not None
-        
+
         error_messages = []
-        
+
         def error_callback(error: ExecutionError):
             error_messages.append(error)
             logger.info(f"捕获错误: {error.name} - {error.value}")
-        
+
         # 测试语法错误
         code_syntax_error = """
 print("开始执行")
 invalid syntax here  # 这里有语法错误
 print("这行不会执行")
 """
-        
-        execution = self.sandbox.run_code(code_syntax_error,language="python", on_error=error_callback)
+
+        execution = self.sandbox.run_code(
+            code_syntax_error, language="python", on_error=error_callback
+        )
         assert execution.error is not None
         assert execution.error.name in ["SyntaxError", "ParseError"]
         logger.info(f"正确捕获语法错误: {execution.error.name}")
-        
+
         # 测试运行时错误
         code_runtime_error = """
 print("开始执行")
@@ -360,30 +378,29 @@ y = 0
 result = x / y  # 除零错误
 print(f"结果: {result}")
 """
-        
-        execution2 = self.sandbox.run_code(code_runtime_error,language="python",on_error=error_callback)
+
+        execution2 = self.sandbox.run_code(
+            code_runtime_error, language="python", on_error=error_callback
+        )
         print(execution.to_json())
         assert execution2.error is not None
         assert "ZeroDivisionError" in execution2.error.name
         logger.info(f"正确捕获运行时错误: {execution2.error.name}")
 
     # ======================== 上下文管理测试 ========================
-    
+
     def test_context_creation(self):
         """测试上下文创建"""
         assert self.sandbox is not None
-        
+
         # 创建Python上下文
-        python_context = self.sandbox.create_code_context(
-            language="python", 
-            cwd="/tmp"
-        )
+        python_context = self.sandbox.create_code_context(language="python", cwd="/tmp")
         assert isinstance(python_context, Context)
         assert python_context.id is not None
         assert python_context.language == "python"
         self.contexts["python"] = python_context
         logger.info(f"Created Python context: {python_context.id}")
-        
+
         # 测试完成后立即清理context
         try:
             self.sandbox.destroy_context(python_context)
@@ -397,11 +414,11 @@ print(f"结果: {result}")
     def test_context_persistence(self):
         """测试上下文状态持久性"""
         assert self.sandbox is not None
-        
+
         # 创建新的上下文用于持久性测试
         context = self.sandbox.create_code_context(language="python", cwd="/tmp")
         self.contexts["persistence_test"] = context
-        
+
         # 在上下文中定义变量
         code1 = """
 test_var = "Hello from context"
@@ -409,11 +426,11 @@ numbers = [1, 2, 3, 4, 5]
 counter = 0
 print(f"定义了变量: test_var={test_var}, numbers={numbers}")
 """
-        
+
         execution1 = self.sandbox.run_code(code1, context=context)
         print(execution1.to_json())
         assert execution1.error is None
-        
+
         # 在同一上下文中使用之前定义的变量
         code2 = """
 print(f"从上下文读取: test_var={test_var}")
@@ -421,13 +438,13 @@ counter += 10
 numbers.append(6)
 print(f"修改后: counter={counter}, numbers={numbers}")
 """
-        
+
         execution2 = self.sandbox.run_code(code2, context=context)
         print(execution2.to_json())
         assert execution2.error is None
         assert any("从上下文读取" in line for line in execution2.logs.stdout)
         logger.info("Context persistence test passed")
-        
+
         # 测试完成后立即清理context
         try:
             self.sandbox.destroy_context(context)
@@ -441,48 +458,48 @@ print(f"修改后: counter={counter}, numbers={numbers}")
     def test_multiple_contexts(self):
         """测试多个上下文"""
         assert self.sandbox is not None
-        
+
         # 创建两个独立的上下文
         context1 = self.sandbox.create_code_context(language="python", cwd="/tmp")
         context2 = self.sandbox.create_code_context(language="python", cwd="/home")
         self.contexts["multi_context1"] = context1
         self.contexts["multi_context2"] = context2
-        
+
         # 在第一个上下文中设置变量
         code1 = """
 context_name = "context_1"
 shared_data = {"source": "context_1", "value": 100}
 print(f"在 {context_name} 中设置数据")
 """
-        
+
         execution1 = self.sandbox.run_code(code1, context=context1)
         print(execution1.to_json())
         assert execution1.error is None
-        
+
         # 在第二个上下文中设置不同的变量
         code2 = """
 context_name = "context_2"
 shared_data = {"source": "context_2", "value": 200}
 print(f"在 {context_name} 中设置数据")
 """
-        
+
         execution2 = self.sandbox.run_code(code2, context=context2)
         print(execution2.to_json())
         assert execution2.error is None
-        
+
         # 验证两个上下文的独立性
         verify_code = """
 print(f"当前上下文: {context_name}")
 print(f"数据: {shared_data}")
 """
-        
+
         result1 = self.sandbox.run_code(verify_code, context=context1)
         print(result1.to_json())
         result2 = self.sandbox.run_code(verify_code, context=context2)
         print(result2.to_json())
         assert result1.error is None and result2.error is None
         logger.info("Multiple contexts test passed")
-        
+
         # 测试完成后立即清理所有contexts
         contexts_to_destroy = [context1, context2]
         for context in contexts_to_destroy:
@@ -491,7 +508,7 @@ print(f"数据: {shared_data}")
                 logger.info(f"Successfully destroyed multi-context: {context.id}")
             except Exception as e:
                 logger.warning(f"Failed to destroy multi-context {context.id}: {e}")
-        
+
         # 从contexts字典中移除
         if "multi_context1" in self.contexts:
             del self.contexts["multi_context1"]
@@ -499,11 +516,11 @@ print(f"数据: {shared_data}")
             del self.contexts["multi_context2"]
 
     # ======================== 数据类型和格式测试 ========================
-    
+
     def test_different_data_types(self):
         """测试不同数据类型"""
         assert self.sandbox is not None
-        
+
         code = """
 import json
 import datetime
@@ -534,7 +551,7 @@ print(f"\\nJSON序列化长度: {len(json_str)}")
 # 返回测试数据
 test_data
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -543,7 +560,7 @@ test_data
     def test_file_operations_simulation(self):
         """测试文件操作（模拟）"""
         assert self.sandbox is not None
-        
+
         code = """
 import tempfile
 import os
@@ -585,18 +602,18 @@ print("临时文件已清理")
 
 {"file_size": file_size, "data_match": data_match}
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
         assert any("数据已写入文件" in line for line in execution.logs.stdout)
 
     # ======================== 性能测试 ========================
-    
+
     def test_performance_simple_calculations(self):
         """测试简单计算性能"""
         assert self.sandbox is not None
-        
+
         code = """
 import time
 import random
@@ -631,23 +648,23 @@ print(f"总时间: {total_time:.3f}s")
 
 {"total": total, "calculation_time": calculation_time, "string_time": string_time, "total_time": total_time}
 """
-        
+
         start_test_time = time.time()
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         test_duration = time.time() - start_test_time
-        
+
         assert execution.error is None
         assert any("开始性能测试" in line for line in execution.logs.stdout)
         logger.info(f"Performance test completed in {test_duration:.3f}s")
-        
+
         # 性能断言
         assert test_duration < 30  # 整个测试应在30秒内完成
 
     def test_performance_concurrent_simulation(self):
         """测试并发模拟（使用线程）"""
         assert self.sandbox is not None
-        
+
         code = """
 import threading
 import time
@@ -714,18 +731,18 @@ for result in results:
     "results": results
 }
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
         assert any("并发测试完成" in line for line in execution.logs.stdout)
 
     # ======================== 结果格式测试 ========================
-    
+
     def test_text_result(self):
         """测试文本格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 # 生成纯文本结果
 text_content = '''
@@ -743,22 +760,22 @@ text_content = '''
 print("生成文本格式结果")
 text_content
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
         assert len(execution.results) > 0
-        
+
         # 检查是否有文本结果
         for result in execution.results:
-            if hasattr(result, 'text') and result.text:
+            if hasattr(result, "text") and result.text:
                 logger.info(f"文本结果长度: {len(result.text)}")
                 assert "CodeInterpreter" in result.text
 
     def test_html_result(self):
         """测试HTML格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 # 生成HTML格式结果
 html_content = '''<!DOCTYPE html>
@@ -807,7 +824,7 @@ print("生成HTML格式结果")
 from IPython.display import HTML
 HTML(html_content)
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -816,7 +833,7 @@ HTML(html_content)
     def test_markdown_result(self):
         """测试Markdown格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 # 生成Markdown格式结果
 markdown_content = '''# 📊 CodeInterpreter 测试报告
@@ -887,7 +904,7 @@ print("生成Markdown格式结果")
 from IPython.display import Markdown
 Markdown(markdown_content)
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -896,7 +913,7 @@ Markdown(markdown_content)
     def test_svg_result(self):
         """测试SVG格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 # 生成SVG格式结果
 svg_content = '''<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
@@ -948,7 +965,7 @@ print("生成SVG格式结果")
 from IPython.display import SVG
 SVG(svg_content)
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -957,7 +974,7 @@ SVG(svg_content)
     def test_image_results(self):
         """测试图像格式结果 (PNG/JPEG)"""
         assert self.sandbox is not None
-        
+
         code = """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -1037,7 +1054,7 @@ print(f"  JPEG大小: {len(jpeg_base64)} 字符")
     "description": "CodeInterpreter测试结果图表集"
 }
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         # for result in execution.results:
         #     print(result.__str__())
@@ -1048,7 +1065,7 @@ print(f"  JPEG大小: {len(jpeg_base64)} 字符")
     def test_latex_result(self):
         """测试LaTeX格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 # 生成LaTeX格式结果
 latex_content = r'''
@@ -1148,7 +1165,7 @@ print("生成LaTeX格式结果")
 from IPython.display import Latex
 Latex(latex_content)
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -1157,7 +1174,7 @@ Latex(latex_content)
     def test_json_data_result(self):
         """测试JSON数据格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 import json
 from datetime import datetime
@@ -1266,7 +1283,7 @@ print(f"\\n格式化JSON长度: {len(formatted_json)} 字符")
 # 返回JSON数据
 json_data
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -1276,7 +1293,7 @@ json_data
     def test_javascript_result(self):
         """测试JavaScript格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 # 生成JavaScript格式结果
 javascript_code = '''
@@ -1490,7 +1507,7 @@ print("包含完整的交互式结果展示系统")
     "description": "CodeInterpreter交互式结果展示系统"
 }
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -1500,7 +1517,7 @@ print("包含完整的交互式结果展示系统")
     def test_chart_data_result(self):
         """测试图表数据格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 import json
 
@@ -1655,7 +1672,7 @@ print(f"\\n图表数据JSON长度: {len(json.dumps(chart_data))} 字符")
 # 返回图表数据
 chart_data
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -1665,7 +1682,7 @@ chart_data
     def test_mixed_format_result(self):
         """测试混合格式结果"""
         assert self.sandbox is not None
-        
+
         code = """
 import json
 import base64
@@ -1818,7 +1835,7 @@ print(f"  SVG图标: 成功状态指示")
     }
 }
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -1826,11 +1843,11 @@ print(f"  SVG图标: 成功状态指示")
         logger.info("混合格式结果测试完成")
 
     # ======================== R语言测试 ========================
-    
+
     def test_r_language_basic_execution(self):
         """测试R语言基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 # R语言基础执行测试
 print("Hello from R Language!")
@@ -1867,7 +1884,7 @@ list(
   data_frame = df
 )
 """
-        
+
         execution = self.sandbox.run_code(code, language="r")
         print(execution.to_json())
         assert execution.error is None
@@ -1878,7 +1895,7 @@ list(
     def test_r_language_data_analysis(self):
         """测试R语言数据分析"""
         assert self.sandbox is not None
-        
+
         code = """
 # R语言数据分析测试
 library(dplyr)
@@ -1928,18 +1945,20 @@ list(
   high_scores_count = nrow(high_scores)
 )
 """
-        
+
         execution = self.sandbox.run_code(code, language="r")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Dataset created with 100 rows" in line for line in execution.logs.stdout)
+        assert any(
+            "Dataset created with 100 rows" in line for line in execution.logs.stdout
+        )
         assert any("Summary statistics" in line for line in execution.logs.stdout)
         logger.info("R language data analysis test passed")
 
     def test_r_language_visualization(self):
         """测试R语言数据可视化"""
         assert self.sandbox is not None
-        
+
         code = """
 # R语言数据可视化测试
 library(ggplot2)
@@ -1993,18 +2012,23 @@ plot_info <- list(
 print("All visualizations completed successfully")
 plot_info
 """
-        
+
         execution = self.sandbox.run_code(code, language="r")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Creating visualizations..." in line for line in execution.logs.stdout)
-        assert any("All visualizations completed successfully" in line for line in execution.logs.stdout)
+        assert any(
+            "Creating visualizations..." in line for line in execution.logs.stdout
+        )
+        assert any(
+            "All visualizations completed successfully" in line
+            for line in execution.logs.stdout
+        )
         logger.info("R language visualization test passed")
 
     def test_r_language_statistics(self):
         """测试R语言统计分析"""
         assert self.sandbox is not None
-        
+
         code = """
 # R语言统计分析测试
 library(stats)
@@ -2065,22 +2089,24 @@ list(
   normality_test2_p = shapiro_test2$p.value
 )
 """
-        
+
         execution = self.sandbox.run_code(code, language="r")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Created two sample datasets" in line for line in execution.logs.stdout)
+        assert any(
+            "Created two sample datasets" in line for line in execution.logs.stdout
+        )
         assert any("T-test performed" in line for line in execution.logs.stdout)
         logger.info("R language statistics test passed")
 
     def test_r_language_context_management(self):
         """测试R语言上下文管理"""
         assert self.sandbox is not None
-        
+
         # 创建R语言上下文
         r_context = self.sandbox.create_code_context(language="r", cwd="/tmp")
         self.contexts["r_language"] = r_context
-        
+
         # 在上下文中定义变量和函数
         setup_code = """
 # R语言上下文设置
@@ -2119,12 +2145,15 @@ list(
   data_rows = nrow(sample_data)
 )
 """
-        
+
         execution1 = self.sandbox.run_code(setup_code, context=r_context)
         print(execution1.to_json())
         assert execution1.error is None
-        assert any("Setting up R language context..." in line for line in execution1.logs.stdout)
-        
+        assert any(
+            "Setting up R language context..." in line
+            for line in execution1.logs.stdout
+        )
+
         # 在同一上下文中使用之前定义的变量和函数
         use_code = """
 # 使用R语言上下文中的变量和函数
@@ -2158,14 +2187,18 @@ list(
   context_active = TRUE
 )
 """
-        
+
         execution2 = self.sandbox.run_code(use_code, context=r_context)
         print(execution2.to_json())
         assert execution2.error is None
-        assert any("Using R language context..." in line for line in execution2.logs.stdout)
-        assert any("Counter after increment:" in line for line in execution2.logs.stdout)
+        assert any(
+            "Using R language context..." in line for line in execution2.logs.stdout
+        )
+        assert any(
+            "Counter after increment:" in line for line in execution2.logs.stdout
+        )
         logger.info("R language context management test passed")
-        
+
         # 测试完成后立即清理context
         try:
             self.sandbox.destroy_context(r_context)
@@ -2177,11 +2210,11 @@ list(
             logger.warning(f"Failed to destroy R context {r_context.id}: {e}")
 
     # ======================== Node.js/JavaScript 测试 ========================
-    
+
     def test_nodejs_basic_execution(self):
         """测试Node.js基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 // Node.js 基础执行测试
 console.log("Hello from Node.js Kernel!");
@@ -2206,18 +2239,20 @@ console.log(`Top users: ${top.map(u => u.name).join(', ')}`);
 // 返回综合数据
 ({ sum, product, topCount: top.length })
 """
-        
+
         execution = self.sandbox.run_code(code, language="javascript")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Hello from Node.js Kernel!" in line for line in execution.logs.stdout)
+        assert any(
+            "Hello from Node.js Kernel!" in line for line in execution.logs.stdout
+        )
         assert any("Sum:" in line for line in execution.logs.stdout)
         logger.info("Node.js basic execution test passed")
 
     def test_nodejs_async_promises(self):
         """测试Node.js异步/Promise"""
         assert self.sandbox is not None
-        
+
         code = """
 // Node.js 异步 Promise 测试
 function delay(ms) {
@@ -2240,7 +2275,7 @@ async function main() {
 
 main();
 """
-        
+
         execution = self.sandbox.run_code(code, language="javascript")
         print(execution.to_json())
         assert execution.error is None
@@ -2251,7 +2286,7 @@ main();
     def test_nodejs_data_processing(self):
         """测试Node.js数据处理"""
         assert self.sandbox is not None
-        
+
         code = """
 // Node.js 数据处理示例（无需外部库）
 const records = [];
@@ -2270,7 +2305,7 @@ const grouped = Object.entries(summary).map(([group, s]) => ({ group, count: s.c
 console.log("Grouped summary ready");
 ({ total: records.length, groups: grouped })
 """
-        
+
         execution = self.sandbox.run_code(code, language="javascript")
         print(execution.to_json())
         assert execution.error is None
@@ -2280,7 +2315,7 @@ console.log("Grouped summary ready");
     def test_nodejs_chart_data(self):
         """测试Node.js图表数据生成（Chart.js兼容结构）"""
         assert self.sandbox is not None
-        
+
         code = """
 // 生成Chart.js兼容的数据对象
 const labels = Array.from({length: 7}, (_, i) => `Day ${i+1}`);
@@ -2301,7 +2336,7 @@ const chart = {
 console.log("Chart data generated");
 ({ chart })
 """
-        
+
         execution = self.sandbox.run_code(code, language="javascript")
         print(execution.to_json())
         assert execution.error is None
@@ -2313,11 +2348,11 @@ console.log("Chart data generated");
     def test_nodejs_context_management(self):
         """测试Node.js上下文管理"""
         assert self.sandbox is not None
-        
+
         # 创建Node.js上下文
         js_context = self.sandbox.create_code_context(language="javascript", cwd="/tmp")
         self.contexts["nodejs"] = js_context
-        
+
         # 在上下文中定义变量与函数
         setup = """
 // Node.js 上下文初始化
@@ -2328,12 +2363,14 @@ function sum(a,b) { return a + b; }
 console.log(`Init done with ${globalThis.cache.items.length} items`);
 ({ size: globalThis.cache.items.length })
 """
-        
+
         exec1 = self.sandbox.run_code(setup, context=js_context)
         print(exec1.to_json())
         assert exec1.error is None
-        assert any("Setting up Node.js context..." in line for line in exec1.logs.stdout)
-        
+        assert any(
+            "Setting up Node.js context..." in line for line in exec1.logs.stdout
+        )
+
         # 使用上下文中的函数与状态
         use = """
 console.log("Using Node.js context...");
@@ -2343,12 +2380,12 @@ const s = sum(3, 4);
 console.log(`Items now: ${n2}, sum=${s}`);
 ({ items: n2, sum: s })
 """
-        
+
         exec2 = self.sandbox.run_code(use, context=js_context)
         print(exec2.to_json())
         assert exec2.error is None
         assert any("Using Node.js context..." in line for line in exec2.logs.stdout)
-        
+
         # 清理上下文
         try:
             self.sandbox.destroy_context(js_context)
@@ -2359,11 +2396,11 @@ console.log(`Items now: ${n2}, sum=${s}`);
             logger.warning(f"Failed to destroy Node.js context: {e}")
 
     # ======================== Bash 测试 ========================
-    
+
     def test_bash_basic_execution(self):
         """测试Bash基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 # Bash 基础执行
 echo "Hello from Bash Kernel!"
@@ -2373,7 +2410,7 @@ echo "${GREETING}"
 echo "Current user: $(whoami)"
 date
 """
-        
+
         execution = self.sandbox.run_code(code, language="bash")
         print(execution.to_json())
         assert execution.error is None
@@ -2384,7 +2421,7 @@ date
     def test_bash_file_operations(self):
         """测试Bash文件操作"""
         assert self.sandbox is not None
-        
+
         code = """
 set -e
 echo "Creating files..."
@@ -2399,7 +2436,7 @@ ls -l
 wc -l all.txt
 echo "Done"
 """
-        
+
         execution = self.sandbox.run_code(code, language="bash")
         print(execution.to_json())
         assert execution.error is None
@@ -2410,13 +2447,13 @@ echo "Done"
     def test_bash_pipelines_and_grep(self):
         """测试Bash管道与grep"""
         assert self.sandbox is not None
-        
+
         code = """
 set -e
 printf "%s\n" foo bar baz foo bar | grep -n "foo" | awk -F: '{print "line", $1, ":", $2}'
 echo "PIPELINE_OK"
 """
-        
+
         execution = self.sandbox.run_code(code, language="bash")
         print(execution.to_json())
         assert execution.error is None
@@ -2426,14 +2463,14 @@ echo "PIPELINE_OK"
     def test_bash_env_and_exit_codes(self):
         """测试Bash环境变量与退出码"""
         assert self.sandbox is not None
-        
+
         code = """
 export APP_ENV=production
 echo "ENV=$APP_ENV"
 (exit 7)
 echo $?
 """
-        
+
         execution = self.sandbox.run_code(code, language="bash")
         print(execution.to_json())
         assert execution.error is None
@@ -2445,35 +2482,35 @@ echo $?
     def test_bash_context_management(self):
         """测试Bash上下文管理"""
         assert self.sandbox is not None
-        
+
         # 创建Bash上下文
         bash_ctx = self.sandbox.create_code_context(language="bash", cwd="/tmp")
         self.contexts["bash"] = bash_ctx
-        
+
         setup = """
 echo "Setting up Bash context..."
 MYVAR=42
 echo $MYVAR
 """
-        
+
         e1 = self.sandbox.run_code(setup, context=bash_ctx)
         print(e1.to_json())
         assert e1.error is None
         assert any("Setting up Bash context..." in line for line in e1.logs.stdout)
-        
+
         use = """
 echo "Using Bash context..."
 echo "MYVAR=$MYVAR"
 MYVAR=$((MYVAR+8))
 echo "MYVAR_AFTER=$MYVAR"
 """
-        
+
         e2 = self.sandbox.run_code(use, context=bash_ctx)
         print(e2.to_json())
         assert e2.error is None
         assert any("Using Bash context..." in line for line in e2.logs.stdout)
         assert any("MYVAR_AFTER=50" in line for line in e2.logs.stdout)
-        
+
         # 清理上下文
         try:
             self.sandbox.destroy_context(bash_ctx)
@@ -2484,11 +2521,11 @@ echo "MYVAR_AFTER=$MYVAR"
             logger.warning(f"Failed to destroy Bash context: {e}")
 
     # ======================== IJAVA 测试 ========================
-    
+
     def test_ijava_basic_execution(self):
         """测试IJAVA基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 // IJAVA 基础执行测试
 System.out.println("Hello from IJAVA Kernel!");
@@ -2520,7 +2557,7 @@ System.out.println(a);
 System.out.println(b);
 System.out.println(sum);
 """
-        
+
         execution = self.sandbox.run_code(code, language="java")
         print(execution.to_json())
         assert execution.error is None
@@ -2532,7 +2569,7 @@ System.out.println(sum);
     def test_ijava_oop_features(self):
         """测试IJAVA面向对象特性"""
         assert self.sandbox is not None
-        
+
         code = """
 // IJAVA 面向对象特性测试
 System.out.println("Testing IJAVA OOP features...");
@@ -2584,19 +2621,23 @@ student;
 
 System.out.println("IJAVA OOP test completed successfully!");
 """
-        
+
         execution = self.sandbox.run_code(code, language="java")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Testing IJAVA OOP features..." in line for line in execution.logs.stdout)
+        assert any(
+            "Testing IJAVA OOP features..." in line for line in execution.logs.stdout
+        )
         assert any("Hi, I'm Alice" in line for line in execution.logs.stdout)
-        assert any("I'm studying Computer Science" in line for line in execution.logs.stdout)
+        assert any(
+            "I'm studying Computer Science" in line for line in execution.logs.stdout
+        )
         logger.info("IJAVA OOP features test passed")
 
     def test_ijava_collections(self):
         """测试IJAVA集合框架"""
         assert self.sandbox is not None
-        
+
         code = """
 import java.util.*;
 
@@ -2642,19 +2683,25 @@ numbers.contains(2);
 
 System.out.println("IJAVA Collections test completed!");
 """
-        
+
         execution = self.sandbox.run_code(code, language="java")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Testing IJAVA Collections..." in line for line in execution.logs.stdout)
-        assert any("Fruits: [Apple, Banana, Orange]" in line for line in execution.logs.stdout)
-        assert any("Unique numbers: [1, 2, 3]" in line for line in execution.logs.stdout)
+        assert any(
+            "Testing IJAVA Collections..." in line for line in execution.logs.stdout
+        )
+        assert any(
+            "Fruits: [Apple, Banana, Orange]" in line for line in execution.logs.stdout
+        )
+        assert any(
+            "Unique numbers: [1, 2, 3]" in line for line in execution.logs.stdout
+        )
         logger.info("IJAVA collections test passed")
 
     def test_ijava_file_io(self):
         """测试IJAVA文件I/O"""
         assert self.sandbox is not None
-        
+
         code = """
 import java.io.*;
 import java.nio.file.*;
@@ -2699,13 +2746,19 @@ try {
     System.err.println("Error: " + e.getMessage());
 }
 """
-        
+
         execution = self.sandbox.run_code(code, language="java")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Testing IJAVA File I/O..." in line for line in execution.logs.stdout)
-        assert any("File written successfully" in line for line in execution.logs.stdout)
-        assert any("Hello from IJAVA File I/O!" in line for line in execution.logs.stdout)
+        assert any(
+            "Testing IJAVA File I/O..." in line for line in execution.logs.stdout
+        )
+        assert any(
+            "File written successfully" in line for line in execution.logs.stdout
+        )
+        assert any(
+            "Hello from IJAVA File I/O!" in line for line in execution.logs.stdout
+        )
         logger.info("IJAVA file I/O test passed")
 
     def test_ijava_context_management(self):
@@ -2762,7 +2815,9 @@ getCounter();
         execution1 = self.sandbox.run_code(setup_code, context=ijava_context)
         print(execution1.to_json())
         assert execution1.error is None
-        assert any("Setting up IJAVA context..." in line for line in execution1.logs.stdout)
+        assert any(
+            "Setting up IJAVA context..." in line for line in execution1.logs.stdout
+        )
         assert any("Initial counter: 0" in line for line in execution1.logs.stdout)
 
         # 在同一上下文中使用之前定义的变量和方法
@@ -2812,11 +2867,11 @@ System.out.println("IJAVA context usage completed!");
             logger.warning(f"Failed to destroy IJAVA context {ijava_context.id}: {e}")
 
     # ======================== Deno 测试 ========================
-    
+
     def test_deno_basic_execution(self):
         """测试Deno基础执行"""
         assert self.sandbox is not None
-        
+
         code = """
 // Deno 基础执行测试
 console.log("Hello from Deno Kernel!");
@@ -2848,7 +2903,7 @@ const person = {
 };
 console.log(`Person: ${person.name}, ${person.age} years old`);
 """
-        
+
         execution = self.sandbox.run_code(code, language="typescript")
         print(execution.to_json())
         assert execution.error is None
@@ -2860,7 +2915,7 @@ console.log(`Person: ${person.name}, ${person.age} years old`);
     def test_deno_typescript_features(self):
         """测试Deno TypeScript特性"""
         assert self.sandbox is not None
-        
+
         code = """
 // Deno TypeScript 特性测试
 interface User {
@@ -2933,11 +2988,14 @@ processItems(numbers, (num) => console.log(`Processing: ${num}`));
 console.log(`Status: ${Status.APPROVED}`);
 console.log("TypeScript features test completed!");
 """
-        
+
         execution = self.sandbox.run_code(code, language="typescript")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Testing Deno TypeScript features..." in line for line in execution.logs.stdout)
+        assert any(
+            "Testing Deno TypeScript features..." in line
+            for line in execution.logs.stdout
+        )
         assert any("Added user: John Doe" in line for line in execution.logs.stdout)
         assert any("Total users: 2" in line for line in execution.logs.stdout)
         logger.info("Deno TypeScript features test passed")
@@ -2945,7 +3003,7 @@ console.log("TypeScript features test completed!");
     def test_deno_async_await(self):
         """测试Deno异步/await"""
         assert self.sandbox is not None
-        
+
         code = """
 // Deno 异步/await 测试
 async function delay(ms: number): Promise<void> {
@@ -2985,19 +3043,25 @@ async function main(): Promise<void> {
 // 顶层 await，让内核等待完成
 await main();
 """
-        
+
         execution = self.sandbox.run_code(code, language="typescript")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Testing Deno async/await..." in line for line in execution.logs.stdout)
-        assert any("Starting batch processing..." in line for line in execution.logs.stdout)
-        assert any("Batch processing completed" in line for line in execution.logs.stdout)
+        assert any(
+            "Testing Deno async/await..." in line for line in execution.logs.stdout
+        )
+        assert any(
+            "Starting batch processing..." in line for line in execution.logs.stdout
+        )
+        assert any(
+            "Batch processing completed" in line for line in execution.logs.stdout
+        )
         logger.info("Deno async/await test passed")
 
     def test_deno_file_operations(self):
         """测试Deno文件操作"""
         assert self.sandbox is not None
-        
+
         code = """
 // Deno 文件操作测试（原生 API，兼容 1.x+）
 await (async () => {
@@ -3027,23 +3091,31 @@ await (async () => {
   }
 })();
 """
-        
+
         execution = self.sandbox.run_code(code, language="typescript")
         print(execution.to_json())
         assert execution.error is None
-        assert any("Testing Deno file operations..." in line for line in execution.logs.stdout)
-        assert any("File written successfully" in line for line in execution.logs.stdout)
-        assert any("Hello from Deno File Operations!" in line for line in execution.logs.stdout)
+        assert any(
+            "Testing Deno file operations..." in line for line in execution.logs.stdout
+        )
+        assert any(
+            "File written successfully" in line for line in execution.logs.stdout
+        )
+        assert any(
+            "Hello from Deno File Operations!" in line for line in execution.logs.stdout
+        )
         logger.info("Deno file operations test passed")
 
     def test_deno_context_management(self):
         """测试Deno上下文管理"""
         assert self.sandbox is not None
-        
+
         # 创建Deno上下文
-        deno_context = self.sandbox.create_code_context(language="typescript", cwd="/tmp")
+        deno_context = self.sandbox.create_code_context(
+            language="typescript", cwd="/tmp"
+        )
         self.contexts["deno"] = deno_context
-        
+
         # 在上下文中定义变量和函数
         setup_code = """
 // Deno 上下文设置
@@ -3079,13 +3151,15 @@ console.log(`Initial counter: ${counter}`);
 console.log(`Cache size: ${cache.size}`);
 console.log(`Context data: ${contextData.value}`);
 """
-        
+
         execution1 = self.sandbox.run_code(setup_code, context=deno_context)
         print(execution1.to_json())
         assert execution1.error is None
-        assert any("Setting up Deno context..." in line for line in execution1.logs.stdout)
+        assert any(
+            "Setting up Deno context..." in line for line in execution1.logs.stdout
+        )
         assert any("Initial counter: 0" in line for line in execution1.logs.stdout)
-        
+
         # 在同一上下文中使用之前定义的变量和函数
         use_code = """
 // 使用 Deno 上下文中的变量和函数
@@ -3112,15 +3186,19 @@ console.log(`Modified context data: ${contextData.value}`);
 
 console.log("Context usage completed!");
 """
-        
+
         execution2 = self.sandbox.run_code(use_code, context=deno_context)
         print(execution2.to_json())
         assert execution2.error is None
         assert any("Using Deno context..." in line for line in execution2.logs.stdout)
-        assert any("Counter after increment: 1" in line for line in execution2.logs.stdout)
-        assert any("Cache size after addition: 1" in line for line in execution2.logs.stdout)
+        assert any(
+            "Counter after increment: 1" in line for line in execution2.logs.stdout
+        )
+        assert any(
+            "Cache size after addition: 1" in line for line in execution2.logs.stdout
+        )
         logger.info("Deno context management test passed")
-        
+
         # 测试完成后立即清理context
         try:
             self.sandbox.destroy_context(deno_context)
@@ -3132,11 +3210,11 @@ console.log("Context usage completed!");
             logger.warning(f"Failed to destroy Deno context {deno_context.id}: {e}")
 
     # ======================== 高级功能测试 ========================
-    
+
     def test_web_request_simulation(self):
         """测试网络请求模拟"""
         assert self.sandbox is not None
-        
+
         code = """
 import json
 import time
@@ -3205,7 +3283,7 @@ print(f"\\n完成 {len(results)} 个API调用")
     "results": results
 }
 """
-        
+
         execution = self.sandbox.run_code(code, language="python")
         print(execution.to_json())
         assert execution.error is None
@@ -3216,7 +3294,7 @@ print(f"\\n完成 {len(results)} 个API调用")
     def run_all_tests(self):
         """运行所有测试"""
         logger.info("开始CodeInterpreter综合验证测试...")
-        
+
         # 基础操作测试
         self.run_test(self.test_code_interpreter_creation, "CodeInterpreter Creation")
         self.run_test(self.test_basic_python_execution, "Basic Python Execution")
@@ -3300,10 +3378,10 @@ print(f"\\n完成 {len(results)} 个API调用")
                 logger.info(f"Successfully destroyed context {name}: {context.id}")
             except Exception as e:
                 logger.warning(f"Error cleaning up context {name}: {e}")
-        
+
         # 清空contexts字典
         self.contexts.clear()
-        
+
         # 清理沙箱
         if self.sandbox:
             try:
@@ -3315,32 +3393,32 @@ print(f"\\n完成 {len(results)} 个API调用")
     def print_summary(self):
         """打印测试摘要"""
         total_tests = len(self.test_results)
-        passed_tests = sum(1 for r in self.test_results if r['success'])
+        passed_tests = sum(1 for r in self.test_results if r["success"])
         failed_tests = total_tests - passed_tests
-        
-        total_duration = sum(r['duration'] for r in self.test_results)
-        
-        print("\n" + "="*60)
+
+        total_duration = sum(r["duration"] for r in self.test_results)
+
+        print("\n" + "=" * 60)
         print("CodeInterpreter综合验证测试报告")
-        print("="*60)
+        print("=" * 60)
         print(f"总测试数: {total_tests}")
         print(f"通过数: {passed_tests}")
         print(f"失败数: {failed_tests}")
         print(f"总耗时: {total_duration:.3f}秒")
         print(f"成功率: {(passed_tests/total_tests*100):.1f}%")
-        
+
         if self.failed_tests:
             print(f"\n失败的测试:")
             for test in self.failed_tests:
                 print(f"  ❌ {test}")
-        
-        print("="*60)
+
+        print("=" * 60)
 
 
 def main():
     """主函数"""
     validator = CodeInterpreterValidator()
-    
+
     try:
         validator.run_all_tests()
     finally:

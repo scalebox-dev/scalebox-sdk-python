@@ -292,7 +292,7 @@ class SandboxValidator:
         # 删除文件
         self.sandbox.files.remove("/tmp/new_name.txt")
         assert self.sandbox.files.exists("/tmp/new_name.txt") == False
-        
+
         # 删除目录
         self.sandbox.files.remove("/tmp/test_dir")
         assert self.sandbox.files.exists("/tmp/test_dir") == False

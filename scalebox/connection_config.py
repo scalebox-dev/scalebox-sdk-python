@@ -10,6 +10,7 @@ REQUEST_TIMEOUT: float = 30.0  # 30 seconds
 KEEPALIVE_PING_INTERVAL_SEC = 50  # 50 seconds
 KEEPALIVE_PING_HEADER = "Keepalive-Ping-Interval"
 
+
 class ApiParams(TypedDict, total=False):
     """
     Parameters for a request.
@@ -37,6 +38,7 @@ class ApiParams(TypedDict, total=False):
 
     proxy: Optional[ProxyTypes]
     """Proxy to use for the request. In case of a sandbox it applies to all **requests made to the returned sandbox**."""
+
 
 class ConnectionConfig:
     """

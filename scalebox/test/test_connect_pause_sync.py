@@ -76,7 +76,9 @@ class ConnectPauseSyncTest:
             # 4. 创建目录和文件
             print("Step 4: Creating directory and nested files...")
             self.sandbox.files.make_dir("/tmp/test_dir")
-            self.sandbox.files.write("/tmp/test_dir/nested_file.txt", "Nested file content")
+            self.sandbox.files.write(
+                "/tmp/test_dir/nested_file.txt", "Nested file content"
+            )
             assert self.sandbox.files.exists("/tmp/test_dir")
             assert self.sandbox.files.exists("/tmp/test_dir/nested_file.txt")
             print("Created directory and nested file")
@@ -103,24 +105,40 @@ class ConnectPauseSyncTest:
             print("Step 7: Verifying file operations after connect...")
 
             # 校验应该存在的文件
-            assert connected_sandbox.files.exists("/tmp/test_file1.txt"), "test_file1.txt should exist"
-            file1_content = connected_sandbox.files.read("/tmp/test_file1.txt", format="text")
+            assert connected_sandbox.files.exists(
+                "/tmp/test_file1.txt"
+            ), "test_file1.txt should exist"
+            file1_content = connected_sandbox.files.read(
+                "/tmp/test_file1.txt", format="text"
+            )
             assert "Content of test file 1" in file1_content
             print("✅ Verified test_file1.txt exists and content is correct")
 
-            assert connected_sandbox.files.exists("/tmp/test_file3.bin"), "test_file3.bin should exist"
-            file3_content = connected_sandbox.files.read("/tmp/test_file3.bin", format="bytes")
+            assert connected_sandbox.files.exists(
+                "/tmp/test_file3.bin"
+            ), "test_file3.bin should exist"
+            file3_content = connected_sandbox.files.read(
+                "/tmp/test_file3.bin", format="bytes"
+            )
             assert bytes(file3_content) == b"Binary content for test file 3"
             print("✅ Verified test_file3.bin exists and content is correct")
 
             # 校验应该不存在的文件（被删除的）
-            assert not connected_sandbox.files.exists("/tmp/test_file2.txt"), "test_file2.txt should not exist"
+            assert not connected_sandbox.files.exists(
+                "/tmp/test_file2.txt"
+            ), "test_file2.txt should not exist"
             print("✅ Verified test_file2.txt was deleted correctly")
 
             # 校验目录和嵌套文件
-            assert connected_sandbox.files.exists("/tmp/test_dir"), "test_dir should exist"
-            assert connected_sandbox.files.exists("/tmp/test_dir/nested_file.txt"), "nested_file.txt should exist"
-            nested_content = connected_sandbox.files.read("/tmp/test_dir/nested_file.txt", format="text")
+            assert connected_sandbox.files.exists(
+                "/tmp/test_dir"
+            ), "test_dir should exist"
+            assert connected_sandbox.files.exists(
+                "/tmp/test_dir/nested_file.txt"
+            ), "nested_file.txt should exist"
+            nested_content = connected_sandbox.files.read(
+                "/tmp/test_dir/nested_file.txt", format="text"
+            )
             assert "Nested file content" in nested_content
             print("✅ Verified directory and nested file exist and content is correct")
 
@@ -134,19 +152,24 @@ class ConnectPauseSyncTest:
             # 9. 创建新文件验证写入功能正常
             print("Step 9: Testing file write after connect...")
             new_file_path = "/tmp/new_file_after_connect.txt"
-            connected_sandbox.files.write(new_file_path, "New file created after connect")
+            connected_sandbox.files.write(
+                new_file_path, "New file created after connect"
+            )
             assert connected_sandbox.files.exists(new_file_path)
             new_content = connected_sandbox.files.read(new_file_path, format="text")
             assert "New file created after connect" in new_content
             print("✅ Verified file write works after connect")
 
-            self.log_test_result("Connect and Pause with Files", True, "All verifications passed")
+            self.log_test_result(
+                "Connect and Pause with Files", True, "All verifications passed"
+            )
             return True
 
         except Exception as e:
             self.log_test_result("Connect and Pause with Files", False, str(e))
             print(f"Test failed with error: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -198,22 +221,33 @@ class ConnectPauseSyncTest:
             time.sleep(2)
 
             # 9. 验证第二次操作的结果
-            assert not sandbox.files.exists("/tmp/multi_test1.txt"), "multi_test1.txt should be deleted"
-            assert sandbox.files.exists("/tmp/multi_test2.txt"), "multi_test2.txt should exist"
-            assert sandbox.files.exists("/tmp/multi_test3.txt"), "multi_test3.txt should exist"
+            assert not sandbox.files.exists(
+                "/tmp/multi_test1.txt"
+            ), "multi_test1.txt should be deleted"
+            assert sandbox.files.exists(
+                "/tmp/multi_test2.txt"
+            ), "multi_test2.txt should exist"
+            assert sandbox.files.exists(
+                "/tmp/multi_test3.txt"
+            ), "multi_test3.txt should exist"
             content = sandbox.files.read("/tmp/multi_test3.txt", format="text")
             assert "Second batch" in content
 
             # 清理
             sandbox.kill()
 
-            self.log_test_result("Multiple Connect and Pause Operations", True, "All verifications passed")
+            self.log_test_result(
+                "Multiple Connect and Pause Operations",
+                True,
+                "All verifications passed",
+            )
             return True
 
         except Exception as e:
             self.log_test_result("Multiple Connect and Pause Operations", False, str(e))
             print(f"Test failed with error: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -264,4 +298,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

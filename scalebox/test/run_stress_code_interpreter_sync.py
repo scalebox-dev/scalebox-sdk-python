@@ -8,7 +8,9 @@ import re
 
 
 REPO_ROOT = "/root/scalebox"
-TEST_FILE = os.path.join(REPO_ROOT, "test", "test_code_interpreter_sync_comprehensive.py")
+TEST_FILE = os.path.join(
+    REPO_ROOT, "test", "test_code_interpreter_sync_comprehensive.py"
+)
 
 
 def _extract_final_report(stdout_text: str) -> str:
@@ -16,12 +18,22 @@ def _extract_final_report(stdout_text: str) -> str:
     if not lines:
         return ""
     # Prefer capturing from the last report title to include full details
-    title_indices = [i for i, line in enumerate(lines) if "CodeInterpreter" in line and "测试报告" in line]
+    title_indices = [
+        i
+        for i, line in enumerate(lines)
+        if "CodeInterpreter" in line and "测试报告" in line
+    ]
     if title_indices:
         start_idx = title_indices[-1]
         return "\n".join(lines[start_idx:]).strip()
     # Fallback: last long '====' separator block
-    sep_indices = [i for i, line in enumerate(lines) if line.strip().startswith("=") and set(line.strip()) == {"="} and len(line.strip()) >= 20]
+    sep_indices = [
+        i
+        for i, line in enumerate(lines)
+        if line.strip().startswith("=")
+        and set(line.strip()) == {"="}
+        and len(line.strip()) >= 20
+    ]
     if sep_indices:
         start_idx = sep_indices[-1]
         return "\n".join(lines[start_idx:]).strip()
@@ -138,7 +150,9 @@ async def run_concurrent(concurrency: int) -> None:
 
     total_time = time.perf_counter() - started_at
     print("-" * 64)
-    print(f"Completed: {completed}, Passed: {passed}, Failed: {failed}, Total time: {total_time:.2f}s")
+    print(
+        f"Completed: {completed}, Passed: {passed}, Failed: {failed}, Total time: {total_time:.2f}s"
+    )
 
 
 def main() -> None:
@@ -162,5 +176,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-

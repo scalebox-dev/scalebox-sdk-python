@@ -5,9 +5,7 @@ from sandbox_async import AsyncSandbox
 
 
 async def main():
-    sandbox = await AsyncSandbox.get_info(
-        sandbox_id="", api_key="sk-Wk4Ig"
-    )
+    sandbox = await AsyncSandbox.get_info(sandbox_id="", api_key="sk-Wk4Ig")
     print("✅ 沙箱已启动，sandbox_domain:", sandbox.sandbox_domain)
     print("✅ 沙箱已启动，ID:", sandbox.sandbox_id)
     print("✅ 沙箱已启动，connection_config:", sandbox.name)

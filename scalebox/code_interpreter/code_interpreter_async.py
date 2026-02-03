@@ -365,6 +365,8 @@ class AsyncSandbox(BaseAsyncSandbox):
             # headers = {
             #     "Authorization": "Bearer root",
             # }
-            await client.destroy_context(destroy_context_request,extra_headers=self.connection_config.headers)
+            await client.destroy_context(
+                destroy_context_request, extra_headers=self.connection_config.headers
+            )
         except Exception as e:
             logger.warning(f"Failed to destroy context {context.id}: {e}")

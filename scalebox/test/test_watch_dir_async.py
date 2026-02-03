@@ -14,12 +14,16 @@ from scalebox.sandbox_async.main import AsyncSandbox
 from scalebox.sandbox.filesystem.watch_handle import FilesystemEvent
 
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
 async def main():
-    async with await AsyncSandbox.create(template="base", timeout=300, metadata={"test": "watch_dir_async"}) as sandbox:
+    async with await AsyncSandbox.create(
+        template="base", timeout=300, metadata={"test": "watch_dir_async"}
+    ) as sandbox:
         watch_path = "/tmp/watch_async_test"
         await sandbox.files.make_dir(watch_path)
 
@@ -52,5 +56,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-

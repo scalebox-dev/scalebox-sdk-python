@@ -18,7 +18,7 @@ from code_interpreter_validator import CodeInterpreterValidator
 # 配置日志
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - [%(threadName)s] - %(message)s'
+    format="%(asctime)s - %(levelname)s - [%(threadName)s] - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,9 @@ class StabilityTester:
 
         # 获取所有以test_开头的方法
         for method_name in dir(validator):
-            if method_name.startswith('test_') and callable(getattr(validator, method_name)):
+            if method_name.startswith("test_") and callable(
+                getattr(validator, method_name)
+            ):
                 test_methods.append(method_name)
 
         self.total_tests = len(test_methods)
@@ -56,7 +58,9 @@ class StabilityTester:
             self.test_counter += 1
             test_id = self.test_counter
 
-        logger.info(f"[线程 {thread_name}] 开始执行测试 {test_id}/{self.total_tests}: {test_name}")
+        logger.info(
+            f"[线程 {thread_name}] 开始执行测试 {test_id}/{self.total_tests}: {test_name}"
+        )
 
         start_time = time.time()
         success = False
@@ -76,29 +80,33 @@ class StabilityTester:
 
             duration = time.time() - start_time
             success = True
-            logger.info(f"[线程 {thread_name}] ✅ 测试通过: {test_name} ({duration:.3f}s)")
+            logger.info(
+                f"[线程 {thread_name}] ✅ 测试通过: {test_name} ({duration:.3f}s)"
+            )
 
         except Exception as e:
             duration = time.time() - start_time
             error_message = str(e)
-            logger.error(f"[线程 {thread_name}] ❌ 测试失败: {test_name} - {error_message} ({duration:.3f}s)")
+            logger.error(
+                f"[线程 {thread_name}] ❌ 测试失败: {test_name} - {error_message} ({duration:.3f}s)"
+            )
 
         finally:
             # 清理资源
             try:
-                if 'validator' in locals():
+                if "validator" in locals():
                     validator.cleanup()
             except Exception as cleanup_error:
                 logger.warning(f"[线程 {thread_name}] 清理资源时出错: {cleanup_error}")
 
         result = {
-            'test_id': test_id,
-            'test_name': test_name,
-            'thread_name': thread_name,
-            'success': success,
-            'error_message': error_message,
-            'duration': duration,
-            'timestamp': time.time()
+            "test_id": test_id,
+            "test_name": test_name,
+            "thread_name": thread_name,
+            "success": success,
+            "error_message": error_message,
+            "duration": duration,
+            "timestamp": time.time(),
         }
 
         with self.lock:
@@ -121,8 +129,7 @@ class StabilityTester:
 
         # 使用线程池执行并发测试
         with concurrent.futures.ThreadPoolExecutor(
-                max_workers=self.concurrency,
-                thread_name_prefix='TestWorker'
+            max_workers=self.concurrency, thread_name_prefix="TestWorker"
         ) as executor:
 
             # 提交所有测试任务
@@ -151,8 +158,8 @@ class StabilityTester:
 
     def generate_report(self, total_duration: float) -> Dict[str, Any]:
         """生成测试报告"""
-        successful_tests = [r for r in self.results if r['success']]
-        failed_tests = [r for r in self.results if not r['success']]
+        successful_tests = [r for r in self.results if r["success"]]
+        failed_tests = [r for r in self.results if not r["success"]]
 
         total_tests = len(self.results)
         success_count = len(successful_tests)
@@ -160,55 +167,58 @@ class StabilityTester:
         success_rate = (success_count / total_tests * 100) if total_tests > 0 else 0
 
         # 计算统计信息
-        durations = [r['duration'] for r in self.results]
+        durations = [r["duration"] for r in self.results]
         avg_duration = sum(durations) / len(durations) if durations else 0
         max_duration = max(durations) if durations else 0
         min_duration = min(durations) if durations else 0
 
         report = {
-            'summary': {
-                'total_tests': total_tests,
-                'successful_tests': success_count,
-                'failed_tests': failure_count,
-                'success_rate': round(success_rate, 2),
-                'total_duration': round(total_duration, 3),
-                'concurrency': self.concurrency,
-                'avg_duration_per_test': round(avg_duration, 3),
-                'max_duration': round(max_duration, 3),
-                'min_duration': round(min_duration, 3)
+            "summary": {
+                "total_tests": total_tests,
+                "successful_tests": success_count,
+                "failed_tests": failure_count,
+                "success_rate": round(success_rate, 2),
+                "total_duration": round(total_duration, 3),
+                "concurrency": self.concurrency,
+                "avg_duration_per_test": round(avg_duration, 3),
+                "max_duration": round(max_duration, 3),
+                "min_duration": round(min_duration, 3),
             },
-            'successful_tests': [
+            "successful_tests": [
                 {
-                    'test_name': r['test_name'],
-                    'duration': round(r['duration'], 3),
-                    'thread': r['thread_name']
-                } for r in successful_tests
+                    "test_name": r["test_name"],
+                    "duration": round(r["duration"], 3),
+                    "thread": r["thread_name"],
+                }
+                for r in successful_tests
             ],
-            'failed_tests': [
+            "failed_tests": [
                 {
-                    'test_name': r['test_name'],
-                    'error': r['error_message'],
-                    'duration': round(r['duration'], 3),
-                    'thread': r['thread_name']
-                } for r in failed_tests
+                    "test_name": r["test_name"],
+                    "error": r["error_message"],
+                    "duration": round(r["duration"], 3),
+                    "thread": r["thread_name"],
+                }
+                for r in failed_tests
             ],
-            'execution_timeline': [
+            "execution_timeline": [
                 {
-                    'test_id': r['test_id'],
-                    'test_name': r['test_name'],
-                    'thread': r['thread_name'],
-                    'success': r['success'],
-                    'duration': round(r['duration'], 3),
-                    'timestamp': r['timestamp']
-                } for r in self.results
-            ]
+                    "test_id": r["test_id"],
+                    "test_name": r["test_name"],
+                    "thread": r["thread_name"],
+                    "success": r["success"],
+                    "duration": round(r["duration"], 3),
+                    "timestamp": r["timestamp"],
+                }
+                for r in self.results
+            ],
         }
 
         return report
 
     def print_detailed_report(self, report: Dict[str, Any]):
         """打印详细报告"""
-        summary = report['summary']
+        summary = report["summary"]
 
         print("\n" + "=" * 80)
         print("🚀 CODEINTERPRETER 稳定性测试报告")
@@ -226,15 +236,17 @@ class StabilityTester:
         print(f"   最短测试时间: {summary['min_duration']}s")
 
         # 打印成功测试
-        if report['successful_tests']:
+        if report["successful_tests"]:
             print(f"\n✅ 通过的测试 ({len(report['successful_tests'])}):")
-            for test in report['successful_tests']:
-                print(f"   - {test['test_name']} ({test['duration']}s) [{test['thread']}]")
+            for test in report["successful_tests"]:
+                print(
+                    f"   - {test['test_name']} ({test['duration']}s) [{test['thread']}]"
+                )
 
         # 打印失败测试
-        if report['failed_tests']:
+        if report["failed_tests"]:
             print(f"\n❌ 失败的测试 ({len(report['failed_tests'])}):")
-            for test in report['failed_tests']:
+            for test in report["failed_tests"]:
                 print(f"   - {test['test_name']}")
                 print(f"     错误: {test['error']}")
                 print(f"     时间: {test['duration']}s")
@@ -242,16 +254,20 @@ class StabilityTester:
 
         # 打印执行时间线
         print(f"\n⏰ 执行时间线:")
-        for execution in sorted(report['execution_timeline'], key=lambda x: x['timestamp']):
-            status = "✅" if execution['success'] else "❌"
-            print(f"   {status} [{execution['thread']}] {execution['test_name']} ({execution['duration']}s)")
+        for execution in sorted(
+            report["execution_timeline"], key=lambda x: x["timestamp"]
+        ):
+            status = "✅" if execution["success"] else "❌"
+            print(
+                f"   {status} [{execution['thread']}] {execution['test_name']} ({execution['duration']}s)"
+            )
 
         print("\n" + "=" * 80)
 
         # 保存详细报告到文件
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         filename = f"stability_test_report_{timestamp}.json"
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             json.dump(report, f, ensure_ascii=False, indent=2)
         print(f"📄 详细报告已保存至: {filename}")
         print("=" * 80)
@@ -259,18 +275,15 @@ class StabilityTester:
 
 def main():
     """主函数"""
-    parser = argparse.ArgumentParser(description='CodeInterpreter稳定性测试')
+    parser = argparse.ArgumentParser(description="CodeInterpreter稳定性测试")
     parser.add_argument(
-        '--concurrency',
-        type=int,
-        default=10,
-        help='并发线程数 (默认: 10)'
+        "--concurrency", type=int, default=10, help="并发线程数 (默认: 10)"
     )
     parser.add_argument(
-        '--log-level',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-        default='INFO',
-        help='日志级别 (默认: INFO)'
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        default="INFO",
+        help="日志级别 (默认: INFO)",
     )
 
     args = parser.parse_args()
@@ -287,7 +300,7 @@ def main():
         tester.print_detailed_report(report)
 
         # 根据成功率返回适当的退出码
-        success_rate = report['summary']['success_rate']
+        success_rate = report["summary"]["success_rate"]
         if success_rate >= 95:
             logger.info(f"🎉 测试成功! 成功率: {success_rate}%")
             sys.exit(0)
