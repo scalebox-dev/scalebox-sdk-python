@@ -5,7 +5,7 @@ from typing import Optional
 from httpx import Limits
 
 from ..connection_config import ConnectionConfig
-from ..generated.api import ENVD_API_DOWNLOAD_FILES_ROUTE, ENVD_API_UPLOAD_FILES_ROUTE
+from ..generated.api import ENVD_API_DOWNLOAD_FILES_ROUTE,ENVD_API_UPLOAD_FILES_ROUTE
 from .signature import get_signature, Operation
 
 
@@ -53,7 +53,7 @@ class SandboxSetup(ABC):
         url = urllib.parse.urljoin(self.envd_api_url, ENVD_API_DOWNLOAD_FILES_ROUTE)
         if operation == "write":
             url = urllib.parse.urljoin(self.envd_api_url, ENVD_API_UPLOAD_FILES_ROUTE)
-            query = {**query, "path": path}
+            query = {**query,"path": path}
         else:
             url = f"{url}/{path.lstrip('/')}"
         query = {**query, "username": user}
@@ -96,7 +96,7 @@ class SandboxSetup(ABC):
                 path, "read", user, self._envd_access_token, use_signature_expiration
             )
             return self._file_url(
-                path, "read", user, signature["signature"], signature["expiration"]
+                path,"read", user, signature["signature"], signature["expiration"]
             )
         else:
             return self._file_url(path)
@@ -125,7 +125,7 @@ class SandboxSetup(ABC):
                 path, "write", user, self._envd_access_token, use_signature_expiration
             )
             return self._file_url(
-                path, "write", user, signature["signature"], signature["expiration"]
+                path,"write", user, signature["signature"], signature["expiration"]
             )
         else:
             return self._file_url(path)
@@ -141,6 +141,6 @@ class SandboxSetup(ABC):
         """
         if self.connection_config.debug:
             debug_host = self.connection_config.debug_host
-            return f"{debug_host}:{port}"
+            return debug_host
         return f"{self.sandbox_domain}"
         # return f"{port}-{self.sandbox_id}.{self.sandbox_domain}"

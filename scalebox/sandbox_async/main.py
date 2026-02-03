@@ -145,7 +145,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         self._sandbox_domain = opts["sandbox_domain"] or self.connection_config.domain
         debug=self._connection_config.debug
         if debug:
-            self._envd_api_url = f"http://{self.get_host(8888)}"
+            self._envd_api_url = self.get_host(8888)
         else:
             self._envd_api_url = f"https://{self.get_host(self.envd_port)}"
         self._envd_version = opts["envd_version"]

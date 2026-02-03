@@ -174,7 +174,7 @@ class Sandbox(SandboxSetup, SandboxApi):
 
         self._sandbox_domain = self._sandbox_domain or self._connection_config.domain
         if debug:
-            self._envd_api_url = f"http://{self.get_host(8888)}"
+            self._envd_api_url = self.get_host(8888)
         else:
             self._envd_api_url = f"https://{self.get_host(self.envd_port)}"
         self._transport = TransportWithLogger(limits=self._limits, proxy=self._connection_config.proxy)
