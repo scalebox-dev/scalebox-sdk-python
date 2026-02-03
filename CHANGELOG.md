@@ -1,4 +1,16 @@
 # Changelog
+## [1.0.3] - 2026-02-03
+
+### Added
+- Version 1.0.3 release
+
+### Changed
+- Automated version bump (patch)
+
+### Fixed
+- Minor improvements and bug fixes
+
+
 ## [1.0.2] - 2026-02-03
 
 ### Added
