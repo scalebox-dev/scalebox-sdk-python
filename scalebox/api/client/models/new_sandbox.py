@@ -30,7 +30,7 @@ class NewSandbox:
     secure: Union[Unset, bool] = UNSET
     timeout: Union[Unset, int] = 15
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-    is_async: Union[Unset, bool] = False
+    # is_async: Union[Unset, bool] = False
     storage_gb: Union[Unset, int] = UNSET
     object_storage: Union[Unset, Any] = UNSET
     net_proxy_country: Union[Unset, str] = UNSET
@@ -49,7 +49,7 @@ class NewSandbox:
         secure = self.secure
 
         timeout = self.timeout
-        is_async = self.is_async
+        # is_async = self.is_async
         storage_gb = self.storage_gb
         object_storage = self.object_storage
         net_proxy_country = self.net_proxy_country
@@ -73,8 +73,8 @@ class NewSandbox:
             field_dict["secure"] = secure
         if timeout is not UNSET:
             field_dict["timeout"] = timeout
-        if is_async is not UNSET:
-            field_dict["is_async"] = is_async
+        # if is_async is not UNSET:
+        #     field_dict["is_async"] = is_async
         if storage_gb is not UNSET:
             field_dict["storage_gb"] = storage_gb
         if object_storage is not UNSET:
@@ -109,7 +109,7 @@ class NewSandbox:
             metadata=metadata,
             secure=secure,
             timeout=timeout,
-            is_async=d.pop("is_async", UNSET),
+            # is_async=d.pop("is_async", UNSET),
             storage_gb=d.pop("storage_gb", UNSET),
             object_storage=d.pop("object_storage", UNSET),
             net_proxy_country=d.pop("net_proxy_country", UNSET),

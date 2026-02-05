@@ -291,7 +291,7 @@ class SandboxApi(SandboxApiBase):
                     env_vars=env_vars or {},
                     secure=secure or False,
                     allow_internet_access=allow_internet_access,
-                    is_async=False,
+                    # is_async=False,
                     object_storage=object_storage,
                     net_proxy_country=net_proxy_country,
                 ),
