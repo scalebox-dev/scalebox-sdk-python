@@ -28,21 +28,13 @@
 ## 安装
 
 ```bash
-# 克隆项目
-git clone https://github.com/scalebox-dev/scalebox-sdk-python.git
-cd scalebox-sdk-python
 
 # 建议使用虚拟环境
 python3 -m venv venv
 source venv/bin/activate
 
 # 安装依赖
-pip install -r scalebox/requirements.txt
-```
-
-如果你以源码方式直接使用包（非 pip 安装），请将 `scalebox` 目录加入 Python 路径或复制到 venv 的 site-packages：
-```bash
-cp -r scalebox venv/lib/python3.12/site-packages/
+pip install -r scalebox-sdk
 ```
 
 ## 配置

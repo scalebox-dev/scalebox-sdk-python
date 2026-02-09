@@ -30,21 +30,13 @@ A Python SDK for executing multi-language code in a controlled sandbox environme
 ## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/scalebox-dev/scalebox-sdk-python.git
-cd scalebox-sdk-python
 
 # Recommended: use a virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
 # Install dependencies
-pip install -r scalebox/requirements.txt
-```
-
-If you're using the package directly from source (not via pip), add the `scalebox` directory to your Python path or copy it to your venv's site-packages:
-```bash
-cp -r scalebox venv/lib/python3.12/site-packages/
+pip install -r scalebox-sdk
 ```
 
 ## Configuration
