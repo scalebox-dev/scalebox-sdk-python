@@ -64,7 +64,7 @@ class NewSandbox:
         if allow_internet_access is not UNSET:
             field_dict["allow_internet_access"] = allow_internet_access
         if auto_pause is not UNSET:
-            field_dict["autop_pause"] = auto_pause
+            field_dict["auto_pause"] = auto_pause
         if env_vars is not UNSET:
             field_dict["env_vars"] = env_vars
         if metadata is not UNSET:
