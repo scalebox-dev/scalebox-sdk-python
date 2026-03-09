@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import socket
 import time
 from typing import Dict, List, Optional, TypedDict, overload
@@ -87,6 +88,67 @@ class Sandbox(SandboxSetup, SandboxApi):
         Module for interacting with the sandbox pseudo-terminal.
         """
         return self._pty
+
+    def mount_s3fs_gateway(
+        self,
+        uri: str,
+        mount_point: str = "/mnt/os-mount",
+        *,
+        ak: Optional[str] = None,
+        sk: Optional[str] = None,
+        region: Optional[str] = None,
+        endpoint: Optional[str] = None,
+        extra_options: Optional[List[str]] = None,
+        timeout: Optional[float] = 300,
+    ):
+        """
+        Mount an S3-compatible bucket inside the sandbox using the sidecar `s3fs_gateway` helper.
+
+        This is a convenience wrapper around `sandbox.commands.run("s3fs_gateway ...")`.
+
+        :param uri: S3/OSS URI, e.g. ``s3://bucket/path/``
+        :param mount_point: Mount point inside the sandbox, defaults to ``/mnt/os-mount``
+        :param ak: Access key. If omitted, falls back to ``S3FS_ACCESS_KEY`` env var.
+        :param sk: Secret key. If omitted, falls back to ``S3FS_SECRET_KEY`` env var.
+        :param region: Region name, e.g. ``us-east-2``. Optional but recommended.
+        :param endpoint: S3 endpoint URL, e.g. ``https://s3.us-east-2.amazonaws.com``.
+        :param extra_options: Additional safe ``s3fs`` options, e.g. ``["-o", "ro"]``.
+        :param timeout: Command connection timeout in seconds.
+
+        :return: CommandResult from ``commands.run``.
+        :raises SandboxException: if the command exits with non‑zero status.
+        """
+
+        ak = ak or os.getenv("S3FS_ACCESS_KEY")
+        sk = sk or os.getenv("S3FS_SECRET_KEY")
+        if not ak or not sk:
+            raise SandboxException(
+                "mount_s3fs_gateway requires AK/SK via parameters or "
+                "S3FS_ACCESS_KEY/S3FS_SECRET_KEY environment variables"
+            )
+
+        parts: List[str] = [
+            "s3fs_gateway",
+            f"--uri={uri}",
+            f"--mount-point={mount_point}",
+            f"--ak={ak}",
+            f"--sk={sk}",
+        ]
+        if endpoint:
+            parts.append(f"--endpoint={endpoint}")
+        if region:
+            parts.append(f"--region={region}")
+        if extra_options:
+            parts.extend(extra_options)
+
+        cmd = " ".join(parts)
+        result = self.commands.run(cmd, timeout=timeout)
+        if result.exit_code != 0:
+            raise SandboxException(
+                f"s3fs_gateway failed with exit_code={result.exit_code}",
+                details={"stdout": result.stdout, "stderr": result.stderr},
+            )
+        return result
 
     @property
     def sandbox_id(self) -> str:
