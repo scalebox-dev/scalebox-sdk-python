@@ -93,7 +93,6 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
     async def mount_s3fs_gateway(
         self,
         uri: str,
-        mount_point: str = "/mnt/os-mount",
         *,
         ak: Optional[str] = None,
         sk: Optional[str] = None,
@@ -108,7 +107,6 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         This is a convenience wrapper around `sandbox.commands.run("s3fs_gateway ...")`.
 
         :param uri: S3/OSS URI, e.g. ``s3://bucket/path/``
-        :param mount_point: Mount point inside the sandbox, defaults to ``/mnt/os-mount``
         :param ak: Access key. If omitted, falls back to ``S3FS_ACCESS_KEY`` env var.
         :param sk: Secret key. If omitted, falls back to ``S3FS_SECRET_KEY`` env var.
         :param region: Region name, e.g. ``us-east-2``. Optional but recommended.
@@ -116,7 +114,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         :param extra_options: Additional safe ``s3fs`` options, e.g. ``["-o", "ro"]``.
         :param timeout: Command connection timeout in seconds.
 
-        :return: CommandResult from ``commands.run``.
+        :return: (CommandResult, mount_point) where mount_point is fixed to ``/mnt/object-storage``.
         :raises SandboxException: if the command exits with non‑zero status.
         """
 
@@ -127,6 +125,8 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
                 "mount_s3fs_gateway requires AK/SK via parameters or "
                 "S3FS_ACCESS_KEY/S3FS_SECRET_KEY environment variables"
             )
+
+        mount_point = "/mnt/object-storage"
 
         parts: List[str] = [
             "s3fs_gateway",
@@ -149,7 +149,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
                 f"s3fs_gateway failed with exit_code={result.exit_code}",
                 details={"stdout": result.stdout, "stderr": result.stderr},
             )
-        return result
+        return result, mount_point
 
     @property
     def sandbox_id(self) -> str:
