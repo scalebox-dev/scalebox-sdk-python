@@ -1,7 +1,7 @@
 import json
 import logging
 from dataclasses import dataclass
-from typing import Optional, Dict
+from typing import Any, Optional, Dict
 
 from httpx import Limits
 
@@ -20,7 +20,7 @@ class SandboxCreateResponse:
     sandbox_domain: Optional[str]
     envd_version: str
     envd_access_token: str
-    object_storage: Optional[Dict[str, str]]
+    object_storage: Optional[Any]
     network_proxy: Optional[Dict[str, any]]
 
 

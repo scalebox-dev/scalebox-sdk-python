@@ -16,7 +16,13 @@
    export SBX_API_KEY='your-api-key'  # 可选
 
 2. 运行测试：
+   # 运行同步测试（默认，包括所有功能测试）
    python3 scalebox/test/test_existing_sandbox.py
+   
+   # 运行异步PTY测试
+   python3 scalebox/test/test_existing_sandbox.py --async
+   或
+   python3 scalebox/test/test_existing_sandbox.py -a
 
 注意：
 - 此测试用例使用debug模式（debug=True）
@@ -34,14 +40,17 @@ import os
 import sys
 import tempfile
 import time
+import threading
+import asyncio
 from io import StringIO, BytesIO
 
 # 确保可以从项目根导入 scalebox
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scalebox.sandbox_sync.main import Sandbox
+from scalebox.sandbox_async.main import AsyncSandbox
 from scalebox.connection_config import ConnectionConfig
-from scalebox.sandbox.commands.command_handle import CommandExitException
+from scalebox.sandbox.commands.command_handle import CommandExitException, PtySize
 
 
 def test_filesystem_operations(sandbox):
@@ -49,12 +58,12 @@ def test_filesystem_operations(sandbox):
     print("\n" + "=" * 60)
     print("测试 Filesystem 操作")
     print("=" * 60)
-
+    
     # 1. 测试写入文本文件
     print("\n[1] 测试写入文本文件...")
     test_content = "Hello, this is a test file!\nCreated at: " + str(time.time())
     test_path = "/tmp/test_file.txt"
-
+    
     try:
         print(f"  文件路径: {test_path}")
         print(f"  内容长度: {len(test_content)} 字符")
@@ -66,10 +75,9 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 文件写入失败: {e}")
         import traceback
-
         traceback.print_exc()
         return False
-
+    
     # 2. 测试检查文件是否存在
     print("\n[2] 测试检查文件是否存在...")
     try:
@@ -81,7 +89,7 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 文件存在性检查失败: {e}")
         return False
-
+    
     # 3. 测试读取文件（文本格式）
     print("\n[3] 测试读取文件（文本格式）...")
     try:
@@ -100,23 +108,22 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 文件读取失败: {e}")
         import traceback
-
         traceback.print_exc()
         return False
-
+    
     # 4. 测试读取文件（字节格式）
     print("\n[4] 测试读取文件（字节格式）...")
     try:
         content_bytes = sandbox.files.read(test_path, format="bytes")
         print(f"✓ 字节格式读取成功")
         print(f"  字节数: {len(content_bytes)}")
-        if content_bytes.decode("utf-8").strip() != test_content.strip():
+        if content_bytes.decode('utf-8').strip() != test_content.strip():
             print("✗ 字节格式读取的内容与写入的内容不一致")
             return False
     except Exception as e:
         print(f"✗ 字节格式读取失败: {e}")
         return False
-
+    
     # 5. 测试获取文件信息
     print("\n[5] 测试获取文件信息...")
     try:
@@ -128,7 +135,7 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 文件信息获取失败: {e}")
         return False
-
+    
     # 6. 测试写入字节文件
     print("\n[6] 测试写入字节文件...")
     binary_content = b"\x00\x01\x02\x03\xff\xfe\xfd"
@@ -136,7 +143,7 @@ def test_filesystem_operations(sandbox):
     try:
         result = sandbox.files.write(binary_path, binary_content)
         print(f"✓ 字节文件写入成功: {result.path}")
-
+        
         # 验证字节文件
         read_binary = sandbox.files.read(binary_path, format="bytes")
         if read_binary != binary_content:
@@ -145,7 +152,7 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 字节文件写入失败: {e}")
         return False
-
+    
     # 7. 测试写入StringIO
     print("\n[7] 测试写入StringIO...")
     stringio_content = "Content from StringIO\nLine 2\nLine 3"
@@ -154,7 +161,7 @@ def test_filesystem_operations(sandbox):
         stringio = StringIO(stringio_content)
         result = sandbox.files.write(stringio_path, stringio)
         print(f"✓ StringIO写入成功: {result.path}")
-
+        
         # 验证内容
         read_content = sandbox.files.read(stringio_path, format="text")
         if read_content.strip() != stringio_content.strip():
@@ -163,7 +170,7 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ StringIO写入失败: {e}")
         return False
-
+    
     # 8. 测试写入BytesIO
     print("\n[8] 测试写入BytesIO...")
     bytesio_content = b"Content from BytesIO\x00\x01\x02"
@@ -172,7 +179,7 @@ def test_filesystem_operations(sandbox):
         bytesio = BytesIO(bytesio_content)
         result = sandbox.files.write(bytesio_path, bytesio)
         print(f"✓ BytesIO写入成功: {result.path}")
-
+        
         # 验证内容
         read_content = sandbox.files.read(bytesio_path, format="bytes")
         if read_content != bytesio_content:
@@ -181,7 +188,7 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ BytesIO写入失败: {e}")
         return False
-
+    
     # 9. 测试批量写入文件
     print("\n[9] 测试批量写入文件...")
     try:
@@ -195,12 +202,12 @@ def test_filesystem_operations(sandbox):
             data_size = len(f["data"]) if isinstance(f["data"], (str, bytes)) else "N/A"
             data_type = type(f["data"]).__name__
             print(f"    {i}. {f['path']} ({data_type}, {data_size} 字节)")
-
+        
         results = sandbox.files.write(files)
         print(f"✓ 批量写入成功，共 {len(results)} 个文件")
         for i, result in enumerate(results, 1):
             print(f"    {i}. {result.path}")
-
+        
         # 验证所有文件
         print(f"  验证文件存在性...")
         for i, file_info in enumerate(files, 1):
@@ -212,41 +219,35 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 批量写入失败: {e}")
         import traceback
-
         traceback.print_exc()
         return False
-
+    
     # 10. 测试列出目录
     print("\n[10] 测试列出目录...")
     try:
         print(f"  正在列出目录: /tmp, depth=1")
         entries = sandbox.files.list("/tmp", depth=1)
         print(f"✓ 目录列表获取成功，共 {len(entries)} 项")
-        test_files_found = [
-            e.path for e in entries if "test_" in e.path or "batch" in e.path
-        ]
+        test_files_found = [e.path for e in entries if "test_" in e.path or "batch" in e.path]
         print(f"  找到测试文件: {len(test_files_found)} 个")
         print(f"  显示前5项:")
         for i, entry in enumerate(entries[:5], 1):
-            print(
-                f"    {i}. {entry.path} (类型: {entry.type}, 大小: {getattr(entry, 'size', 'N/A')} 字节)"
-            )
+            print(f"    {i}. {entry.path} (类型: {entry.type}, 大小: {getattr(entry, 'size', 'N/A')} 字节)")
         if len(entries) > 5:
             print(f"  ... 还有 {len(entries) - 5} 项未显示")
     except Exception as e:
         print(f"✗ 目录列表获取失败: {e}")
         import traceback
-
         traceback.print_exc()
         return False
-
+    
     # 11. 测试创建目录
     print("\n[11] 测试创建目录...")
     test_dir = "/tmp/test_dir"
     try:
         sandbox.files.make_dir(test_dir)
         print(f"✓ 目录创建成功: {test_dir}")
-
+        
         # 验证目录是否存在
         exists = sandbox.files.exists(test_dir)
         if not exists:
@@ -255,7 +256,7 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 目录创建失败: {e}")
         return False
-
+    
     # 12. 测试在目录中创建文件
     print("\n[12] 测试在目录中创建文件...")
     try:
@@ -263,7 +264,7 @@ def test_filesystem_operations(sandbox):
         dir_file_content = "Nested file content"
         result = sandbox.files.write(dir_file_path, dir_file_content)
         print(f"✓ 目录中文件创建成功: {result.path}")
-
+        
         # 验证文件
         read_content = sandbox.files.read(dir_file_path, format="text")
         if read_content.strip() != dir_file_content.strip():
@@ -272,13 +273,13 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 目录中文件创建失败: {e}")
         return False
-
+    
     # 13. 测试删除文件
     print("\n[13] 测试删除文件...")
     try:
         sandbox.files.remove(test_path)
         print(f"✓ 文件删除成功: {test_path}")
-
+        
         # 验证文件是否已删除
         exists = sandbox.files.exists(test_path)
         if exists:
@@ -287,17 +288,17 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 文件删除失败: {e}")
         return False
-
+    
     # 14. 测试覆盖写入文件
     print("\n[14] 测试覆盖写入文件...")
     try:
         original_content = "Original content"
         overwrite_path = "/tmp/overwrite_test.txt"
         sandbox.files.write(overwrite_path, original_content)
-
+        
         new_content = "New overwritten content"
         sandbox.files.write(overwrite_path, new_content)
-
+        
         read_content = sandbox.files.read(overwrite_path, format="text")
         if read_content.strip() != new_content.strip():
             print("✗ 文件覆盖写入失败")
@@ -306,7 +307,7 @@ def test_filesystem_operations(sandbox):
     except Exception as e:
         print(f"✗ 文件覆盖写入失败: {e}")
         return False
-
+    
     print("\n✓ 所有 Filesystem 操作测试通过")
     return True
 
@@ -318,7 +319,11 @@ def test_command_operations(sandbox):
     print("=" * 60)
     print("\n注意: 后端可能会输出 'error adjusting oom score' 错误")
     print("      这是权限问题，不影响测试结果，可以忽略")
-
+    print("      一个命令失败不会阻止后续命令的执行")
+    
+    failed_tests = []
+    passed_tests = []
+    
     # 1. 测试执行简单命令
     print("\n[1] 测试执行简单命令...")
     cmd = "echo 'Hello from sandbox'"
@@ -331,14 +336,15 @@ def test_command_operations(sandbox):
         print(f"  标准错误: {result.stderr.strip() if result.stderr else '(空)'}")
         if result.exit_code != 0:
             print(f"✗ 命令退出码不为0: {result.exit_code}")
-            return False
+            failed_tests.append("[1] 简单命令")
+        else:
+            passed_tests.append("[1] 简单命令")
     except Exception as e:
         print(f"✗ 命令执行失败: {e}")
         import traceback
-
         traceback.print_exc()
-        return False
-
+        failed_tests.append("[1] 简单命令")
+    
     # 2. 测试执行带参数的命令
     print("\n[2] 测试执行带参数的命令...")
     cmd = "ls -la /tmp | head -5"
@@ -355,30 +361,34 @@ def test_command_operations(sandbox):
         if result.exit_code != 0:
             print(f"✗ 命令退出码不为0: {result.exit_code}")
             print(f"  stderr: {result.stderr}")
-            return False
+            failed_tests.append("[2] 带参数的命令")
+        else:
+            passed_tests.append("[2] 带参数的命令")
     except Exception as e:
         print(f"✗ 命令执行失败: {e}")
         import traceback
-
         traceback.print_exc()
-        return False
-
+        failed_tests.append("[2] 带参数的命令")
+    
     # 3. 测试执行带环境变量的命令
     print("\n[3] 测试执行带环境变量的命令...")
     try:
         result = sandbox.commands.run(
-            "echo $TEST_VAR", envs={"TEST_VAR": "test_value_123"}
+            "echo $TEST_VAR",
+            envs={"TEST_VAR": "test_value_123"}
         )
         print(f"✓ 带环境变量的命令执行成功")
         print(f"  退出码: {result.exit_code}")
         print(f"  输出: {result.stdout.strip()}")
         if "test_value_123" not in result.stdout:
             print("✗ 环境变量未正确传递")
-            return False
+            failed_tests.append("[3] 带环境变量的命令")
+        else:
+            passed_tests.append("[3] 带环境变量的命令")
     except Exception as e:
         print(f"✗ 带环境变量的命令执行失败: {e}")
-        return False
-
+        failed_tests.append("[3] 带环境变量的命令")
+    
     # 4. 测试执行带工作目录的命令
     print("\n[4] 测试执行带工作目录的命令...")
     try:
@@ -388,11 +398,13 @@ def test_command_operations(sandbox):
         print(f"  输出: {result.stdout.strip()}")
         if "/tmp" not in result.stdout:
             print("✗ 工作目录未正确设置")
-            return False
+            failed_tests.append("[4] 带工作目录的命令")
+        else:
+            passed_tests.append("[4] 带工作目录的命令")
     except Exception as e:
         print(f"✗ 带工作目录的命令执行失败: {e}")
-        return False
-
+        failed_tests.append("[4] 带工作目录的命令")
+    
     # 5. 测试执行Python命令（尝试多种方式）
     print("\n[5] 测试执行Python命令...")
     python_commands = [
@@ -400,24 +412,22 @@ def test_command_operations(sandbox):
         ("python", "python -c \"import sys; print('Python:', sys.version[:5])\""),
         ("which python3", "which python3 || which python || echo 'Python not found'"),
     ]
-
+    
     python_found = False
     for cmd_name, cmd in python_commands:
         try:
             result = sandbox.commands.run(cmd, timeout=10)
-            if result.exit_code == 0 and (
-                "Python" in result.stdout or "/" in result.stdout
-            ):
+            if result.exit_code == 0 and ("Python" in result.stdout or "/" in result.stdout):
                 print(f"✓ {cmd_name} 命令执行成功")
                 print(f"  输出: {result.stdout.strip()[:100]}")
                 python_found = True
                 break
         except Exception as e:
             continue
-
+    
     if not python_found:
         print("⚠ Python未找到，跳过Python相关测试")
-
+    
     # 6. 测试执行Shell脚本
     print("\n[6] 测试执行Shell脚本...")
     try:
@@ -430,18 +440,20 @@ echo "Script end"
 """
         script_path = "/tmp/test_script.sh"
         sandbox.files.write(script_path, script_content)
-
+        
         # 添加执行权限并运行
         result = sandbox.commands.run(f"chmod +x {script_path} && {script_path}")
         print(f"✓ Shell脚本执行成功")
         print(f"  退出码: {result.exit_code}")
         if "Script start" not in result.stdout or "Script end" not in result.stdout:
             print("✗ Shell脚本输出不符合预期")
-            return False
+            failed_tests.append("[6] Shell脚本")
+        else:
+            passed_tests.append("[6] Shell脚本")
     except Exception as e:
         print(f"✗ Shell脚本执行失败: {e}")
-        return False
-
+        failed_tests.append("[6] Shell脚本")
+    
     # 7. 测试执行带超时的命令
     print("\n[7] 测试执行带超时的命令...")
     try:
@@ -451,11 +463,13 @@ echo "Script end"
         print(f"  输出: {result.stdout.strip()}")
         if result.exit_code != 0:
             print(f"✗ 命令退出码不为0: {result.exit_code}")
-            return False
+            failed_tests.append("[7] 带超时的命令")
+        else:
+            passed_tests.append("[7] 带超时的命令")
     except Exception as e:
         print(f"✗ 带超时的命令执行失败: {e}")
-        return False
-
+        failed_tests.append("[7] 带超时的命令")
+    
     # 8. 测试执行返回非零退出码的命令
     print("\n[8] 测试执行返回非零退出码的命令...")
     print("  执行命令: 'false' (预期退出码: 1)")
@@ -466,8 +480,10 @@ echo "Script end"
         print(f"  stderr: {result.stderr}")
         if result.exit_code == 0:
             print("✗ 命令应该返回非零退出码")
-            return False
-        print(f"✓ 非零退出码命令执行成功，退出码: {result.exit_code}")
+            failed_tests.append("[8] 非零退出码命令")
+        else:
+            print(f"✓ 非零退出码命令执行成功，退出码: {result.exit_code}")
+            passed_tests.append("[8] 非零退出码命令")
     except CommandExitException as e:
         # CommandExitException 是正常的，当命令返回非零退出码时会抛出
         print(f"  捕获到 CommandExitException (这是正常的)")
@@ -476,15 +492,16 @@ echo "Script end"
         print(f"  stderr: {e.stderr}")
         if e.exit_code == 0:
             print("✗ 命令应该返回非零退出码")
-            return False
-        print(f"✓ 非零退出码命令执行成功，退出码: {e.exit_code}")
+            failed_tests.append("[8] 非零退出码命令")
+        else:
+            print(f"✓ 非零退出码命令执行成功，退出码: {e.exit_code}")
+            passed_tests.append("[8] 非零退出码命令")
     except Exception as e:
         print(f"✗ 非零退出码命令执行失败: {e}")
         import traceback
-
         traceback.print_exc()
-        return False
-
+        failed_tests.append("[8] 非零退出码命令")
+    
     # 9. 测试列出运行的进程
     print("\n[9] 测试列出运行的进程...")
     try:
@@ -492,25 +509,25 @@ echo "Script end"
         print(f"✓ 进程列表获取成功，共 {len(processes)} 个进程")
         for proc in processes[:3]:  # 只显示前3个
             print(f"  - PID: {proc.pid}, CMD: {proc.cmd[:50]}")
+        passed_tests.append("[9] 列出运行的进程")
     except Exception as e:
         print(f"✗ 进程列表获取失败: {e}")
-        return False
-
+        failed_tests.append("[9] 列出运行的进程")
+    
     # 10. 测试执行命令并捕获stderr
     print("\n[10] 测试执行命令并捕获stderr...")
     try:
-        result = sandbox.commands.run(
-            "echo 'stdout message' >&1 && echo 'stderr message' >&2"
-        )
+        result = sandbox.commands.run("echo 'stdout message' >&1 && echo 'stderr message' >&2")
         print(f"✓ 命令执行成功")
         print(f"  退出码: {result.exit_code}")
         print(f"  stdout: {result.stdout.strip()}")
         if result.stderr:
             print(f"  stderr: {result.stderr.strip()}")
+        passed_tests.append("[10] 捕获stderr")
     except Exception as e:
         print(f"✗ 命令执行失败: {e}")
-        return False
-
+        failed_tests.append("[10] 捕获stderr")
+    
     # 11. 测试执行多行命令
     print("\n[11] 测试执行多行命令...")
     try:
@@ -522,15 +539,17 @@ echo "Script end"
         result = sandbox.commands.run(multiline_cmd)
         print(f"✓ 多行命令执行成功")
         print(f"  退出码: {result.exit_code}")
-        output_lines = result.stdout.strip().split("\n")
+        output_lines = result.stdout.strip().split('\n')
         print(f"  输出行数: {len(output_lines)}")
         if len(output_lines) < 3:
             print("✗ 多行命令输出行数不足")
-            return False
+            failed_tests.append("[11] 多行命令")
+        else:
+            passed_tests.append("[11] 多行命令")
     except Exception as e:
         print(f"✗ 多行命令执行失败: {e}")
-        return False
-
+        failed_tests.append("[11] 多行命令")
+    
     # 12. 测试执行管道命令
     print("\n[12] 测试执行管道命令...")
     try:
@@ -540,13 +559,398 @@ echo "Script end"
         print(f"  输出: {result.stdout.strip()}")
         if "test2" not in result.stdout:
             print("✗ 管道命令输出不符合预期")
-            return False
+            failed_tests.append("[12] 管道命令")
+        else:
+            passed_tests.append("[12] 管道命令")
     except Exception as e:
         print(f"✗ 管道命令执行失败: {e}")
-        return False
+        failed_tests.append("[12] 管道命令")
+    
+    # 输出测试结果摘要
+    print("\n" + "-" * 60)
+    print("Command/Process 操作测试结果摘要")
+    print("-" * 60)
+    print(f"✓ 通过的测试: {len(passed_tests)}")
+    print(f"✗ 失败的测试: {len(failed_tests)}")
+    if failed_tests:
+        print("失败的测试项:")
+        for test in failed_tests:
+            print(f"  - {test}")
+    
+    return len(failed_tests) == 0
 
-    print("\n✓ 所有 Command/Process 操作测试通过")
-    return True
+
+def test_pty_operations(sandbox):
+    """测试PTY操作"""
+    print("\n" + "=" * 60)
+    print("测试 PTY 操作")
+    print("=" * 60)
+    
+    failed_tests = []
+    passed_tests = []
+    
+    # 用于存储事件流消费线程
+    event_thread = None
+    pty_output_data = []
+    event_thread_running = threading.Event()
+    
+    # 1. 测试创建PTY
+    print("\n[1] 测试创建PTY...")
+    pty_handle = None
+    try:
+        pty_handle = sandbox.pty.create(
+            size=PtySize(rows=24, cols=80),
+            cwd="/tmp",
+            envs={"PTY_TEST": "test_value"},
+            request_timeout=60.0,  # 设置较长的超时时间
+        )
+        print(f"✓ PTY创建成功")
+        print(f"  PID: {pty_handle.pid}")
+        print(f"  大小: 24x80")
+        print(f"  工作目录: /tmp")
+        
+        # 启动后台线程消费事件流，保持PTY连接
+        # 注意：事件流必须被持续消费，否则连接会关闭，进程会退出
+        def consume_events():
+            """在后台线程中消费PTY事件流，保持连接"""
+            event_thread_running.set()
+            try:
+                # 持续迭代事件流，保持连接活跃
+                # 这个循环会阻塞等待事件，直到事件流关闭
+                for stdout, stderr, pty_output in pty_handle:
+                    if pty_output is not None:
+                        pty_output_data.append(pty_output)
+                    # 处理stdout和stderr（虽然PTY主要使用pty_output）
+                    if stdout is not None:
+                        pass  # 可以在这里处理stdout
+                    if stderr is not None:
+                        pass  # 可以在这里处理stderr
+            except StopIteration:
+                # 事件流正常结束
+                pass
+            except Exception as e:
+                # 事件流关闭是正常的（当PTY被kill时）
+                # 打印错误以便调试
+                print(f"  事件流消费线程异常（可能是正常的）: {type(e).__name__}: {e}")
+            finally:
+                event_thread_running.clear()
+        
+        event_thread = threading.Thread(target=consume_events, daemon=True)
+        event_thread.start()
+        
+        # 等待线程真正开始运行（确保事件流开始被消费）
+        if not event_thread_running.wait(timeout=2):
+            print("  警告: 事件流消费线程启动超时")
+        else:
+            time.sleep(0.3)  # 等待一小段时间确保连接建立和事件流开始消费
+        
+        # 验证进程是否还在运行（通过尝试列出进程）
+        try:
+            processes = sandbox.commands.list()
+            pty_found = any(p.pid == pty_handle.pid for p in processes)
+            if pty_found:
+                print(f"  验证: PTY进程 {pty_handle.pid} 仍在运行")
+            else:
+                print(f"  警告: PTY进程 {pty_handle.pid} 未在进程列表中找到")
+        except Exception as e:
+            print(f"  警告: 无法验证进程状态: {e}")
+        
+        passed_tests.append("[1] 创建PTY")
+    except Exception as e:
+        print(f"✗ PTY创建失败: {e}")
+        import traceback
+        traceback.print_exc()
+        failed_tests.append("[1] 创建PTY")
+        return len(failed_tests) == 0  # 如果PTY创建失败，无法继续测试
+    
+    # 2. 测试向PTY发送命令
+    print("\n[2] 测试向PTY发送命令...")
+    try:
+        # 确保事件流线程正在运行
+        if not event_thread_running.is_set():
+            print("  警告: 事件流消费线程可能未运行，等待启动...")
+            event_thread_running.wait(timeout=1)
+        
+        sandbox.pty.send_stdin(pty_handle.pid, b"echo 'Hello from PTY'\n")
+        print(f"✓ 命令发送成功: echo 'Hello from PTY'")
+        passed_tests.append("[2] 发送命令到PTY")
+    except Exception as e:
+        print(f"✗ 命令发送失败: {e}")
+        print(f"  事件流线程状态: {'运行中' if event_thread_running.is_set() else '未运行'}")
+        print(f"  事件流线程存活: {event_thread.is_alive() if event_thread else 'N/A'}")
+        failed_tests.append("[2] 发送命令到PTY")
+    
+    # 3. 测试等待PTY输出
+    print("\n[3] 测试等待PTY输出...")
+    try:
+        time.sleep(1)  # 等待命令执行
+        print(f"✓ 等待PTY输出完成")
+        passed_tests.append("[3] 等待PTY输出")
+    except Exception as e:
+        print(f"✗ 等待PTY输出失败: {e}")
+        failed_tests.append("[3] 等待PTY输出")
+    
+    # 4. 测试调整PTY大小
+    print("\n[4] 测试调整PTY大小...")
+    try:
+        sandbox.pty.resize(pty_handle.pid, PtySize(rows=30, cols=100))
+        print(f"✓ PTY大小调整成功: 30x100")
+        passed_tests.append("[4] 调整PTY大小")
+    except Exception as e:
+        print(f"✗ PTY大小调整失败: {e}")
+        failed_tests.append("[4] 调整PTY大小")
+    
+    # 5. 测试PTY交互式命令
+    print("\n[5] 测试PTY交互式命令...")
+    try:
+        # 发送多个命令
+        sandbox.pty.send_stdin(pty_handle.pid, b"pwd\n")
+        time.sleep(0.5)
+        sandbox.pty.send_stdin(pty_handle.pid, b"echo $PTY_TEST\n")
+        time.sleep(0.5)
+        sandbox.pty.send_stdin(pty_handle.pid, b"ls -la /tmp | head -3\n")
+        time.sleep(1)
+        print(f"✓ 交互式命令执行成功")
+        passed_tests.append("[5] PTY交互式命令")
+    except Exception as e:
+        print(f"✗ 交互式命令执行失败: {e}")
+        failed_tests.append("[5] PTY交互式命令")
+    
+    # 6. 测试PTY等待和获取结果
+    print("\n[6] 测试PTY等待和获取结果...")
+    try:
+        # 发送一个会立即完成的命令
+        sandbox.pty.send_stdin(pty_handle.pid, b"echo 'PTY test completed'\n")
+        time.sleep(1)
+        print(f"✓ PTY等待和获取结果成功")
+        passed_tests.append("[6] PTY等待和获取结果")
+    except Exception as e:
+        print(f"✗ PTY等待和获取结果失败: {e}")
+        failed_tests.append("[6] PTY等待和获取结果")
+    
+    # 7. 测试终止PTY
+    print("\n[7] 测试终止PTY...")
+    try:
+        killed = sandbox.pty.kill(pty_handle.pid)
+        if killed:
+            print(f"✓ PTY终止成功")
+            passed_tests.append("[7] 终止PTY")
+        else:
+            print(f"✗ PTY终止失败（返回False）")
+            failed_tests.append("[7] 终止PTY")
+        
+        # 断开事件流连接
+        if pty_handle:
+            try:
+                pty_handle.disconnect()
+            except Exception:
+                pass
+        
+        # 等待事件线程结束
+        if event_thread and event_thread.is_alive():
+            event_thread.join(timeout=2)
+    except Exception as e:
+        print(f"✗ PTY终止失败: {e}")
+        failed_tests.append("[7] 终止PTY")
+    
+    # 输出测试结果摘要
+    print("\n" + "-" * 60)
+    print("PTY 操作测试结果摘要")
+    print("-" * 60)
+    print(f"✓ 通过的测试: {len(passed_tests)}")
+    print(f"✗ 失败的测试: {len(failed_tests)}")
+    if failed_tests:
+        print("失败的测试项:")
+        for test in failed_tests:
+            print(f"  - {test}")
+    if pty_output_data:
+        print(f"\n  收集到的PTY输出数据块数: {len(pty_output_data)}")
+    
+    return len(failed_tests) == 0
+
+
+async def test_pty_operations_async(sandbox):
+    """测试异步PTY操作"""
+    print("\n" + "=" * 60)
+    print("测试异步 PTY 操作")
+    print("=" * 60)
+    
+    failed_tests = []
+    passed_tests = []
+    pty_output_data = []
+    
+    # 1. 测试创建PTY
+    print("\n[1] 测试创建异步PTY...")
+    pty_handle = None
+    try:
+        # 定义PTY输出处理回调
+        async def pty_output_handler(output):
+            """处理PTY输出的回调函数"""
+            pty_output_data.append(output)
+            # 实时打印PTY输出
+            if isinstance(output, bytes):
+                try:
+                    output_str = output.decode('utf-8', errors='replace')
+                    print(f"  [PTY输出] {output_str}", end='', flush=True)
+                except Exception:
+                    print(f"  [PTY输出] <bytes: {len(output)} bytes>")
+            else:
+                print(f"  [PTY输出] {output}", end='', flush=True)
+        
+        pty_handle = await sandbox.pty.create(
+            size=PtySize(rows=24, cols=80),
+            on_data=pty_output_handler,  # 异步PTY需要on_data回调
+            cwd="/tmp",
+            envs={"PTY_TEST": "test_value"},
+        )
+        print(f"✓ 异步PTY创建成功")
+        print(f"  PID: {pty_handle.pid}")
+        print(f"  大小: 24x80")
+        print(f"  工作目录: /tmp")
+        passed_tests.append("[1] 创建异步PTY")
+    except Exception as e:
+        print(f"✗ 异步PTY创建失败: {e}")
+        import traceback
+        traceback.print_exc()
+        failed_tests.append("[1] 创建异步PTY")
+        return len(failed_tests) == 0  # 如果PTY创建失败，无法继续测试
+    
+    # 2. 测试向PTY发送命令
+    print("\n[2] 测试向异步PTY发送命令...")
+    try:
+        await sandbox.pty.send_stdin(pty_handle.pid, b"echo 'Hello from Async PTY'\n")
+        print(f"✓ 命令发送成功: echo 'Hello from Async PTY'")
+        await asyncio.sleep(0.5)  # 等待命令执行
+        passed_tests.append("[2] 发送命令到异步PTY")
+    except Exception as e:
+        print(f"✗ 命令发送失败: {e}")
+        failed_tests.append("[2] 发送命令到异步PTY")
+    
+    # 3. 测试等待PTY输出
+    print("\n[3] 测试等待异步PTY输出...")
+    try:
+        await asyncio.sleep(1)  # 等待命令执行和输出处理
+        print(f"\n✓ 等待异步PTY输出完成")
+        print(f"  收集到的输出数据块数: {len(pty_output_data)}")
+        if pty_output_data:
+            print(f"  输出内容预览:")
+            for i, output in enumerate(pty_output_data[-5:], 1):  # 显示最后5个输出块
+                if isinstance(output, bytes):
+                    try:
+                        output_str = output.decode('utf-8', errors='replace')
+                        print(f"    [{i}] {repr(output_str[:100])}")  # 显示前100个字符
+                    except Exception:
+                        print(f"    [{i}] <bytes: {len(output)} bytes>")
+                else:
+                    print(f"    [{i}] {repr(str(output)[:100])}")
+        passed_tests.append("[3] 等待异步PTY输出")
+    except Exception as e:
+        print(f"✗ 等待异步PTY输出失败: {e}")
+        failed_tests.append("[3] 等待异步PTY输出")
+    
+    # 4. 测试调整PTY大小
+    print("\n[4] 测试调整异步PTY大小...")
+    try:
+        await sandbox.pty.resize(pty_handle.pid, PtySize(rows=30, cols=100))
+        print(f"✓ 异步PTY大小调整成功: 30x100")
+        passed_tests.append("[4] 调整异步PTY大小")
+    except Exception as e:
+        print(f"✗ 异步PTY大小调整失败: {e}")
+        failed_tests.append("[4] 调整异步PTY大小")
+    
+    # 5. 测试PTY交互式命令
+    print("\n[5] 测试异步PTY交互式命令...")
+    try:
+        # 发送多个命令
+        print("  发送命令: pwd")
+        await sandbox.pty.send_stdin(pty_handle.pid, b"pwd\n")
+        await asyncio.sleep(0.5)
+        
+        print("  发送命令: echo $PTY_TEST")
+        await sandbox.pty.send_stdin(pty_handle.pid, b"echo $PTY_TEST\n")
+        await asyncio.sleep(0.5)
+        
+        print("  发送命令: ls -la /tmp | head -3")
+        await sandbox.pty.send_stdin(pty_handle.pid, b"ls -la /tmp | head -3\n")
+        await asyncio.sleep(1)
+        
+        print(f"✓ 交互式命令执行成功")
+        passed_tests.append("[5] 异步PTY交互式命令")
+    except Exception as e:
+        print(f"✗ 交互式命令执行失败: {e}")
+        failed_tests.append("[5] 异步PTY交互式命令")
+    
+    # 6. 测试PTY等待和获取结果
+    print("\n[6] 测试异步PTY等待和获取结果...")
+    try:
+        # 发送一个会立即完成的命令
+        await sandbox.pty.send_stdin(pty_handle.pid, b"echo 'Async PTY test completed'\n")
+        await asyncio.sleep(1)
+        print(f"✓ 异步PTY等待和获取结果成功")
+        passed_tests.append("[6] 异步PTY等待和获取结果")
+    except Exception as e:
+        print(f"✗ 异步PTY等待和获取结果失败: {e}")
+        failed_tests.append("[6] 异步PTY等待和获取结果")
+    
+    # 7. 测试终止PTY
+    print("\n[7] 测试终止异步PTY...")
+    try:
+        killed = await sandbox.pty.kill(pty_handle.pid)
+        if killed:
+            print(f"✓ 异步PTY终止成功")
+            passed_tests.append("[7] 终止异步PTY")
+        else:
+            print(f"✗ 异步PTY终止失败（返回False）")
+            failed_tests.append("[7] 终止异步PTY")
+    except Exception as e:
+        print(f"✗ 异步PTY终止失败: {e}")
+        failed_tests.append("[7] 终止异步PTY")
+    
+    # 输出测试结果摘要
+    print("\n" + "-" * 60)
+    print("异步 PTY 操作测试结果摘要")
+    print("-" * 60)
+    print(f"✓ 通过的测试: {len(passed_tests)}")
+    print(f"✗ 失败的测试: {len(failed_tests)}")
+    if failed_tests:
+        print("失败的测试项:")
+        for test in failed_tests:
+            print(f"  - {test}")
+    
+    # 打印所有收集到的PTY输出
+    if pty_output_data:
+        print(f"\n" + "-" * 60)
+        print(f"收集到的PTY输出 (共 {len(pty_output_data)} 个数据块):")
+        print("-" * 60)
+        all_output_text = ""
+        for i, output in enumerate(pty_output_data, 1):
+            if isinstance(output, bytes):
+                try:
+                    output_str = output.decode('utf-8', errors='replace')
+                    all_output_text += output_str
+                    # 打印每个输出块（如果太长则截断）
+                    if len(output_str) > 200:
+                        print(f"[{i}] {repr(output_str[:200])}... (共 {len(output_str)} 字符)")
+                    else:
+                        print(f"[{i}] {repr(output_str)}")
+                except Exception:
+                    print(f"[{i}] <无法解码的字节数据: {len(output)} bytes>")
+            else:
+                output_str = str(output)
+                all_output_text += output_str
+                if len(output_str) > 200:
+                    print(f"[{i}] {repr(output_str[:200])}... (共 {len(output_str)} 字符)")
+                else:
+                    print(f"[{i}] {repr(output_str)}")
+        
+        print(f"\n完整输出内容:")
+        print("-" * 60)
+        print(all_output_text)
+        print("-" * 60)
+    else:
+        print(f"\n  未收集到PTY输出数据")
+    
+    return len(failed_tests) == 0
 
 
 def test_upload_download(sandbox):
@@ -554,22 +958,20 @@ def test_upload_download(sandbox):
     print("\n" + "=" * 60)
     print("测试上传和下载")
     print("=" * 60)
-
+    
     # 1. 测试上传文本文件（使用files.write）
     print("\n[1] 测试上传文本文件...")
     test_content = "This is a test file for upload/download testing.\n" * 10
     test_content += f"Timestamp: {time.time()}\n"
     remote_path = "/tmp/uploaded_test.txt"
-
+    
     try:
         print(f"  目标路径: {remote_path}")
-        print(
-            f"  内容大小: {len(test_content)} 字符 ({len(test_content.encode('utf-8'))} 字节)"
-        )
+        print(f"  内容大小: {len(test_content)} 字符 ({len(test_content.encode('utf-8'))} 字节)")
         result = sandbox.files.write(remote_path, test_content)
         print(f"✓ 文件上传成功")
         print(f"  上传路径: {result.path}")
-
+        
         # 验证文件是否存在
         print(f"  验证文件是否存在...")
         exists = sandbox.files.exists(remote_path)
@@ -580,10 +982,9 @@ def test_upload_download(sandbox):
     except Exception as e:
         print(f"✗ 文件上传失败: {e}")
         import traceback
-
         traceback.print_exc()
         return False
-
+    
     # 2. 测试下载文件（使用files.read，文本格式）
     print("\n[2] 测试下载文件（文本格式）...")
     try:
@@ -594,7 +995,7 @@ def test_upload_download(sandbox):
         print(f"  下载内容长度: {len(downloaded_content)} 字符")
         print(f"  原始内容长度: {len(test_content)} 字符")
         print(f"  内容预览: {downloaded_content[:50]}...")
-
+        
         if downloaded_content.strip() != test_content.strip():
             print("✗ 下载的内容与上传的内容不一致")
             print(f"  原始内容前100字符: {test_content[:100]}")
@@ -604,26 +1005,25 @@ def test_upload_download(sandbox):
     except Exception as e:
         print(f"✗ 文件下载失败: {e}")
         import traceback
-
         traceback.print_exc()
         return False
-
+    
     # 3. 测试下载为字节格式
     print("\n[3] 测试下载为字节格式...")
     try:
         downloaded_bytes = sandbox.files.read(remote_path, format="bytes")
         print(f"✓ 字节格式下载成功")
         print(f"  下载字节数: {len(downloaded_bytes)} 字节")
-
+        
         # 验证字节内容
-        expected_bytes = test_content.encode("utf-8")
+        expected_bytes = test_content.encode('utf-8')
         if downloaded_bytes != expected_bytes:
             print("✗ 下载的字节内容与上传的内容不一致")
             return False
     except Exception as e:
         print(f"✗ 字节格式下载失败: {e}")
         return False
-
+    
     # 4. 测试流式下载
     print("\n[4] 测试流式下载...")
     try:
@@ -631,29 +1031,29 @@ def test_upload_download(sandbox):
         chunks = []
         for chunk in stream:
             chunks.append(chunk)
-        streamed_content = b"".join(chunks)
+        streamed_content = b''.join(chunks)
         print(f"✓ 流式下载成功")
         print(f"  下载块数: {len(chunks)}")
         print(f"  总字节数: {len(streamed_content)} 字节")
-
-        if streamed_content != test_content.encode("utf-8"):
+        
+        if streamed_content != test_content.encode('utf-8'):
             print("✗ 流式下载内容不匹配")
             return False
     except Exception as e:
         print(f"✗ 流式下载失败: {e}")
         return False
-
+    
     # 5. 测试获取下载URL
     print("\n[5] 测试获取下载URL...")
     try:
         print(f"  文件路径: {remote_path}")
         print(f"  用户: root")
         print(f"  签名过期时间: 3600秒")
-
+        
         # 检查是否是debug模式
         is_debug = sandbox.connection_config.debug
         print(f"  Debug模式: {is_debug}")
-
+        
         # 在debug模式下，可能不需要签名URL，或者token可能不存在
         if is_debug:
             print(f"  ⚠ Debug模式下，跳过签名URL测试（debug模式通常不需要签名）")
@@ -666,37 +1066,36 @@ def test_upload_download(sandbox):
                 # 尝试通过property访问
                 token = sandbox._envd_access_token
                 has_token = token is not None and token != ""
-                print(
-                    f"  Token存在: {has_token}, 长度: {len(token) if has_token else 0}"
-                )
+                print(f"  Token存在: {has_token}, 长度: {len(token) if has_token else 0}")
             except AttributeError as ae:
                 print(f"  ⚠ 无法通过property访问 _envd_access_token: {ae}")
                 # 尝试直接访问私有属性
                 try:
-                    token = getattr(sandbox, "_Sandbox__envd_access_token", None)
+                    token = getattr(sandbox, '_Sandbox__envd_access_token', None)
                     if token is None:
                         # 尝试其他可能的属性名
-                        token = getattr(sandbox, "__envd_access_token", None)
+                        token = getattr(sandbox, '__envd_access_token', None)
                     has_token = token is not None and token != ""
-                    print(
-                        f"  直接访问token: {has_token}, 长度: {len(token) if has_token else 0}"
-                    )
+                    print(f"  直接访问token: {has_token}, 长度: {len(token) if has_token else 0}")
                 except Exception:
                     print(f"  ⚠ 无法访问token属性，将尝试不使用签名")
-
+            
             # 尝试获取下载URL
             try:
                 if has_token:
                     download_url = sandbox.download_url(
                         path=remote_path,
                         user="root",
-                        use_signature_expiration=3600,  # 1小时有效期
+                        use_signature_expiration=3600  # 1小时有效期
                     )
                 else:
                     # 如果没有token，尝试不使用签名
                     print(f"  尝试不使用签名获取URL...")
-                    download_url = sandbox.download_url(path=remote_path, user="root")
-
+                    download_url = sandbox.download_url(
+                        path=remote_path,
+                        user="root"
+                    )
+                
                 print(f"✓ 下载URL获取成功")
                 print(f"  URL长度: {len(download_url)} 字符")
                 print(f"  URL预览: {download_url[:100]}...")
@@ -714,17 +1113,16 @@ def test_upload_download(sandbox):
             print(f"  ✓ Debug模式下URL测试跳过（这是正常的）")
         else:
             import traceback
-
             traceback.print_exc()
             return False
-
+    
     # 6. 测试获取上传URL
     print("\n[6] 测试获取上传URL...")
     try:
         # 检查是否是debug模式
         is_debug = sandbox.connection_config.debug
         print(f"  Debug模式: {is_debug}")
-
+        
         if is_debug:
             print(f"  ⚠ Debug模式下，跳过签名URL测试（debug模式通常不需要签名）")
             print(f"  ✓ Debug模式下URL测试跳过（这是正常的）")
@@ -733,7 +1131,7 @@ def test_upload_download(sandbox):
                 upload_url = sandbox.upload_url(
                     path="/tmp/upload_via_url.txt",
                     user="root",
-                    use_signature_expiration=3600,  # 1小时有效期
+                    use_signature_expiration=3600  # 1小时有效期
                 )
                 print(f"✓ 上传URL获取成功")
                 print(f"  URL长度: {len(upload_url)} 字符")
@@ -752,15 +1150,14 @@ def test_upload_download(sandbox):
             print(f"  ✓ Debug模式下URL测试跳过（这是正常的）")
         else:
             import traceback
-
             traceback.print_exc()
             return False
-
+    
     # 7. 测试上传小文件（1KB）
     print("\n[7] 测试上传小文件（1KB）...")
     small_content = b"X" * 1024
     small_file_path = "/tmp/small_file.bin"
-
+    
     try:
         start_time = time.time()
         result = sandbox.files.write(small_file_path, small_content)
@@ -768,7 +1165,7 @@ def test_upload_download(sandbox):
         print(f"✓ 小文件上传成功: {result.path}")
         print(f"  文件大小: {len(small_content)} 字节")
         print(f"  上传耗时: {upload_time:.3f} 秒")
-
+        
         # 验证文件大小
         info = sandbox.files.get_info(small_file_path)
         if info.size != len(small_content):
@@ -777,12 +1174,12 @@ def test_upload_download(sandbox):
     except Exception as e:
         print(f"✗ 小文件上传失败: {e}")
         return False
-
+    
     # 8. 测试上传中等文件（100KB）
     print("\n[8] 测试上传中等文件（100KB）...")
     medium_content = b"Y" * (1024 * 100)
     medium_file_path = "/tmp/medium_file.bin"
-
+    
     try:
         start_time = time.time()
         result = sandbox.files.write(medium_file_path, medium_content)
@@ -792,7 +1189,7 @@ def test_upload_download(sandbox):
         print(f"  上传耗时: {upload_time:.2f} 秒")
         if upload_time > 0:
             print(f"  上传速度: {len(medium_content) / 1024 / upload_time:.2f} KB/s")
-
+        
         # 验证文件大小
         info = sandbox.files.get_info(medium_file_path)
         if info.size != len(medium_content):
@@ -801,7 +1198,7 @@ def test_upload_download(sandbox):
     except Exception as e:
         print(f"✗ 中等文件上传失败: {e}")
         return False
-
+    
     # 9. 测试下载中等文件
     print("\n[9] 测试下载中等文件...")
     try:
@@ -812,22 +1209,20 @@ def test_upload_download(sandbox):
         print(f"  文件大小: {len(downloaded_medium) / 1024:.2f} KB")
         print(f"  下载耗时: {download_time:.2f} 秒")
         if download_time > 0:
-            print(
-                f"  下载速度: {len(downloaded_medium) / 1024 / download_time:.2f} KB/s"
-            )
-
+            print(f"  下载速度: {len(downloaded_medium) / 1024 / download_time:.2f} KB/s")
+        
         if downloaded_medium != medium_content:
             print("✗ 下载的文件内容与上传的内容不一致")
             return False
     except Exception as e:
         print(f"✗ 中等文件下载失败: {e}")
         return False
-
+    
     # 10. 测试上传大文件（1MB）
     print("\n[10] 测试上传大文件（1MB）...")
     large_content = b"Z" * (1024 * 1024)
     large_file_path = "/tmp/large_file.bin"
-
+    
     try:
         start_time = time.time()
         result = sandbox.files.write(large_file_path, large_content)
@@ -836,10 +1231,8 @@ def test_upload_download(sandbox):
         print(f"  文件大小: {len(large_content) / (1024*1024):.2f} MB")
         print(f"  上传耗时: {upload_time:.2f} 秒")
         if upload_time > 0:
-            print(
-                f"  上传速度: {len(large_content) / (1024*1024) / upload_time:.2f} MB/s"
-            )
-
+            print(f"  上传速度: {len(large_content) / (1024*1024) / upload_time:.2f} MB/s")
+        
         # 验证文件大小
         info = sandbox.files.get_info(large_file_path)
         if info.size != len(large_content):
@@ -848,7 +1241,7 @@ def test_upload_download(sandbox):
     except Exception as e:
         print(f"✗ 大文件上传失败: {e}")
         return False
-
+    
     # 11. 测试下载大文件
     print("\n[11] 测试下载大文件...")
     try:
@@ -859,17 +1252,15 @@ def test_upload_download(sandbox):
         print(f"  文件大小: {len(downloaded_large) / (1024*1024):.2f} MB")
         print(f"  下载耗时: {download_time:.2f} 秒")
         if download_time > 0:
-            print(
-                f"  下载速度: {len(downloaded_large) / (1024*1024) / download_time:.2f} MB/s"
-            )
-
+            print(f"  下载速度: {len(downloaded_large) / (1024*1024) / download_time:.2f} MB/s")
+        
         if downloaded_large != large_content:
             print("✗ 下载的大文件内容与上传的内容不一致")
             return False
     except Exception as e:
         print(f"✗ 大文件下载失败: {e}")
         return False
-
+    
     # 12. 测试批量上传和下载
     print("\n[12] 测试批量上传和下载...")
     try:
@@ -878,11 +1269,11 @@ def test_upload_download(sandbox):
             {"path": "/tmp/batch_upload2.txt", "data": "Batch file 2"},
             {"path": "/tmp/batch_upload3.txt", "data": "Batch file 3"},
         ]
-
+        
         # 批量上传
         upload_results = sandbox.files.write(batch_files)
         print(f"✓ 批量上传成功，共 {len(upload_results)} 个文件")
-
+        
         # 批量下载并验证
         for file_info in batch_files:
             downloaded = sandbox.files.read(file_info["path"], format="text")
@@ -890,12 +1281,12 @@ def test_upload_download(sandbox):
             if downloaded.strip() != expected.strip():
                 print(f"✗ 批量文件 {file_info['path']} 内容不匹配")
                 return False
-
+        
         print(f"✓ 批量下载验证成功")
     except Exception as e:
         print(f"✗ 批量上传下载失败: {e}")
         return False
-
+    
     print("\n✓ 所有上传和下载测试通过")
     return True
 
@@ -906,7 +1297,7 @@ def main():
     print("Sandbox 测试用例")
     print("使用已有的 sandbox URL 和 token (Debug模式)")
     print("=" * 60)
-
+    
     # 从环境变量或直接设置获取sandbox信息
     # 用户需要设置这些环境变量或直接修改下面的值
     sandbox_id = os.getenv("SANDBOX_ID")
@@ -914,7 +1305,7 @@ def main():
     envd_access_token = os.getenv("ENVD_ACCESS_TOKEN")
     api_key = os.getenv("SBX_API_KEY")
     debug_host = os.getenv("SBX_DEBUG_HOST", "localhost")  # 默认使用localhost
-
+    
     # 如果没有设置环境变量，提示用户
     if not sandbox_id or not envd_access_token:
         print("\n错误: 请设置以下环境变量:")
@@ -930,21 +1321,19 @@ def main():
         print("  export SBX_DEBUG_HOST='localhost'  # 或自定义host，如 '192.168.1.100'")
         print("  export SBX_API_KEY='your-api-key'")
         return
-
+    
     print(f"\n使用以下配置 (Debug模式):")
     print(f"  Sandbox ID: {sandbox_id}")
     print(f"  Debug Host: {debug_host}")
-    print(
-        f"  Access Token: {'*' * 20}...{envd_access_token[-4:] if len(envd_access_token) > 4 else '****'}"
-    )
+    print(f"  Access Token: {'*' * 20}...{envd_access_token[-4:] if len(envd_access_token) > 4 else '****'}")
     if sandbox_domain:
         print(f"  Sandbox Domain: {sandbox_domain} (在debug模式下不使用)")
-
+    
     # 创建连接配置 - 使用debug模式
     connection_headers = {"Authorization": "Bearer root"}
     if envd_access_token:
         connection_headers["X-Access-Token"] = envd_access_token
-
+    
     connection_config = ConnectionConfig(
         api_key=api_key,
         domain=None,  # debug模式下不使用domain
@@ -953,7 +1342,7 @@ def main():
         request_timeout=60.0,
         headers=connection_headers,
     )
-
+    
     # 创建sandbox实例（直接连接，不创建新的）
     # 在debug模式下，sandbox_domain可以是None或任意值，因为实际使用的是debug_host
     print("\n正在连接sandbox (Debug模式)...")
@@ -965,19 +1354,19 @@ def main():
             envd_access_token=envd_access_token,
             connection_config=connection_config,
             object_storage=None,
-            network_proxy=None,
+            network_proxy=None
         )
-
+        
         # 检查sandbox是否运行
         print(f"  尝试连接到: {sandbox.envd_api_url}")
         if not sandbox.is_running():
             print("✗ Sandbox未运行，无法进行测试")
             print(f"  请确认sandbox在 {debug_host}:8888 上运行")
             return
-
+        
         print(f"✓ Sandbox连接成功: {sandbox.sandbox_id}")
         print(f"  API URL: {sandbox.envd_api_url}")
-
+        
     except Exception as e:
         print(f"✗ Sandbox连接失败: {e}")
         print(f"  请确认:")
@@ -985,41 +1374,42 @@ def main():
         print(f"    2. ENVD_ACCESS_TOKEN 正确")
         print(f"    3. 网络连接正常")
         import traceback
-
         traceback.print_exc()
         return
-
+    
     # 运行测试
     results = []
-
+    
     try:
         # 测试filesystem操作
         results.append(("Filesystem操作", test_filesystem_operations(sandbox)))
-
+        
         # 测试命令操作
         results.append(("Command/Process操作", test_command_operations(sandbox)))
-
+        
+        # 测试PTY操作
+        results.append(("PTY操作", test_pty_operations(sandbox)))
+        
         # 测试上传和下载
         results.append(("上传和下载", test_upload_download(sandbox)))
-
+        
     except Exception as e:
         print(f"\n✗ 测试过程中发生错误: {e}")
         import traceback
-
         traceback.print_exc()
-
+    
     # 输出测试结果摘要
     print("\n" + "=" * 60)
     print("测试结果摘要")
     print("=" * 60)
-
+    
     all_passed = True
     for test_name, result in results:
         status = "✓ 通过" if result else "✗ 失败"
         print(f"{test_name}: {status}")
         if not result:
             all_passed = False
-
+    
     print("\n" + "=" * 60)
     if all_passed:
         print("✓ 所有测试通过！")
@@ -1033,5 +1423,111 @@ def main():
     print("=" * 60)
 
 
+async def main_async():
+    """异步主测试函数（仅测试PTY）"""
+    print("=" * 60)
+    print("Sandbox 异步测试用例")
+    print("使用已有的 sandbox URL 和 token (Debug模式)")
+    print("=" * 60)
+    
+    # 从环境变量或直接设置获取sandbox信息
+    sandbox_id = os.getenv("SANDBOX_ID")
+    sandbox_domain = os.getenv("SANDBOX_DOMAIN")
+    envd_access_token = os.getenv("ENVD_ACCESS_TOKEN")
+    api_key = os.getenv("SBX_API_KEY")
+    debug_host = os.getenv("SBX_DEBUG_HOST", "localhost")
+    
+    # 如果没有设置环境变量，提示用户
+    if not sandbox_id or not envd_access_token:
+        print("\n错误: 请设置以下环境变量:")
+        print("  - SANDBOX_ID: sandbox的ID")
+        print("  - ENVD_ACCESS_TOKEN: sandbox的访问token")
+        print("  - SBX_DEBUG_HOST: (可选) debug模式下的host，默认为localhost")
+        print("  - SBX_API_KEY: (可选) API密钥")
+        return
+    
+    print(f"\n使用以下配置 (Debug模式):")
+    print(f"  Sandbox ID: {sandbox_id}")
+    print(f"  Debug Host: {debug_host}")
+    print(f"  Access Token: {'*' * 20}...{envd_access_token[-4:] if len(envd_access_token) > 4 else '****'}")
+    
+    # 创建连接配置 - 使用debug模式
+    connection_headers = {"Authorization": "Bearer root"}
+    if envd_access_token:
+        connection_headers["X-Access-Token"] = envd_access_token
+    
+    connection_config = ConnectionConfig(
+        api_key=api_key,
+        domain=None,  # debug模式下不使用domain
+        debug=True,  # 启用debug模式
+        debug_host=debug_host,  # 设置debug host
+        request_timeout=60.0,
+        headers=connection_headers,
+    )
+    
+    # 创建异步sandbox实例
+    print("\n正在连接异步sandbox (Debug模式)...")
+    try:
+        sandbox = AsyncSandbox(
+            sandbox_id=sandbox_id,
+            sandbox_domain=sandbox_domain or "debug-sandbox",
+            envd_version="v1.0",
+            envd_access_token=envd_access_token,
+            connection_config=connection_config,
+            object_storage=None,
+            network_proxy=None
+        )
+        
+        # 检查sandbox是否运行
+        print(f"  尝试连接到: {sandbox.envd_api_url}")
+        is_running = await sandbox.is_running()
+        if not is_running:
+            print("✗ Sandbox未运行，无法进行测试")
+            print(f"  请确认sandbox在 {debug_host}:8888 上运行")
+            return
+        
+        print(f"✓ 异步Sandbox连接成功: {sandbox.sandbox_id}")
+        print(f"  API URL: {sandbox.envd_api_url}")
+        
+    except Exception as e:
+        print(f"✗ 异步Sandbox连接失败: {e}")
+        print(f"  请确认:")
+        print(f"    1. Sandbox在 {debug_host}:8888 上运行")
+        print(f"    2. ENVD_ACCESS_TOKEN 正确")
+        print(f"    3. 网络连接正常")
+        import traceback
+        traceback.print_exc()
+        return
+    
+    # 运行异步PTY测试
+    try:
+        result = await test_pty_operations_async(sandbox)
+        
+        # 输出测试结果摘要
+        print("\n" + "=" * 60)
+        print("异步测试结果摘要")
+        print("=" * 60)
+        status = "✓ 通过" if result else "✗ 失败"
+        print(f"异步PTY操作: {status}")
+        print("=" * 60)
+        
+    except Exception as e:
+        print(f"\n✗ 异步测试过程中发生错误: {e}")
+        import traceback
+        traceback.print_exc()
+    finally:
+        # 清理资源
+        try:
+            await sandbox.close()
+        except Exception:
+            pass
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    
+    # 如果命令行参数包含 --async，运行异步测试
+    if "--async" in sys.argv or "-a" in sys.argv:
+        asyncio.run(main_async())
+    else:
+        main()

@@ -18,8 +18,8 @@ import (
 
 // Defaults
 const (
-    repoRoot = "/root/scalebox"
-    testFile = repoRoot + "/test/test_code_interpreter_sync_comprehensive.py"
+    repoRoot = "/home/ubuntu/root/scalebox"
+    testFile = repoRoot + "/test/test_sandbox_sync_create_comprehensive.py"
 )
 
 var (

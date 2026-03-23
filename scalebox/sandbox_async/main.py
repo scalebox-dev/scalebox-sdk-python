@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import time
-from typing import Dict, List, Optional, TypedDict, overload
+from typing import Any, Dict, List, Optional, TypedDict, Union, overload
 
 import aiohttp
 import httpx
@@ -42,7 +42,7 @@ class AsyncSandboxOpts(TypedDict):
     envd_version: Optional[str]
     envd_access_token: Optional[str]
     connection_config: ConnectionConfig
-    object_storage: Optional[Dict[str, str]]
+    object_storage: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]]
     network_proxy: Optional[Dict[str, any]]
 
 
@@ -166,7 +166,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         return self._sandbox_domain
 
     @property
-    def object_storage(self) -> Optional[Dict[str, str]]:
+    def object_storage(self) -> Optional[Union[Dict[str, Any], List[Dict[str, Any]]]]:
         """
         Object storage configuration returned during sandbox creation (if any).
         Only synchronous sandboxes currently expose this field.
@@ -298,7 +298,7 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         timeout: Optional[int] = None,
         metadata: Optional[Dict[str, str]] = None,
         envs: Optional[Dict[str, str]] = None,
-        object_storage: Optional[Dict[str, str]] = None,
+        object_storage: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]] = None,
         api_key: Optional[str] = None,
         domain: Optional[str] = None,
         debug: Optional[bool] = None,
@@ -308,6 +308,9 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
         secure: Optional[bool] = None,
         allow_internet_access: Optional[bool] = True,
         net_proxy_country: Optional[str] = None,
+        s3fs_executable_path: Optional[str] = None,
+        object_storage_direct_mount: Optional[bool] = None,
+        locality: Optional[Dict[str, Any]] = None,
     ):
         """
         Create a new sandbox.
@@ -371,6 +374,9 @@ class AsyncSandbox(SandboxSetup, SandboxApi):
                 allow_internet_access=allow_internet_access,
                 object_storage=object_storage,
                 net_proxy_country=net_proxy_country,
+                s3fs_executable_path=s3fs_executable_path,
+                object_storage_direct_mount=object_storage_direct_mount,
+                locality=locality,
             )
 
             sandbox_id = response.sandbox_id

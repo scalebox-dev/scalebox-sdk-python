@@ -34,6 +34,9 @@ class NewSandbox:
     storage_gb: Union[Unset, int] = UNSET
     object_storage: Union[Unset, Any] = UNSET
     net_proxy_country: Union[Unset, str] = UNSET
+    s3fs_executable_path: Union[Unset, str] = UNSET
+    object_storage_direct_mount: Union[Unset, bool] = UNSET
+    locality: Union[Unset, Any] = UNSET
 
     def to_dict(self) -> dict[str, Any]:
         template_id = self.template_id
@@ -53,6 +56,9 @@ class NewSandbox:
         storage_gb = self.storage_gb
         object_storage = self.object_storage
         net_proxy_country = self.net_proxy_country
+        s3fs_executable_path = self.s3fs_executable_path
+        object_storage_direct_mount = self.object_storage_direct_mount
+        locality = self.locality
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -81,6 +87,12 @@ class NewSandbox:
             field_dict["object_storage"] = object_storage
         if net_proxy_country is not UNSET:
             field_dict["net_proxy_country"] = net_proxy_country
+        if s3fs_executable_path is not UNSET:
+            field_dict["s3fs_executable_path"] = s3fs_executable_path
+        if object_storage_direct_mount is not UNSET:
+            field_dict["object_storage_direct_mount"] = object_storage_direct_mount
+        if locality is not UNSET:
+            field_dict["locality"] = locality
 
         return field_dict
 
@@ -113,6 +125,9 @@ class NewSandbox:
             storage_gb=d.pop("storage_gb", UNSET),
             object_storage=d.pop("object_storage", UNSET),
             net_proxy_country=d.pop("net_proxy_country", UNSET),
+            s3fs_executable_path=d.pop("s3fs_executable_path", UNSET),
+            object_storage_direct_mount=d.pop("object_storage_direct_mount", UNSET),
+            locality=d.pop("locality", UNSET),
         )
 
         new_sandbox.additional_properties = d

@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from httpx import Limits
 
@@ -34,8 +34,8 @@ class SandboxInfo:
     """Envd version."""
     _envd_access_token: Optional[str]
     """Envd access token."""
-    object_storage: Optional[Dict[str, str]]
-    """Object storage."""
+    object_storage: Optional[Any]
+    """Object storage (single mount dict, multi-mount list, or API-specific shape)."""
 
 
 @dataclass
@@ -64,8 +64,8 @@ class ListedSandbox:
     """Sandbox expiration date."""
     timeout: int
     """Sandbox timeout."""
-    object_storage: Optional[Dict[str, str]]
-    """Object storage."""
+    object_storage: Optional[Any]
+    """Object storage (single mount dict, multi-mount list, or API-specific shape)."""
 
 
 @dataclass

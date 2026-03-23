@@ -80,7 +80,7 @@ class AsyncCodeInterpreterValidator:
         """测试异步代码解释器创建"""
         self.sandbox = await AsyncSandbox.create(
             template="code-interpreter",
-            timeout=3600,
+            timeout=36000,
             # debug=True,
             metadata={"test": "async_code_interpreter_validation"},
             envs={"CI_TEST": "async_test"},

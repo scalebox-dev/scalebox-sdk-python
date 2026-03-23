@@ -1,6 +1,6 @@
 import datetime
 import urllib.parse
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Union
 
 from packaging.version import Version
 from typing_extensions import Unpack
@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 from ..api.client.api.sandboxes import post_sandboxes_sandbox_id_connect, post_sandboxes_sandbox_id_pause
 from ..api.client.models.connect_sandbox import ConnectSandbox
 from ..api import ApiClient, SandboxCreateResponse, handle_api_exception
+from ..api.client.types import UNSET
 from ..api.client.api.sandboxes import (
     delete_sandboxes_sandbox_id,
     get_sandboxes,
@@ -264,8 +265,11 @@ class SandboxApi(SandboxApiBase):
         headers: Optional[Dict[str, str]] = None,
         proxy: Optional[ProxyTypes] = None,
         allow_internet_access: Optional[bool] = True,
-        object_storage:Optional[Dict[str, str]]=None,
-        net_proxy_country:Optional[str]=None,
+        object_storage: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]] = None,
+        net_proxy_country: Optional[str] = None,
+        s3fs_executable_path: Optional[str] = None,
+        object_storage_direct_mount: Optional[bool] = None,
+        locality: Optional[Dict[str, Any]] = None,
     ) -> SandboxCreateResponse:
         config = ConnectionConfig(
             api_key=api_key,
@@ -287,6 +291,13 @@ class SandboxApi(SandboxApiBase):
                     allow_internet_access=allow_internet_access,
                     object_storage=object_storage,
                     net_proxy_country=net_proxy_country,
+                    s3fs_executable_path=s3fs_executable_path
+                    if s3fs_executable_path is not None
+                    else UNSET,
+                    object_storage_direct_mount=object_storage_direct_mount
+                    if object_storage_direct_mount is not None
+                    else UNSET,
+                    locality=locality if locality is not None else UNSET,
                 ),
                 client=api_client,
             )
