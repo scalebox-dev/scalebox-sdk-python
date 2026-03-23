@@ -28,6 +28,8 @@ from ..sandbox.sandbox_api import (
     SandboxInfo,
     SandboxMetrics,
     SandboxQuery,
+    ScaleboxRegion,
+    parse_scalebox_regions_response,
 )
 
 
@@ -109,6 +111,50 @@ class SandboxApi(SandboxApiBase):
             )
             for sandbox in res.parsed
         ]
+
+    @classmethod
+    async def get_regions(
+        cls,
+        api_key: Optional[str] = None,
+        domain: Optional[str] = None,
+        debug: Optional[bool] = None,
+        request_timeout: Optional[float] = None,
+        headers: Optional[Dict[str, str]] = None,
+        proxy: Optional[ProxyTypes] = None,
+    ) -> List[ScaleboxRegion]:
+        """
+        Fetch available Scalebox regions (``GET /scalebox-regions``).
+
+        Response shape: ``{ "success": true, "data": { "scalebox_regions": [ { "id", "name" }, ... ] } }``.
+
+        Use region ``id`` values with ``AsyncSandbox.create(..., locality={"region": "<id>", ...})``.
+
+        :return: List of :class:`ScaleboxRegion`
+        """
+        config = ConnectionConfig(
+            api_key=api_key,
+            domain=domain,
+            debug=debug,
+            request_timeout=request_timeout,
+            headers=headers,
+            proxy=proxy,
+        )
+        async with AsyncApiClient(
+            config,
+            limits=SandboxApiBase._limits,
+        ) as api_client:
+            client = api_client.get_async_httpx_client()
+            resp = await client.get("/scalebox-regions")
+
+        if resp.status_code >= 300:
+            raise handle_api_exception(resp)
+
+        body = resp.json()
+        if isinstance(body, dict) and body.get("success") is False:
+            msg = body.get("message") or body.get("error") or str(body)
+            raise SandboxException(f"scalebox-regions: {msg}")
+
+        return parse_scalebox_regions_response(body)
 
     @classmethod
     async def _cls_get_info(

@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from httpx import Limits
 
@@ -94,6 +94,35 @@ class SandboxMetrics:
     """Memory used in bytes."""
     timestamp: datetime
     """Timestamp of the metric entry."""
+
+
+@dataclass
+class ScaleboxRegion:
+    """One region from ``GET .../scalebox-regions`` (``data.scalebox_regions``)."""
+
+    id: str
+    name: str
+
+
+def parse_scalebox_regions_response(body: Any) -> List[ScaleboxRegion]:
+    """Parse JSON body ``{ success, data: { scalebox_regions: [...] } }`` into a list."""
+    if not isinstance(body, dict):
+        return []
+    data = body.get("data")
+    if not isinstance(data, dict):
+        return []
+    raw = data.get("scalebox_regions")
+    if not isinstance(raw, list):
+        return []
+    out: List[ScaleboxRegion] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        rid = item.get("id")
+        if rid is None:
+            continue
+        out.append(ScaleboxRegion(id=str(rid), name=str(item.get("name", ""))))
+    return out
 
 
 class SandboxApiBase(ABC):
