@@ -98,6 +98,7 @@ class TestGetRegionsLive(unittest.TestCase):
         regions = asyncio.run(_run())
         self.assertIsInstance(regions, list)
         for r in regions:
+            print(r)
             self.assertIsInstance(r, ScaleboxRegion)
             self.assertTrue(r.id)
 

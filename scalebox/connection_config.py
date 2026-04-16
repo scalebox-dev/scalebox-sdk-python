@@ -78,9 +78,10 @@ class ConnectionConfig:
     ):
         self.domain = domain or ConnectionConfig._domain()
         self.debug = debug or ConnectionConfig._debug()
+        if self.debug:
+            self.debug_host = debug_host or ConnectionConfig._debug_host()
         self.api_key = api_key or ConnectionConfig._api_key()
         self.access_token = access_token or ConnectionConfig._access_token()
-        self.debug_host = debug_host or ConnectionConfig._debug_host()
         self.headers = headers or {}
         # self.headers["User-Agent"] = f"csx-python-sdk/{package_version}"
 

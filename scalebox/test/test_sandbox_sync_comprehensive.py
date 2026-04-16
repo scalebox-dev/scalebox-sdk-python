@@ -81,6 +81,7 @@ class SandboxValidator:
             metadata={"test": "sync_validation"},
             envs={"TEST_ENV": "sync_test"},
         )
+        logger.info(f"sandbox: {self.sandbox.network_proxy()}")
         assert self.sandbox is not None
         assert self.sandbox.sandbox_id is not None
         logger.info(f"Created sandbox with ID: {self.sandbox.sandbox_id}")
